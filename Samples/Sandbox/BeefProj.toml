@@ -1,0 +1,6 @@
+FileVersion = 1
+Dependencies = {corlib = "*", "Sedulous.Framework" = "*", "Sedulous.Framework.SDL" = "*"}
+
+[Project]
+Name = "Sandbox"
+StartupObject = "Sandbox.Program"
