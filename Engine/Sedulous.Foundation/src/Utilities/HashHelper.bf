@@ -1,10 +1,9 @@
-namespace Sedulous.Foundation.Utilities
+namespace Sedulous.Foundation.Utilities;
+
+static class HashHelper
 {
-	static class HashHelper
+	public static int CombineHash(int first, int second)
 	{
-		public static int CombineHash(int first, int second)
-		{
-			return (first * 397) ^ second;
-		}
+		return (first * 397) ^ second;
 	}
 }

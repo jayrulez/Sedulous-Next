@@ -1,4 +1,5 @@
 FileVersion = 1
+Dependencies = {corlib = "*", "Sedulous.Core" = "*", "Sedulous.RHI" = "*"}
 
 [Project]
 Name = "Sedulous.Renderer"

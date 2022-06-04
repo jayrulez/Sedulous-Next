@@ -1,6 +1,5 @@
-namespace Sedulous.Core
+namespace Sedulous.Core;
+
+class Entity
 {
-	class Entity
-	{
-	}
 }

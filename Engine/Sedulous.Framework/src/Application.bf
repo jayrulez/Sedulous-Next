@@ -1,95 +1,95 @@
 using Sedulous.Core;
 using Sedulous.Foundation.Logging.Abstractions;
 using System;
-namespace Sedulous.Framework
+using System.Collections;
+namespace Sedulous.Framework;
+
+class ApplicationSettings : EngineSettings
 {
-	abstract class Application
+}
+
+abstract class Application
+{
+	private bool mIsRunning = false;
+	protected readonly Engine mEngine = null ~ delete _;
+	protected readonly ApplicationSettings mSettings;
+
+	public ILogger Logger => mEngine.Logger;
+
+	public this(ApplicationSettings settings)
 	{
-		private bool mIsRunning = false;
-		protected readonly Engine mEngine = null ~ delete _;
+		mSettings = settings;
+		mEngine = new Engine(mSettings);
+	}
 
-		public ILogger Logger => mEngine.Logger;
+	protected virtual Result<void> OnStartup() => .Ok;
 
-		public this(ILogger logger)
+	protected virtual Result<void> OnInitialize() => .Ok;
+
+	protected virtual void OnShutdown() => void();
+
+	protected virtual void OnFrameBegin() => void();
+
+	protected virtual void OnFrameEnd() => void();
+
+	private Result<void> Startup()
+	{
+		if (OnStartup() case .Err)
+			return .Err;
+
+		mEngine.Startup();
+
+		return .Ok;
+	}
+
+	private Result<void> Initialize()
+	{
+		if (OnInitialize() case .Err)
+			return .Err;
+
+		mEngine.Initialize();
+
+		return .Ok;
+	}
+
+	private void Shutdown()
+	{
+		mEngine.Shutdown();
+		OnShutdown();
+	}
+
+	private void RunFrame()
+	{
+		OnFrameBegin();
+		mEngine.Tick();
+		OnFrameEnd();
+	}
+
+	public void Run()
+	{
+		if (mIsRunning)
 		{
-			mEngine = new Engine(logger);
+			return;
 		}
 
-		protected virtual Result<void> OnStartup() => .Ok;
+		if (Startup() case .Err)
+			return;
 
-		protected virtual Result<void> OnInitialize() => .Ok;
+		if (Initialize() case .Err)
+			return;
 
-		protected virtual void OnShutdown()
+		mIsRunning = true;
+
+		while (mIsRunning)
 		{
+			RunFrame();
 		}
 
-		protected virtual void OnFrameBegin()
-		{
-		}
+		Shutdown();
+	}
 
-		protected virtual void OnFrameEnd()
-		{
-		}
-
-		private Result<void> Startup()
-		{
-			if(OnStartup() case .Err)
-				return .Err;
-
-			mEngine.Startup();
-
-			return .Ok;
-		}
-
-		private Result<void> Initialize()
-		{
-			if(OnInitialize() case .Err)
-				return .Err;
-
-			mEngine.Initialize();
-
-			return .Ok;
-		}
-
-		private void Shutdown()
-		{
-			OnShutdown();
-			mEngine.Shutdown();
-		}
-
-		private void RunFrame()
-		{
-			OnFrameBegin();
-			mEngine.Tick();
-			OnFrameEnd();
-		}
-
-		public void Run()
-		{
-			if (mIsRunning)
-			{
-				return;
-			}
-
-			if(Startup() case .Err)
-				return;
-
-			if(Initialize() case .Err)
-				return;
-
-			mIsRunning = true;
-
-			while (mIsRunning)
-			{
-				RunFrame();
-			}
-
-			Shutdown();
-		}
-
-		public void Stop()
-		{
-			mIsRunning = false;
-		}
+	public void Stop()
+	{
+		mIsRunning = false;
 	}
 }

@@ -1,12 +1,11 @@
 using Sedulous.Foundation.Logging.Console;
-namespace Sandbox
+namespace Sandbox;
+
+class Program
 {
-	class Program
+	public static void Main()
 	{
-		public static void Main()
-		{
-			var app = scope SandboxApplication("Sandbox", 1280, 720);
-			app.Run();
-		}
+		var app = scope SandboxApplication("Sandbox", 1280, 720);
+		app.Run();
 	}
 }
