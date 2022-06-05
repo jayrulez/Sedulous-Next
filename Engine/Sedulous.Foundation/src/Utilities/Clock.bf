@@ -1,9 +1,8 @@
-namespace Sedulous.Foundation.Utilities
+namespace Sedulous.Foundation.Utilities;
+
+class Clock
 {
-	class Clock
+	public void Update()
 	{
-		public void Update()
-		{
-		}
 	}
 }
