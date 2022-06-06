@@ -594,64 +594,73 @@ enum FormatSupportBits : uint16
 	VERTEX_BUFFER = SetBit(6)
 }
 
+[CRepr]
 struct Rect
 {
-	int32 left;
-	int32 top;
-	uint32 width;
-	uint32 height;
+	public int32 left;
+	public int32 top;
+	public uint32 width;
+	public uint32 height;
 }
 
+[CRepr]
 struct Viewport
 {
-	float[2] offset;
-	float[2] size;
-	float depthRangeMin;
-	float depthRangeMax;
+	public float[2] offset;
+	public float[2] size;
+	public float depthRangeMin;
+	public float depthRangeMax;
 }
 
+[CRepr]
 struct Color<T>
 {
-	T r, g, b, a;
+	public T r;
+	public T g;
+	public T b;
+	public T a;
 }
 
+[CRepr]
 struct DepthStencilClearValue
 {
-	float depth;
-	uint8 stencil;
+	public float depth;
+	public uint8 stencil;
 }
 
+[CRepr]
 [Union] struct ClearValueDesc
 {
-	DepthStencilClearValue depthStencil;
-	Color<float> rgba32f;
-	Color<uint32> rgba32ui;
-	Color<int32> rgba32i;
+	public DepthStencilClearValue depthStencil;
+	public Color<float> rgba32f;
+	public Color<uint32> rgba32ui;
+	public Color<int32> rgba32i;
 }
 
+[CRepr]
 struct ClearDesc
 {
-	ClearValueDesc value;
-	AttachmentContentType attachmentContentType;
-	uint32 colorAttachmentIndex;
+	public ClearValueDesc value;
+	public AttachmentContentType attachmentContentType;
+	public uint32 colorAttachmentIndex;
 }
 
 struct ClearStorageBufferDesc
 {
 	public readonly Descriptor storageBuffer;
-	uint32 value;
-	uint32 setIndex;
-	uint32 rangeIndex;
-	uint32 offsetInRange;
+	public uint32 value;
+	public uint32 setIndex;
+	public uint32 rangeIndex;
+	public uint32 offsetInRange;
 }
 
 struct ClearStorageTextureDesc
 {
 	public readonly Descriptor storageTexture;
-	ClearValueDesc value;
-	uint32 setIndex;
-	uint32 rangeIndex;
-	uint32 offsetInRange;
+	public ClearValueDesc value;
+	public uint32 setIndex;
+	public uint32 rangeIndex;
+	public uint32 offsetInRange;
 }
 
 struct TextureRegionDesc
@@ -706,9 +715,9 @@ struct MemoryDesc
 
 struct AddressModes
 {
-	AddressMode u;
-	AddressMode v;
-	AddressMode w;
+	public AddressMode u;
+	public AddressMode v;
+	public AddressMode w;
 }
 
 struct SamplerDesc
@@ -882,185 +891,185 @@ struct DynamicConstantBufferDesc
 
 struct StaticSamplerDesc
 {
-	SamplerDesc samplerDesc;
-	uint32 registerIndex;
-	ShaderStage visibility;
+	public SamplerDesc samplerDesc;
+	public uint32 registerIndex;
+	public ShaderStage visibility;
 }
 
 struct DescriptorSetDesc
 {
-	public readonly DescriptorRangeDesc* ranges;
-	uint32 rangeNum;
+	public DescriptorRangeDesc* ranges;
+	public uint32 rangeNum;
 	public readonly StaticSamplerDesc* staticSamplers;
-	uint32 staticSamplerNum;
-	public readonly DynamicConstantBufferDesc* dynamicConstantBuffers;
-	uint32 dynamicConstantBufferNum;
+	public uint32 staticSamplerNum;
+	public DynamicConstantBufferDesc* dynamicConstantBuffers;
+	public uint32 dynamicConstantBufferNum;
 }
 
 struct DescriptorRangeUpdateDesc
 {
 	public readonly Descriptor* descriptors;
-	uint32 descriptorNum;
-	uint32 offsetInRange;
+	public uint32 descriptorNum;
+	public uint32 offsetInRange;
 }
 
 struct DescriptorSetCopyDesc
 {
 	public readonly DescriptorSet srcDescriptorSet;
-	uint32 baseSrcRange;
-	uint32 baseDstRange;
-	uint32 rangeNum;
-	uint32 baseSrcDynamicConstantBuffer;
-	uint32 baseDstDynamicConstantBuffer;
-	uint32 dynamicConstantBufferNum;
-	uint32 physicalDeviceMask;
+	public uint32 baseSrcRange;
+	public uint32 baseDstRange;
+	public uint32 rangeNum;
+	public uint32 baseSrcDynamicConstantBuffer;
+	public uint32 baseDstDynamicConstantBuffer;
+	public uint32 dynamicConstantBufferNum;
+	public uint32 physicalDeviceMask;
 }
 
 struct PushConstantDesc
 {
-	uint32 registerIndex;
-	uint32 size;
-	ShaderStage visibility;
+	public uint32 registerIndex;
+	public uint32 size;
+	public ShaderStage visibility;
 }
 
 struct SPIRVBindingOffsets
 {
-	uint32 samplerOffset;
-	uint32 textureOffset;
-	uint32 constantBufferOffset;
-	uint32 storageTextureAndBufferOffset;
+	public uint32 samplerOffset;
+	public uint32 textureOffset;
+	public uint32 constantBufferOffset;
+	public uint32 storageTextureAndBufferOffset;
 }
 
 struct ShaderDesc
 {
-	ShaderStage stage;
+	public ShaderStage stage;
 	public readonly void* bytecode;
-	uint64 size;
-	char8* entryPointName;
+	public uint64 size;
+	public char8* entryPointName;
 }
 
 struct VertexAttributeD3D
 {
-	char8* semanticName;
-	uint32 semanticIndex;
+	public char8* semanticName;
+	public uint32 semanticIndex;
 }
 
 struct VertexAttributeVK
 {
-	uint32 location;
+	public uint32 location;
 }
 
 struct VertexAttributeDesc
 {
-	VertexAttributeD3D d3d;
-	VertexAttributeVK vk;
-	uint32 offset;
-	Format format;
-	uint16 streamIndex;
+	public VertexAttributeD3D d3d;
+	public VertexAttributeVK vk;
+	public uint32 offset;
+	public Format format;
+	public uint16 streamIndex;
 }
 
 struct VertexStreamDesc
 {
-	uint32 stride;
-	uint16 bindingSlot;
-	VertexStreamStepRate stepRate;
+	public uint32 stride;
+	public uint16 bindingSlot;
+	public VertexStreamStepRate stepRate;
 }
 
 struct InputAssemblyDesc
 {
 	public readonly VertexAttributeDesc* attributes;
 	public readonly VertexStreamDesc* streams;
-	uint8 attributeNum;
-	uint8 streamNum;
-	Topology topology;
-	uint8 tessControlPointNum;
-	PrimitiveRestart primitiveRestart;
+	public uint8 attributeNum;
+	public uint8 streamNum;
+	public Topology topology;
+	public uint8 tessControlPointNum;
+	public PrimitiveRestart primitiveRestart;
 }
 
 struct SamplePosition
 {
-	int8 x;
-	int8 y;
+	public int8 x;
+	public int8 y;
 }
 
 struct RasterizationDesc
 {
-	uint32 viewportNum;
-	int32 depthBiasConstantFactor;
-	float depthBiasClamp;
-	float depthBiasSlopeFactor;
-	FillMode fillMode;
-	CullMode cullMode;
-	uint16 sampleMask;
-	uint8 sampleNum;
-	bool alphaToCoverage;
-	bool frontCounterClockwise;
-	bool depthClamp;
-	bool antialiasedLines;
-	bool rasterizerDiscard;
-	bool conservativeRasterization;
+	public uint32 viewportNum;
+	public int32 depthBiasConstantFactor;
+	public float depthBiasClamp;
+	public float depthBiasSlopeFactor;
+	public FillMode fillMode;
+	public CullMode cullMode;
+	public uint16 sampleMask;
+	public uint8 sampleNum;
+	public bool alphaToCoverage;
+	public bool frontCounterClockwise;
+	public bool depthClamp;
+	public bool antialiasedLines;
+	public bool rasterizerDiscard;
+	public bool conservativeRasterization;
 }
 
 struct StencilDesc
 {
-	CompareFunc compareFunc;
-	StencilFunc fail;
-	StencilFunc pass;
-	StencilFunc depthFail;
+	public CompareFunc compareFunc;
+	public StencilFunc fail;
+	public StencilFunc pass;
+	public StencilFunc depthFail;
 }
 
 struct BlendingDesc
 {
-	BlendFactor srcFactor;
-	BlendFactor dstFactor;
-	BlendFunc func;
+	public BlendFactor srcFactor;
+	public BlendFactor dstFactor;
+	public BlendFunc func;
 }
 
 struct ColorAttachmentDesc
 {
-	Format format;
-	BlendingDesc colorBlend;
-	BlendingDesc alphaBlend;
-	ColorWriteBits colorWriteMask;
-	bool blendEnabled;
+	public Format format;
+	public BlendingDesc colorBlend;
+	public BlendingDesc alphaBlend;
+	public ColorWriteBits colorWriteMask;
+	public bool blendEnabled;
 }
 
 // CompareFunc::NONE = depth/stencil test disabled
 
 struct DepthAttachmentDesc
 {
-	CompareFunc compareFunc;
-	bool write;
+	public CompareFunc compareFunc;
+	public bool write;
 }
 
 struct StencilAttachmentDesc
 {
-	StencilDesc front;
-	StencilDesc back;
-	uint8 reference;
-	uint8 compareMask;
-	uint8 writeMask;
+	public StencilDesc front;
+	public StencilDesc back;
+	public uint8 reference;
+	public uint8 compareMask;
+	public uint8 writeMask;
 }
 
 struct OutputMergerDesc
 {
 	public readonly ColorAttachmentDesc* color;
-	DepthAttachmentDesc depth;
-	StencilAttachmentDesc stencil;
-	Format depthStencilFormat;
-	LogicFunc colorLogicFunc;
-	uint32 colorNum;
-	Color<float> blendConsts;
+	public DepthAttachmentDesc depth;
+	public StencilAttachmentDesc stencil;
+	public Format depthStencilFormat;
+	public LogicFunc colorLogicFunc;
+	public uint32 colorNum;
+	public Color<float> blendConsts;
 }
 
 struct PipelineLayoutDesc
 {
 	public readonly DescriptorSetDesc* descriptorSets;
 	public readonly PushConstantDesc* pushConstants;
-	uint32 descriptorSetNum;
-	uint32 pushConstantNum;
-	PipelineLayoutShaderStageBits stageMask;
-	bool ignoreGlobalSPIRVOffsets;
+	public uint32 descriptorSetNum;
+	public uint32 pushConstantNum;
+	public PipelineLayoutShaderStageBits stageMask;
+	public bool ignoreGlobalSPIRVOffsets;
 }
 
 struct GraphicsPipelineDesc
@@ -1070,13 +1079,13 @@ struct GraphicsPipelineDesc
 	public readonly RasterizationDesc* rasterization;
 	public readonly OutputMergerDesc* outputMerger;
 	public readonly ShaderDesc* shaderStages;
-	uint32 shaderStageNum;
+	public uint32 shaderStageNum;
 }
 
 struct ComputePipelineDesc
 {
 	public readonly PipelineLayout pipelineLayout;
-	ShaderDesc computeShader;
+	public ShaderDesc computeShader;
 }
 
 struct FrameBufferDesc
@@ -1085,31 +1094,31 @@ struct FrameBufferDesc
 	public readonly Descriptor depthStencilAttachment;
 	public readonly ClearValueDesc* colorClearValues;
 	public readonly ClearValueDesc* depthStencilClearValue;
-	uint32 colorAttachmentNum;
-	uint32 physicalDeviceMask;
+	public uint32 colorAttachmentNum;
+	public uint32 physicalDeviceMask;
 }
 
 struct QueryPoolDesc
 {
-	QueryType queryType;
-	uint32 capacity;
-	PipelineStatsBits pipelineStatsMask;
-	uint32 physicalDeviceMask;
+	public QueryType queryType;
+	public uint32 capacity;
+	public PipelineStatsBits pipelineStatsMask;
+	public uint32 physicalDeviceMask;
 }
 
 struct PipelineStatisticsDesc
 {
-	uint64 inputVertices;
-	uint64 inputPrimitives;
-	uint64 vertexShaderInvocations;
-	uint64 geometryShaderInvocations;
-	uint64 geometryShaderPrimitives;
-	uint64 rasterizerInPrimitives;
-	uint64 rasterizerOutPrimitives;
-	uint64 fragmentShaderInvocations;
-	uint64 tessControlInvocations;
-	uint64 tessEvaluationInvocations;
-	uint64 computeShaderInvocations;
+	public uint64 inputVertices;
+	public uint64 inputPrimitives;
+	public uint64 vertexShaderInvocations;
+	public uint64 geometryShaderInvocations;
+	public uint64 geometryShaderPrimitives;
+	public uint64 rasterizerInPrimitives;
+	public uint64 rasterizerOutPrimitives;
+	public uint64 fragmentShaderInvocations;
+	public uint64 tessControlInvocations;
+	public uint64 tessEvaluationInvocations;
+	public uint64 computeShaderInvocations;
 }
 
 struct DeviceDesc
@@ -1311,7 +1320,9 @@ struct ResourceGroupDesc
 #endregion
 
 #region SwapChain
-struct Display;
+struct Display
+{
+}
 
 enum SwapChainFormat : uint16
 {
@@ -1778,8 +1789,9 @@ struct MemoryTypeInfo
 {
 	public uint16 memoryTypeIndex;
 	public uint8 location;
-	public bool isDedicated;
-	public bool isHostCoherent;
+	[Bitfield<bool>(.Public, .Bits(1), "isDedicated")]
+	[Bitfield<bool>(.Public, .Bits(1), "isHostCoherent")]
+	private uint8 bits;
 }
 
 
@@ -1791,6 +1803,7 @@ struct MemoryTypeInfo
 
 public static
 {
+	[Comptime(ConstEval = true)]
 	public static void Asserts()
 	{
 		Compiler.Assert(sizeof(MemoryTypeInfo) <= sizeof(MemoryType), "Unexpected structure size");
@@ -1805,6 +1818,194 @@ public static
 	{
 		return mask == WHOLE_DEVICE_GROUP ? 0xff : mask;
 	}
+
+	public const uint32[(int)Format.MAX_NUM] TEXEL_BLOCK_WIDTH = .(
+		0, // UNKNOWN
+
+		1, // R8_UNORM
+		1, // R8_SNORM
+		1, // R8_UINT
+		1, // R8_SINT
+
+		1, // RG8_UNORM
+		1, // RG8_SNORM
+		1, // RG8_UINT
+		1, // RG8_SINT
+
+		1, // BGRA8_UNORM
+		1, // BGRA8_SRGB
+
+		1, // RGBA8_UNORM
+		1, // RGBA8_SNORM
+		1, // RGBA8_UINT
+		1, // RGBA8_SINT
+		1, // RGBA8_SRGB
+
+		1, // R16_UNORM
+		1, // R16_SNORM
+		1, // R16_UINT
+		1, // R16_SINT
+		1, // R16_SFLOAT
+
+		1, // RG16_UNORM
+		1, // RG16_SNORM
+		1, // RG16_UINT
+		1, // RG16_SINT
+		1, // RG16_SFLOAT
+
+		1, // RGBA16_UNORM
+		1, // RGBA16_SNORM
+		1, // RGBA16_UINT
+		1, // RGBA16_SINT
+		1, // RGBA16_SFLOAT
+
+		1, // R32_UINT
+		1, // R32_SINT
+		1, // R32_SFLOAT
+
+		1, // RG32_UINT
+		1, // RG32_SINT
+		1, // RG32_SFLOAT
+
+		1, // RGB32_UINT
+		1, // RGB32_SINT
+		1, // RGB32_SFLOAT
+
+		1, // RGBA32_UINT
+		1, // RGBA32_SINT
+		1, // RGBA32_SFLOAT
+
+		1, // R10_G10_B10_A2_UNORM
+		1, // R10_G10_B10_A2_UINT
+		1, // R11_G11_B10_UFLOAT
+		1, // R9_G9_B9_E5_UFLOAT
+
+		4, // BC1_RGBA_UNORM
+		4, // BC1_RGBA_SRGB
+		4, // BC2_RGBA_UNORM
+		4, // BC2_RGBA_SRGB
+		4, // BC3_RGBA_UNORM
+		4, // BC3_RGBA_SRGB
+		4, // BC4_R_UNORM
+		4, // BC4_R_SNORM
+		4, // BC5_RG_UNORM
+		4, // BC5_RG_SNORM
+		4, // BC6H_RGB_UFLOAT
+		4, // BC6H_RGB_SFLOAT
+		4, // BC7_RGBA_UNORM
+		4, // BC7_RGBA_SRGB
+
+		// DEPTH_STENCIL_ATTACHMENT views
+		1, // D16_UNORM
+		1, // D24_UNORM_S8_UINT
+		1, // D32_SFLOAT
+		1, // D32_SFLOAT_S8_UINT_X24
+
+		// Depth-stencil specific SHADER_RESOURCE views
+		0, // R24_UNORM_X8
+		0, // X24_R8_UINT
+		0, // X32_R8_UINT_X24
+		0 // R32_SFLOAT_X8_X24
+		);
+
+	public static uint32 GetTexelBlockWidth(Format format)
+	{
+		return TEXEL_BLOCK_WIDTH[(int)format];
+	}
+
+	public const uint32[(int)Format.MAX_NUM] TEXEL_BLOCK_SIZE = .(
+		1, // UNKNOWN
+
+		1, // R8_UNORM
+		1, // R8_SNORM
+		1, // R8_UINT
+		1, // R8_SINT
+
+		2, // RG8_UNORM
+		2, // RG8_SNORM
+		2, // RG8_UINT
+		2, // RG8_SINT
+
+		4, // BGRA8_UNORM
+		4, // BGRA8_SRGB
+
+		4, // RGBA8_UNORM
+		4, // RGBA8_SNORM
+		4, // RGBA8_UINT
+		4, // RGBA8_SINT
+		4, // RGBA8_SRGB
+
+		2, // R16_UNORM
+		2, // R16_SNORM
+		2, // R16_UINT
+		2, // R16_SINT
+		2, // R16_SFLOAT
+
+		4, // RG16_UNORM
+		4, // RG16_SNORM
+		4, // RG16_UINT
+		4, // RG16_SINT
+		4, // RG16_SFLOAT
+
+		8, // RGBA16_UNORM
+		8, // RGBA16_SNORM
+		8, // RGBA16_UINT
+		8, // RGBA16_SINT
+		8, // RGBA16_SFLOAT
+
+		4, // R32_UINT
+		4, // R32_SINT
+		4, // R32_SFLOAT
+
+		8, // RG32_UINT
+		8, // RG32_SINT
+		8, // RG32_SFLOAT
+
+		12, // RGB32_UINT
+		12, // RGB32_SINT
+		12, // RGB32_SFLOAT
+
+		16, // RGBA32_UINT
+		16, // RGBA32_SINT
+		16, // RGBA32_SFLOAT
+
+		4, // R10_G10_B10_A2_UNORM
+		4, // R10_G10_B10_A2_UINT
+		4, // R11_G11_B10_UFLOAT
+		4, // R9_G9_B9_E5_UFLOAT
+
+		8, // BC1_RGBA_UNORM
+		8, // BC1_RGBA_SRGB
+		16, // BC2_RGBA_UNORM
+		16, // BC2_RGBA_SRGB
+		16, // BC3_RGBA_UNORM
+		16, // BC3_RGBA_SRGB
+		8, // BC4_R_UNORM
+		8, // BC4_R_SNORM
+		16, // BC5_RG_UNORM
+		16, // BC5_RG_SNORM
+		16, // BC6H_RGB_UFLOAT
+		16, // BC6H_RGB_SFLOAT
+		16, // BC7_RGBA_UNORM
+		16, // BC7_RGBA_SRGB
+
+		// DEPTH_STENCIL_ATTACHMENT views
+		2, // D16_UNORM
+		4, // D24_UNORM_S8_UINT
+		4, // D32_SFLOAT
+		8, // D32_SFLOAT_S8_UINT_X24
+
+		// Depth-stencil specific SHADER_RESOURCE views
+		0, // R24_UNORM_X8
+		0, // X24_R8_UINT
+		0, // X32_R8_UINT_X24
+		0 // R32_SFLOAT_X8_X24
+		);
+
+	public static uint32 GetTexelBlockSize(Format format)
+	{
+		return TEXEL_BLOCK_SIZE[(int)format];
+	}
 }
 
 #endregion
@@ -1817,10 +2018,15 @@ public static
 		//where int : operator implicit T
 		where T : var
 	{
+		//return ((x) + (alignment - 1)) & ~(alignment - 1);
+
 		return (T)(((int)x + alignment - 1) & ~(alignment - 1));
 	}
 
-
+	[Inline] public static uint8* Align(uint8* x, int alignment)
+	{
+		return (uint8*)(void*)(((int)(void*)x + alignment - 1) & ~(alignment - 1));
+	}
 
 	public static mixin STACK_ALLOC<T>(int size) where T : struct
 	{

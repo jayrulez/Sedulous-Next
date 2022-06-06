@@ -354,7 +354,7 @@ class DeviceVK : Device
 
 		CheckSupportedInstanceExtensions(extensions);
 
-		readonly VkApplicationInfo appInfo = .()
+		VkApplicationInfo appInfo = .()
 			{
 				sType = .VK_STRUCTURE_TYPE_APPLICATION_INFO,
 				pNext = null,
@@ -365,7 +365,7 @@ class DeviceVK : Device
 				apiVersion = VulkanNative.VK_API_VERSION_1_3
 			};
 
-		readonly VkInstanceCreateInfo info = .()
+		VkInstanceCreateInfo info = .()
 			{
 				sType = .VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO,
 				pNext = null,
@@ -457,7 +457,7 @@ class DeviceVK : Device
 		RETURN_ON_FAILURE!(GetLogger(), i != deviceGroupNum, Result.UNSUPPORTED,
 			"Can't create a device: physical device not found.");
 
-		readonly ref VkPhysicalDeviceGroupProperties group = ref deviceGroups[i];
+		/*readonly*/ ref VkPhysicalDeviceGroupProperties group = ref deviceGroups[i];
 
 		m_IsSubsetAllocationSupported = true;
 		if (group.subsetAllocation == VK_FALSE && group.physicalDeviceCount > 1)
@@ -587,7 +587,7 @@ class DeviceVK : Device
 		deviceFeatures2.features.occlusionQueryPrecise = false;
 
 		List<VkDeviceQueueCreateInfo> queues = scope .();
-		readonly float priorities = 1.0f;
+		/*readonly*/ float priorities = 1.0f;
 		for (int i = 0; i < m_FamilyIndices.Count; i++)
 		{
 			if (m_FamilyIndices[i] == uint32.MaxValue)
@@ -1671,7 +1671,7 @@ class DeviceVK : Device
 	public Result CreateGraphicsPipeline(VkPipeline vkPipeline, out Pipeline pipeline)
 	{
 		PipelineVK implementation = Allocate!<PipelineVK>(GetDeviceAllocator(), this);
-		const Result result = implementation.CreateGraphics(vkPipeline);
+		readonly Result result = implementation.CreateGraphics(vkPipeline);
 
 		if (result != Result.SUCCESS)
 		{

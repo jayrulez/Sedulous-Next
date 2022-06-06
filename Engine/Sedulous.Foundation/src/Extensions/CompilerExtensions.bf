@@ -2,7 +2,7 @@ namespace System;
 
 extension Compiler
 {
-	[Comptime]
+	[Comptime(ConstEval=true)]
 	public static void Assert(bool cond, String message)
 	{
 		if (!cond)

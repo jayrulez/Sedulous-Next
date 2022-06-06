@@ -41,7 +41,7 @@ namespace Sedulous.RHI.Helpers
 			if (result != Result.SUCCESS)
 				return result;
 
-			readonly BufferMemoryBindingDesc bufferMemoryBindingDesc = .() { memory = m_UploadBufferMemory, buffer = m_UploadBuffer, offset = 0 };
+			/*readonly*/ BufferMemoryBindingDesc bufferMemoryBindingDesc = .() { memory = m_UploadBufferMemory, buffer = m_UploadBuffer, offset = 0 };
 			result = m_Device.BindBufferMemory(&bufferMemoryBindingDesc, 1);
 			if (result != Result.SUCCESS)
 				return result;

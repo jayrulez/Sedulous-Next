@@ -1,4 +1,8 @@
 using Bulkan;
+using System;
+using System.Collections;
+using static Bulkan.VulkanNative;
+using static Sedulous.RHI.Vulkan.VulkanUtils;
 namespace Sedulous.RHI.Vulkan
 {
 	class AccelerationStructureVK : AccelerationStructure
@@ -16,9 +20,181 @@ namespace Sedulous.RHI.Vulkan
 
 		//////////////////////////////Private Methods//////////////////////////////
 
+		private void PrecreateBottomLevel(in AccelerationStructureDesc accelerationStructureDesc)
+		{
+			const VkAccelerationStructureBuildTypeKHR buildType = .VK_ACCELERATION_STRUCTURE_BUILD_TYPE_DEVICE_KHR;
+
+			VkAccelerationStructureBuildGeometryInfoKHR buildInfo = .() { };
+			buildInfo.sType = .VK_STRUCTURE_TYPE_ACCELERATION_STRUCTURE_BUILD_GEOMETRY_INFO_KHR;
+			buildInfo.type = m_Type;
+			buildInfo.flags = m_BuildFlags;
+			buildInfo.geometryCount = accelerationStructureDesc.instanceOrGeometryObjectNum;
+
+			VkAccelerationStructureBuildSizesInfoKHR sizeInfo = .() { };
+			sizeInfo.sType = .VK_STRUCTURE_TYPE_ACCELERATION_STRUCTURE_BUILD_SIZES_INFO_KHR;
+
+			List<VkAccelerationStructureGeometryKHR> geometries = scope .();
+			uint32* primitiveMaxNums = ALLOCATE_SCRATCH!<uint32>(m_Device, accelerationStructureDesc.instanceOrGeometryObjectNum);
+
+			geometries.Resize(accelerationStructureDesc.instanceOrGeometryObjectNum);
+			ConvertGeometryObjectSizesVK(0, geometries.Ptr, primitiveMaxNums, accelerationStructureDesc.geometryObjects, (uint32)geometries.Count);
+			buildInfo.pGeometries = geometries.Ptr;
+
+			vkGetAccelerationStructureBuildSizesKHR(m_Device, buildType, &buildInfo, primitiveMaxNums, &sizeInfo);
+
+			m_BuildScratchSize = sizeInfo.buildScratchSize;
+			m_UpdateScratchSize = sizeInfo.updateScratchSize;
+			m_AccelerationStructureSize = sizeInfo.accelerationStructureSize;
+
+			FREE_SCRATCH!(m_Device, primitiveMaxNums, accelerationStructureDesc.instanceOrGeometryObjectNum);
+		}
+
+		private void PrecreateTopLevel(in AccelerationStructureDesc accelerationStructureDesc)
+		{
+			const VkAccelerationStructureBuildTypeKHR buildType = .VK_ACCELERATION_STRUCTURE_BUILD_TYPE_DEVICE_KHR;
+
+			VkAccelerationStructureGeometryKHR geometry = .() { };
+			geometry.sType = .VK_STRUCTURE_TYPE_ACCELERATION_STRUCTURE_GEOMETRY_KHR;
+			geometry.geometryType = .VK_GEOMETRY_TYPE_INSTANCES_KHR;
+			geometry.geometry.triangles.sType = .VK_STRUCTURE_TYPE_ACCELERATION_STRUCTURE_GEOMETRY_TRIANGLES_DATA_KHR;
+			geometry.geometry.aabbs.sType = .VK_STRUCTURE_TYPE_ACCELERATION_STRUCTURE_GEOMETRY_AABBS_DATA_KHR;
+			geometry.geometry.instances.sType = .VK_STRUCTURE_TYPE_ACCELERATION_STRUCTURE_GEOMETRY_INSTANCES_DATA_KHR;
+
+			VkAccelerationStructureBuildGeometryInfoKHR buildInfo = .() { };
+			buildInfo.sType = .VK_STRUCTURE_TYPE_ACCELERATION_STRUCTURE_BUILD_GEOMETRY_INFO_KHR;
+			buildInfo.type = m_Type;
+			buildInfo.flags = m_BuildFlags;
+			buildInfo.geometryCount = 1;
+			buildInfo.pGeometries = &geometry;
+
+			/*readonly*/ uint32 instanceMaxNum = accelerationStructureDesc.instanceOrGeometryObjectNum;
+
+			VkAccelerationStructureBuildSizesInfoKHR sizeInfo = .() { };
+			sizeInfo.sType = .VK_STRUCTURE_TYPE_ACCELERATION_STRUCTURE_BUILD_SIZES_INFO_KHR;
+
+			vkGetAccelerationStructureBuildSizesKHR(m_Device, buildType, &buildInfo, &instanceMaxNum, &sizeInfo);
+
+			m_BuildScratchSize = sizeInfo.buildScratchSize;
+			m_UpdateScratchSize = sizeInfo.updateScratchSize;
+			m_AccelerationStructureSize = sizeInfo.accelerationStructureSize;
+		}
 		///////////////////////////////////////////////////////////////////////////
 
 		/////////////////////////////Internal Methods//////////////////////////////
+		public readonly ref DeviceVK GetDevice() => ref m_Device;
+
+		public Result Create(in AccelerationStructureDesc accelerationStructureDesc)
+		{
+			m_Type = GetAccelerationStructureType(accelerationStructureDesc.type);
+			m_BuildFlags = GetAccelerationStructureBuildFlags(accelerationStructureDesc.flags);
+
+			uint32 physicalDeviceMask = accelerationStructureDesc.physicalDeviceMask;
+			physicalDeviceMask = (physicalDeviceMask == WHOLE_DEVICE_GROUP) ? 0xff : physicalDeviceMask;
+			m_PhysicalDeviceMask = physicalDeviceMask;
+
+			if (accelerationStructureDesc.type == AccelerationStructureType.BOTTOM_LEVEL)
+				PrecreateBottomLevel(accelerationStructureDesc);
+			else
+				PrecreateTopLevel(accelerationStructureDesc);
+
+			BufferDesc bufferDesc = .() { };
+			bufferDesc.physicalDeviceMask = m_PhysicalDeviceMask;
+			bufferDesc.size = m_AccelerationStructureSize;
+			bufferDesc.usageMask = BufferUsageBits.RAY_TRACING_BUFFER;
+
+			Buffer buffer = null;
+			readonly Result result = m_Device.CreateBuffer(bufferDesc, out buffer);
+			m_Buffer = (BufferVK)buffer;
+
+			return result;
+		}
+
+		public Result FinishCreation()
+		{
+			if (m_Buffer == null)
+				return Result.FAILURE;
+
+			VkAccelerationStructureCreateInfoKHR accelerationStructureCreateInfo = .() { };
+			accelerationStructureCreateInfo.sType = .VK_STRUCTURE_TYPE_ACCELERATION_STRUCTURE_CREATE_INFO_KHR;
+			accelerationStructureCreateInfo.type = m_Type;
+			accelerationStructureCreateInfo.size = m_AccelerationStructureSize;
+
+			for (uint32 i = 0; i < m_Device.GetPhyiscalDeviceGroupSize(); i++)
+			{
+				if ((1 << i) & m_PhysicalDeviceMask != 0)
+				{
+					accelerationStructureCreateInfo.buffer = m_Buffer.GetHandle(i);
+
+					readonly VkResult result = vkCreateAccelerationStructureKHR(m_Device, &accelerationStructureCreateInfo,
+						m_Device.GetAllocationCallbacks(), &m_Handles[i]);
+
+					RETURN_ON_FAILURE!(m_Device.GetLogger(), result == .VK_SUCCESS, GetReturnCode(result),
+						"Can't create an acceleration structure: vkCreateAccelerationStructureKHR returned {0}.", (int32)result);
+
+					VkAccelerationStructureDeviceAddressInfoKHR deviceAddressInfo = .() { };
+					deviceAddressInfo.sType = .VK_STRUCTURE_TYPE_ACCELERATION_STRUCTURE_DEVICE_ADDRESS_INFO_KHR;
+					deviceAddressInfo.accelerationStructure = m_Handles[i];
+
+					m_DeviceAddresses[i] = vkGetAccelerationStructureDeviceAddressKHR(m_Device, &deviceAddressInfo);
+				}
+			}
+
+			return Result.SUCCESS;
+		}
+
+		public VkAccelerationStructureKHR GetHandle(uint32 physicalDeviceIndex) => m_Handles[physicalDeviceIndex];
+
+		public BufferVK GetBuffer() => m_Buffer;
 		///////////////////////////////////////////////////////////////////////////
+
+		public this(DeviceVK device)
+		{
+			m_Device = device;
+		}
+
+		public ~this()
+		{
+			for (uint32 i = 0; i < m_Handles.Count; i++)
+			{
+				if (m_Handles[i] != .Null)
+					vkDestroyAccelerationStructureKHR(m_Device, m_Handles[i], m_Device.GetAllocationCallbacks());
+			}
+
+			if (m_Buffer != null)
+			{
+				Buffer buffer = m_Buffer;
+				m_Device.DestroyBuffer(ref buffer);
+			}
+		}
+
+		public override void SetDebugName(in StringView name)
+		{
+			uint64[PHYSICAL_DEVICE_GROUP_MAX_SIZE] handles = .();
+			for (int i = 0; i < handles.Count; i++)
+				handles[i] = (uint64)m_Handles[i].Handle;
+
+			m_Device.SetDebugNameToDeviceGroupObject(.VK_OBJECT_TYPE_ACCELERATION_STRUCTURE_KHR, &handles, name);
+			m_Buffer.SetDebugName(name);
+		}
+
+		public override void GetMemoryInfo(ref MemoryDesc memoryDesc)
+		{
+			m_Buffer.GetMemoryInfo(MemoryLocation.DEVICE, ref memoryDesc);
+		}
+
+		public override uint64 GetUpdateScratchBufferSize() => m_UpdateScratchSize;
+
+		public override uint64 GetBuildScratchBufferSize() => m_BuildScratchSize;
+
+		public override uint64 GetNativeHandle(uint32 physicalDeviceIndex) => m_DeviceAddresses[physicalDeviceIndex];
+
+		public override Result CreateDescriptor(uint32 physicalDeviceMask, out Descriptor descriptor)
+		{
+			DescriptorVK descriptorImpl = Allocate!<DescriptorVK>(m_Device.GetDeviceAllocator(), m_Device);
+			descriptorImpl.Create(&m_Handles, physicalDeviceMask);
+			descriptor = (Descriptor)descriptorImpl;
+
+			return Result.SUCCESS;
+		}
 	}
 }

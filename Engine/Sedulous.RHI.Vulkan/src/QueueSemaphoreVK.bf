@@ -20,7 +20,7 @@ namespace Sedulous.RHI.Vulkan
 
 		public readonly ref DeviceVK GetDevice() => ref m_Device;
 
-		Result Create()
+		public Result Create()
 		{
 			m_OwnsNativeObjects = true;
 

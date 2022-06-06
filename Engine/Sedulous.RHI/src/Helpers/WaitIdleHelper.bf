@@ -6,7 +6,7 @@ namespace Sedulous.RHI.Helpers
 		private readonly CommandQueue m_CommandQueue;
 		private DeviceSemaphore m_DeviceSemaphore = null;
 
-		public this(ref Device device, ref CommandQueue commandQueue)
+		public this(Device device, CommandQueue commandQueue)
 		{
 			m_Device = device;
 			m_CommandQueue = commandQueue;

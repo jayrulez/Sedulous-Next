@@ -92,7 +92,7 @@ namespace Sedulous.RHI.Helpers
 
 		private Result ProcessDedicatedResources(MemoryLocation memoryLocation, Memory* allocations, ref int allocationNum)
 		{
-			const uint64 zeroOffset = 0;
+			/*const*/ uint64 zeroOffset = 0;
 			MemoryDesc memoryDesc = .(){};
 
 			for (int i = 0; i < m_DedicatedBuffers.Count; i++)

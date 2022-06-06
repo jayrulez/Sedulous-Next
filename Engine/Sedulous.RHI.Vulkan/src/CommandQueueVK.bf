@@ -129,7 +129,7 @@ namespace Sedulous.RHI.Vulkan
 
 		public override void Wait(ref DeviceSemaphore deviceSemaphore)
 		{
-			readonly VkFence fence = (DeviceSemaphoreVK)deviceSemaphore;
+			/*readonly*/ VkFence fence = (DeviceSemaphoreVK)deviceSemaphore;
 
 			const uint64 tenSeconds = 10000000000;
 
