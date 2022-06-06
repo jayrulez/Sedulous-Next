@@ -713,30 +713,30 @@ struct AddressModes
 
 struct SamplerDesc
 {
-	Filter magnification;
-	Filter minification;
-	Filter mip;
-	FilterExt filterExt;
-	uint32 anisotropy;
-	float mipBias;
-	float mipMin;
-	float mipMax;
-	AddressModes addressModes;
-	CompareFunc compareFunc;
-	BorderColor borderColor;
-	bool unnormalizedCoordinates;
+	public Filter magnification;
+	public Filter minification;
+	public Filter mip;
+	public FilterExt filterExt;
+	public uint32 anisotropy;
+	public float mipBias;
+	public float mipMin;
+	public float mipMax;
+	public AddressModes addressModes;
+	public CompareFunc compareFunc;
+	public BorderColor borderColor;
+	public bool unnormalizedCoordinates;
 }
 
 struct TextureDesc
 {
-	TextureType type;
-	TextureUsageBits usageMask;
-	Format format;
-	uint16[3] size;
-	uint16 mipNum;
-	uint16 arraySize;
-	uint8 sampleNum;
-	uint32 physicalDeviceMask;
+	public TextureType type;
+	public TextureUsageBits usageMask;
+	public Format format;
+	public uint16[3] size;
+	public uint16 mipNum;
+	public uint16 arraySize;
+	public uint8 sampleNum;
+	public uint32 physicalDeviceMask;
 }
 
 struct BufferDesc

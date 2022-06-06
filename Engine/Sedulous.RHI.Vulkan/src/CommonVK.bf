@@ -53,9 +53,9 @@ struct BufferVulkanDesc
 struct TextureVulkanDesc
 {
 	public VkImage vkImage;
-	public uint32 vkFormat;
-	public uint32 vkImageAspectFlags;
-	public uint32 vkImageType;
+	public VkFormat vkFormat;
+	public VkImageAspectFlags vkImageAspectFlags;
+	public VkImageType vkImageType;
 	public uint16[3] size;
 	public uint16 mipNum;
 	public uint16 arraySize;

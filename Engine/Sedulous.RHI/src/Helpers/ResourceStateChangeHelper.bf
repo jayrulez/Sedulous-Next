@@ -8,7 +8,7 @@ namespace Sedulous.RHI.Helpers
 		private CommandBuffer m_CommandBuffer = null;
 		private WaitIdleHelper m_WaitIdleHelper;
 
-		public this(ref Device device, ref CommandQueue commandQueue)
+		public this(Device device, CommandQueue commandQueue)
 		{
 			m_Device = device;
 			m_CommandQueue = commandQueue;

@@ -379,7 +379,7 @@ namespace Sedulous.RHI.Helpers
 
 		///////////////////////////////////////////////////////////////////////////
 
-		public this(ref Device device, in DeviceAllocator allocator, ref CommandQueue commandQueue)
+		public this(Device device, in DeviceAllocator allocator, CommandQueue commandQueue)
 		{
 			m_DeviceDesc = device.GetDesc();
 			m_Device = device;
