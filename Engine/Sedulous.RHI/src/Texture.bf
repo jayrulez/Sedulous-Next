@@ -1,13 +1,10 @@
+using System;
 namespace Sedulous.RHI
 {
 	abstract class Texture
 	{
-		public struct Description
-		{
-		}
-
-		public struct AliasingBindDescription
-		{
-		}
+		public abstract void SetDebugName(in StringView name);
+		
+		public abstract void GetMemoryInfo(MemoryLocation memoryLocation, ref MemoryDesc memoryDesc);
 	}
 }

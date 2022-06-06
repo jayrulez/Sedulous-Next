@@ -1,7 +1,7 @@
 using System;
 namespace Sedulous.RHI
 {
-	abstract class DescriptorSet
+	abstract class DeviceSemaphore
 	{
 		public abstract void SetDebugName(in StringView name);
 	}

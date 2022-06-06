@@ -1,71 +1,73 @@
 using Sedulous.Foundation.Logging.Abstractions;
 using System;
+using System.Collections;
 namespace Sedulous.RHI;
 
 abstract class Device
 {
-	public struct Description
+	private readonly ILogger m_Logger;
+	private readonly DeviceAllocator m_Allocator;
+
+	public this(ILogger logger, DeviceAllocator allocator)
 	{
 	}
 
-	public abstract Adapter Adapter { get; }
+	public ILogger GetLogger() => m_Logger;
 
-	public this(ILogger logger)
-	{
-	}
+	public DeviceAllocator GetDeviceAllocator() => m_Allocator;
 
-	public abstract CommandQueue GetCommandQueue(CommandQueueType commandQueueType);
-	public abstract void DestroyCommandQueue(in CommandQueue commandQueue);
+	public abstract void SetDebugName(in StringView name);
+	public abstract readonly ref DeviceDesc GetDesc();
+	public abstract Result GetCommandQueue(CommandQueueType commandQueueType, out CommandQueue commandQueue);
 
-	public abstract Result<void> CreateFence(out Fence fence);
-	public abstract void DestroyFence(in Fence fence);
+	public abstract Result CreateCommandAllocator(in CommandQueue commandQueue, uint32 physicalDeviceMask, out CommandAllocator commandAllocator);
+	public abstract Result CreateDescriptorPool(in DescriptorPoolDesc descriptorPoolDesc, out DescriptorPool descriptorPool);
+	public abstract Result CreateBuffer(in BufferDesc bufferDesc, out Buffer buffer);
+	public abstract Result CreateTexture(in TextureDesc textureDesc, out Texture texture);
+	public abstract Result CreateBufferView(in BufferViewDesc bufferViewDesc, out Descriptor bufferView);
+	public abstract Result CreateTexture1DView(in Texture1DViewDesc textureViewDesc, out Descriptor textureView);
+	public abstract Result CreateTexture2DView(in Texture2DViewDesc textureViewDesc, out Descriptor textureView);
+	public abstract Result CreateTexture3DView(in Texture3DViewDesc textureViewDesc, out Descriptor textureView);
+	public abstract Result CreateSampler(in SamplerDesc samplerDesc, out Descriptor sampler);
+	public abstract Result CreatePipelineLayout(in PipelineLayoutDesc pipelineLayoutDesc, out PipelineLayout pipelineLayout);
+	public abstract Result CreateGraphicsPipeline(in GraphicsPipelineDesc graphicsPipelineDesc, out Pipeline pipeline);
+	public abstract Result CreateComputePipeline(in ComputePipelineDesc computePipelineDesc, out Pipeline pipeline);
+	public abstract Result CreateFrameBuffer(in FrameBufferDesc frameBufferDesc, out FrameBuffer frameBuffer);
+	public abstract Result CreateQueryPool(in QueryPoolDesc queryPoolDesc, out QueryPool queryPool);
+	public abstract Result CreateQueueSemaphore(out QueueSemaphore queueSemaphore);
+	public abstract Result CreateDeviceSemaphore(bool signaled, out DeviceSemaphore deviceSemaphore);
+	public abstract Result CreateSwapChain(in SwapChainDesc swapChainDesc, out SwapChain swapChain);
+	public abstract Result CreateRayTracingPipeline(in RayTracingPipelineDesc rayTracingPipelineDesc, out Pipeline pipeline);
+	public abstract Result CreateAccelerationStructure(in AccelerationStructureDesc accelerationStructureDesc, out AccelerationStructure accelerationStructure);
 
-	public abstract Result<void> CreateSemaphore(out Semaphore semaphore);
-	public abstract void DestroySemaphore(in Semaphore semaphore);
+	public abstract void DestroyCommandAllocator(ref CommandAllocator commandAllocator);
+	public abstract void DestroyDescriptorPool(ref DescriptorPool descriptorPool);
+	public abstract void DestroyBuffer(ref Buffer buffer);
+	public abstract void DestroyTexture(ref Texture texture);
+	public abstract void DestroyDescriptor(ref Descriptor descriptor);
+	public abstract void DestroyPipelineLayout(ref PipelineLayout pipelineLayout);
+	public abstract void DestroyPipeline(ref Pipeline pipeline);
+	public abstract void DestroyFrameBuffer(ref FrameBuffer frameBuffer);
+	public abstract void DestroyQueryPool(ref QueryPool queryPool);
+	public abstract void DestroyQueueSemaphore(ref QueueSemaphore queueSemaphore);
+	public abstract void DestroyDeviceSemaphore(ref DeviceSemaphore deviceSemaphore);
+	public abstract void DestroySwapChain(ref SwapChain swapChain);
+	public abstract void DestroyAccelerationStructure(ref AccelerationStructure accelerationStructure);
+	public abstract void DestroyCommandBuffer(ref CommandBuffer commandBuffer);
 
-	public abstract Result<void> CreateRootSignaturePool(in RootSignaturePool.Description description, out RootSignaturePool rootSignaturePool);
-	public abstract void DestroyRootSignaturePool(in RootSignaturePool rootSignaturePool);
+	public abstract Result GetDisplays(ref List<Display> displays, ref uint32 displayNum);
+	public abstract Result GetDisplaySize(ref Display display, ref uint16 width, ref uint16 height);
 
-	public abstract Result<void> CreateRootSignature(in RootSignature.Description description, out RootSignature rootSignature);
-	public abstract void DestroyRootSignature(in RootSignature rootSignature);
+	public abstract Result AllocateMemory(uint32 physicalDeviceMask, MemoryType memoryType, uint64 size, out Memory memory);
+	public abstract Result BindBufferMemory(in BufferMemoryBindingDesc* memoryBindingDescs, uint32 memoryBindingDescNum);
+	public abstract Result BindTextureMemory(in TextureMemoryBindingDesc* memoryBindingDescs, uint32 memoryBindingDescNum);
+	public abstract Result BindAccelerationStructureMemory(in AccelerationStructureMemoryBindingDesc* memoryBindingDescs, uint32 memoryBindingDescNum);
+	public abstract void FreeMemory(ref Memory memory);
 
-	public abstract Result<void> CreateDescriptorSet(in DescriptorSet.Description description, out DescriptorSet descriptorSet);
-	public abstract void DestroyDescriptorSet(in DescriptorSet descriptorSet);
+	public abstract FormatSupportBits GetFormatSupport(Format format);
 
-	public abstract Result<void> CreateComputePipeline(in ComputePipeline.Description description, out ComputePipeline computePipeline);
-	public abstract void DestroyComputePipeline(in ComputePipeline computePipeline);
+	public abstract uint32 CalculateAllocationNumber(in ResourceGroupDesc resourceGroupDesc);
+	public abstract Result AllocateAndBindMemory(in ResourceGroupDesc resourceGroupDesc, Memory* allocations);
 
-	public abstract Result<void> CreateGraphicsPipeline(in GraphicsPipeline.Description description, out GraphicsPipeline graphicsPipeline);
-	public abstract void DestroyGraphicsPipeline(in GraphicsPipeline graphicsPipeline);
-
-	public abstract Result<void> CreateMemoryPool(in MemoryPool.Description description, out MemoryPool memoryPool);
-	public abstract void DestroyMemoryPool(in MemoryPool memoryPool);
-
-	public abstract Result<void> CreateQueryPool(in QueryPool.Description description, out QueryPool queryPool);
-	public abstract void DestroyQueryPool(in QueryPool queryPool);
-
-	public abstract Result<void> CreateShaderLibrary(in ShaderLibrary.Description description, out ShaderLibrary shaderLibrary);
-	public abstract void DestroyShaderLibrary(in ShaderLibrary shaderLibrary);
-
-	public abstract Result<void> CreateBuffer(in Buffer.Description description, out Buffer buffer);
-	public abstract Result<void> CreateMappedConstantBuffer(uint64 size, char8* name, bool deviceLocalPreferred);
-	public abstract Result<void> CreateMappedUploadBuffer(uint64 size, char8* name);
-	public abstract void DestroyBuffer(in Buffer buffer);
-
-	public abstract Result<void> CreateSampler(in Sampler.Description description, out Sampler sampler);
-	public abstract void DestroySampler(in Sampler sampler);
-
-	public abstract Result<void> CreateTexture(in Texture.Description description, out Texture texture);
-	public abstract void DestroyTexture(in Texture texture);
-
-	public abstract Result<void> CreateTextureView(in TextureView.Description description, out TextureView textureView);
-	public abstract void DestroyTextureView(in TextureView textureView);
-
-	public abstract bool TryBindAliasingTexture(in Texture.AliasingBindDescription description);
-
-	public abstract Result<void> CreateSwapChain(in SwapChain.Description description, out SwapChain swapChain);
-	public abstract void DestroySwapChain(in SwapChain swapChain);
-
-	public abstract Result<void> CreateSurface(in Surface.Description description, out Surface surface);
-	public abstract void DestroySurface(in Surface surface);
+	public abstract void SetSPIRVBindingOffsets(in SPIRVBindingOffsets spirvBindingOffsets);
 }

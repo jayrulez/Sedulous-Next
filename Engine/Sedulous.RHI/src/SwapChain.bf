@@ -3,17 +3,11 @@ namespace Sedulous.RHI
 {
 	abstract class SwapChain
 	{
-		public struct Description
-		{
-		}
-		public abstract Device Device {get;}
-
-		public abstract Span<Texture> BackBuffers {get;}
-
-		public struct AcquireNextDescription
-		{
-		}
-
-		public abstract uint32 AcquireNextImage(in AcquireNextDescription description);
+		public abstract void SetDebugName(in StringView name);
+		
+		public abstract Texture* GetTextures(ref uint32 textureNum, ref Format format);
+		public abstract uint32 AcquireNextTexture(ref QueueSemaphore textureReadyForRender);
+		public abstract Result Present(ref QueueSemaphore textureReadyForPresent);
+		public abstract Result SetHdrMetadata(in HdrMetadata hdrMetadata);
 	}
 }

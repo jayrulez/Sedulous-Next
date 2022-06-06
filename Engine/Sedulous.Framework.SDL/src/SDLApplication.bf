@@ -18,7 +18,7 @@ public class SDLApplicationSettings : ApplicationSettings
 class SDLApplication : Application
 {
 	private readonly SDLApplicationSettings mApplicationSettings ~ delete _;
-	private Window mWindow = null;
+	private Sedulous.Platform.Window mWindow = null;
 	private RendererPlugin mRendererPlugin = null;
 	private AudioPlugin mAudioPlugin = null;
 	private Device mDevice = null;
@@ -48,7 +48,7 @@ class SDLApplication : Application
 				this.Stop();
 			});
 
-		mDevice = new DeviceVK(Logger);
+		mDevice = new DeviceVK(Logger, null);
 
 		mApplicationSettings.Plugins.Add(mRendererPlugin = new RendererPlugin(mEngine, mDevice));
 		mApplicationSettings.Plugins.Add(mAudioPlugin = new AudioPlugin(mEngine));

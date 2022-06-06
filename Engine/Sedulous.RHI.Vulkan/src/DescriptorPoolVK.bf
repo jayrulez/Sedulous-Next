@@ -1,0 +1,17 @@
+using Bulkan;
+using System.Collections;
+namespace Sedulous.RHI.Vulkan
+{
+	class DescriptorPoolVK : DescriptorPool
+	{
+		private VkDescriptorPool m_Handle = .Null;
+		private List<DescriptorSetVK> m_AllocatedSets;
+		private uint32 m_UsedSets = 0;
+		private DeviceVK m_Device;
+		private bool m_OwnsNativeObjects = false;
+
+		//////////////////////////////Private Methods//////////////////////////////
+
+		///////////////////////////////////////////////////////////////////////////
+	}
+}
