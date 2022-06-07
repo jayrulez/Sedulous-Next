@@ -335,6 +335,7 @@ class DeviceVK : Device
 		#endif
 
 		extensions.Add(VK_KHR_SURFACE_EXTENSION_NAME);
+		extensions.Add(VK_KHR_DISPLAY_EXTENSION_NAME); //VK_KHR_display
 
 		for (uint32 i = 0; i < deviceCreationDesc.vulkanExtensions.instanceExtensionNum; i++)
 			extensions.Add(deviceCreationDesc.vulkanExtensions.instanceExtensions[i]);
@@ -1787,14 +1788,45 @@ class DeviceVK : Device
 		Deallocate!(GetDeviceAllocator(), (CommandBufferVK)commandBuffer);
 	}
 
-	public override Result GetDisplays(ref List<Display> displays, ref uint32 displayNum)
+	public override Result GetDisplays(Display** displays, ref uint32 displayNum)
 	{
 
 		//MaybeUnused(displays, displayNum);
 
-		// todo
+		uint32 displayCount = 1;
 
-		return Result.UNSUPPORTED;
+		if(displays == null || displayNum == 0){
+			VkPhysicalDevice device = m_PhysicalDevices.Front;
+			VkPhysicalDeviceProperties properties = .();
+			vkGetPhysicalDeviceProperties(device, &properties);
+			VkResult result = vkGetPhysicalDeviceDisplayPropertiesKHR(device, &displayCount, null);
+
+			RETURN_ON_FAILURE!(GetLogger(), result == .VK_SUCCESS, VulkanUtils.GetReturnCode(result),
+				"Unable to get devices {0}.", (int32)result);
+
+			displayNum = displayCount;
+			return .SUCCESS;
+		}
+
+		VkDisplayPropertiesKHR* displayProperties = scope VkDisplayPropertiesKHR[displayNum]*;
+
+		VkResult result = vkGetPhysicalDeviceDisplayPropertiesKHR(m_PhysicalDevices.Front, &displayCount, displayProperties);
+
+		RETURN_ON_FAILURE!(GetLogger(), result == .VK_SUCCESS || result == .VK_INCOMPLETE, VulkanUtils.GetReturnCode(result),
+			"Unable to get devices {0}.", (int32)result);
+
+		for (int i = 0; i < displayNum && i < displayCount; i++)
+		{
+			ref VkDisplayPropertiesKHR display = ref displayProperties[i];
+
+			displays[i] = (Display*)(void*)&display;
+		}
+
+		for(int i = displayCount -1; i < displayNum; i++){
+			displays[i] = null;
+		}
+
+		return Result.SUCCESS;
 	}
 
 	public override Result GetDisplaySize(ref Display display, ref uint16 width, ref uint16 height)

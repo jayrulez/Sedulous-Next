@@ -57,7 +57,7 @@ abstract class Device
 	public abstract void DestroyAccelerationStructure(ref AccelerationStructure accelerationStructure);
 	public abstract void DestroyCommandBuffer(ref CommandBuffer commandBuffer);
 
-	public abstract Result GetDisplays(ref List<Display> displays, ref uint32 displayNum);
+	public abstract Result GetDisplays(Display** displays, ref uint32 displayNum);
 	public abstract Result GetDisplaySize(ref Display display, ref uint16 width, ref uint16 height);
 
 	public abstract Result AllocateMemory(uint32 physicalDeviceMask, MemoryType memoryType, uint64 size, out Memory memory);

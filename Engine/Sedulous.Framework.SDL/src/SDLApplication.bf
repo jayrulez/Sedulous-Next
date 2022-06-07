@@ -6,6 +6,7 @@ using Sedulous.Renderer;
 using Sedulous.RHI;
 using Sedulous.RHI.Vulkan;
 using Sedulous.Audio;
+using System.Collections;
 namespace Sedulous.Framework.SDL;
 
 public class SDLApplicationSettings : ApplicationSettings
@@ -66,6 +67,13 @@ class SDLApplication : Application
 			Logger.LogError("Failed to create Device");
 			return .Err;
 		}
+
+		uint32 numDisplays = 0;
+		mDevice.GetDisplays(null, ref numDisplays);
+
+		List<Display*> displays = scope .(){Count = numDisplays};
+
+		mDevice.GetDisplays(displays.Ptr, ref numDisplays);
 
 		mApplicationSettings.Plugins.Add(mRendererPlugin = new RendererPlugin(mEngine, mDevice));
 		mApplicationSettings.Plugins.Add(mAudioPlugin = new AudioPlugin(mEngine));
