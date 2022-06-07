@@ -10,6 +10,8 @@ abstract class Device
 
 	public this(ILogger logger, DeviceAllocator allocator)
 	{
+		m_Logger = logger;
+		m_Allocator = allocator;
 	}
 
 	public ILogger GetLogger() => m_Logger;

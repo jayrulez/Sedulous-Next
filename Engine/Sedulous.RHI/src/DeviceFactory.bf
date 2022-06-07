@@ -13,9 +13,9 @@ namespace Sedulous.RHI
 			return .SUCCESS;
 		}
 
-		public static void DestroyDevice(ref Device device)
+		public static void DestroyDevice(DeviceAllocator allocator, ref Device device)
 		{
-			Deallocate!(device.GetDeviceAllocator(), device);
+			Deallocate!(allocator, device);
 		}
 	}
 }

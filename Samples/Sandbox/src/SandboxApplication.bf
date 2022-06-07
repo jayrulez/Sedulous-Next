@@ -18,7 +18,11 @@ class SandboxApplication : SDLApplication
 
 	protected override Result<void> OnStartup()
 	{
-		base.OnStartup();
+		if(base.OnStartup() case .Err)
+			return .Err;
+
+		//base.OnStartup();
+
 		return .Ok;
 	}
 }

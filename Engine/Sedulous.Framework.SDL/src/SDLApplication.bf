@@ -22,6 +22,7 @@ class SDLApplication : Application
 	private RendererPlugin mRendererPlugin = null;
 	private AudioPlugin mAudioPlugin = null;
 	private Device mDevice = null;
+	private DeviceAllocator mDeviceAllocator = new DeviceAllocator() ~ delete _;
 
 	public this(ILogger logger, in StringView windowTitle, uint32 windowWidth, uint32 windowHeight)
 		: base(mApplicationSettings = new .()
@@ -42,35 +43,50 @@ class SDLApplication : Application
 			return .Err;
 		}
 
+		return .Ok;
+	}
+
+	protected override Result<void> OnInitialize()
+	{
 		mWindow = new SDLWindow(mApplicationSettings.WindowTitle, mApplicationSettings.WindowWidth, mApplicationSettings.WindowHeight);
 		mWindow.OnClosing.Subscribe(new () =>
 			{
 				this.Stop();
 			});
 
-		mDevice = new DeviceVK(Logger, null);
+		DeviceCreationDesc deviceDesc = .()
+			{
+				enableAPIValidation = true,
+				enableNRIValidation = true
+			};
+
+		Result result = CreateDeviceVK(deviceDesc, mDeviceAllocator, Logger, out mDevice);
+		if (result != .SUCCESS)
+		{
+			Logger.LogError("Failed to create Device");
+			return .Err;
+		}
 
 		mApplicationSettings.Plugins.Add(mRendererPlugin = new RendererPlugin(mEngine, mDevice));
 		mApplicationSettings.Plugins.Add(mAudioPlugin = new AudioPlugin(mEngine));
 
-		return .Ok;
-	}
-
-	protected override Result<void> OnInitialize()
-	{
 		SDL.PumpEvents();
 		return .Ok;
 	}
 
 	protected override void OnShutdown()
 	{
-		delete mAudioPlugin;
+		if (mAudioPlugin != null)
+			delete mAudioPlugin;
 
-		delete mRendererPlugin;
+		if (mRendererPlugin != null)
+			delete mRendererPlugin;
 
-		delete mDevice;
+		if (mDevice != null)
+			delete mDevice;
 
-		delete mWindow;
+		if (mWindow != null)
+			delete mWindow;
 
 		SDL.Quit();
 	}

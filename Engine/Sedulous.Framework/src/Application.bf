@@ -76,8 +76,10 @@ abstract class Application
 			return;
 
 		if (Initialize() case .Err)
+		{
+			Shutdown();
 			return;
-
+		}
 		mIsRunning = true;
 
 		while (mIsRunning)

@@ -4,6 +4,7 @@ using Bulkan;
 using System.Collections;
 using System.Threading;
 using Sedulous.RHI.Helpers;
+using System.Diagnostics;
 using static Bulkan.VulkanNative;
 using static Sedulous.RHI.Vulkan.VulkanUtils;
 namespace Sedulous.RHI.Vulkan;
@@ -266,7 +267,7 @@ public static
 			{
 				ref VkDebugUtilsObjectNameInfoEXT object = ref callbackData.pObjects[i];
 
-				message.AppendF("\n\tObject {0} {1} ({2:2X})", object.pObjectName != null ? object.pObjectName : "", GetObjectTypeName(object.objectType), object.objectHandle);
+				message.AppendF("\n\tObject {0} {1} ({2:2X})", object.pObjectName != null ? scope String(object.pObjectName) : "", GetObjectTypeName(object.objectType), object.objectHandle);
 			}
 
 			REPORT_ERROR(device.GetLogger(), "DebugUtilsMessenger: {0}, {1}", scope String(type), message);
@@ -384,8 +385,8 @@ class DeviceVK : Device
 
 		if (deviceCreationDesc.enableAPIValidation)
 		{
-			vkCreateDebugUtilsMessengerEXTFunction vkCreateDebugUtilsMessengerEXT = null;
-			vkCreateDebugUtilsMessengerEXT = (vkCreateDebugUtilsMessengerEXTFunction)VulkanNative.vkGetInstanceProcAddr(m_Instance, "vkCreateDebugUtilsMessengerEXT");
+			vkCreateDebugUtilsMessengerEXTFunction FN_vkCreateDebugUtilsMessengerEXT = null;
+			FN_vkCreateDebugUtilsMessengerEXT = (vkCreateDebugUtilsMessengerEXTFunction)VulkanNative.vkGetInstanceProcAddr(m_Instance, "vkCreateDebugUtilsMessengerEXT");
 
 			VkDebugUtilsMessengerCreateInfoEXT createInfo = . { sType = .VK_STRUCTURE_TYPE_DEBUG_UTILS_MESSENGER_CREATE_INFO_EXT };
 
@@ -399,7 +400,7 @@ class DeviceVK : Device
 			createInfo.pUserData = Internal.UnsafeCastToPtr(this);
 			createInfo.pfnUserCallback = debugCallbackFunction;
 
-			result = vkCreateDebugUtilsMessengerEXT(m_Instance, &createInfo, m_AllocationCallbackPtr, &m_Messenger);
+			result = FN_vkCreateDebugUtilsMessengerEXT(m_Instance, &createInfo, m_AllocationCallbackPtr, &m_Messenger);
 
 			RETURN_ON_FAILURE!(GetLogger(), result == .VK_SUCCESS, GetReturnCode(result),
 				"Can't create a debug utils messenger callback: vkCreateDebugUtilsMessengerEXT returned {0}.", (int32)result);
@@ -876,7 +877,7 @@ class DeviceVK : Device
 			}
 
 			if (!found)
-				layers.RemoveAt(i);
+				layers.RemoveAt(i--);
 		}
 	}
 
@@ -901,7 +902,7 @@ class DeviceVK : Device
 
 			if (!found)
 			{
-				extensions.RemoveAt(i);
+				extensions.RemoveAt(i--);
 				allFound = false;
 			}
 		}
@@ -930,7 +931,7 @@ class DeviceVK : Device
 
 			if (!found)
 			{
-				extensions.RemoveAt(i);
+				extensions.RemoveAt(i--);
 				allFound = false;
 			}
 		}
@@ -1162,6 +1163,11 @@ class DeviceVK : Device
 
 	public ~this()
 	{
+		Deallocate!(GetDeviceAllocator(), m_Lock);
+		Deallocate!(GetDeviceAllocator(), m_ConcurrentSharingModeQueueIndices);
+		Deallocate!(GetDeviceAllocator(), m_PhysicalDeviceIndices);
+		Deallocate!(GetDeviceAllocator(), m_PhysicalDevices);
+
 		if (m_Device == .Null)
 			return;
 
@@ -1179,11 +1185,6 @@ class DeviceVK : Device
 			vkDestroyDevice(m_Device, m_AllocationCallbackPtr);
 			vkDestroyInstance(m_Instance, m_AllocationCallbackPtr);
 		}
-
-		Deallocate!(GetDeviceAllocator(), m_Lock);
-		Deallocate!(GetDeviceAllocator(), m_ConcurrentSharingModeQueueIndices);
-		Deallocate!(GetDeviceAllocator(), m_PhysicalDeviceIndices);
-		Deallocate!(GetDeviceAllocator(), m_PhysicalDevices);
 	}
 
 	public static implicit operator VkDevice(Self self) => self.m_Device;
@@ -1304,8 +1305,8 @@ class DeviceVK : Device
 		m_AllocationCallbacks.pfnInternalAllocation = internalAllocNotificationFunc;
 		m_AllocationCallbacks.pfnInternalFree = internalFreeNotificationFunc;*/
 
-		if (deviceCreationDesc.enableAPIValidation)
-			m_AllocationCallbackPtr = &m_AllocationCallbacks;
+		/*if (deviceCreationDesc.enableAPIValidation)
+			m_AllocationCallbackPtr = &m_AllocationCallbacks;*/
 
 		if (VulkanNative.Initialize() case .Err)
 		{
