@@ -335,7 +335,7 @@ class DeviceVK : Device
 		#endif
 
 		extensions.Add(VK_KHR_SURFACE_EXTENSION_NAME);
-		extensions.Add(VK_KHR_DISPLAY_EXTENSION_NAME); //VK_KHR_display
+		//extensions.Add(VK_KHR_DISPLAY_EXTENSION_NAME); //VK_KHR_display
 
 		for (uint32 i = 0; i < deviceCreationDesc.vulkanExtensions.instanceExtensionNum; i++)
 			extensions.Add(deviceCreationDesc.vulkanExtensions.instanceExtensions[i]);

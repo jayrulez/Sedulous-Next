@@ -36,6 +36,8 @@ class SDLApplication : Application
 	{
 	}
 
+	// Does critical initialization
+	// If this method fails, OnShutdown is not called by the main loop
 	protected override Result<void> OnStartup()
 	{
 		if (SDL.Init(.Everything) < 0)

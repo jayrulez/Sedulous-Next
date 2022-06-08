@@ -663,6 +663,7 @@ struct ClearStorageTextureDesc
 	public uint32 offsetInRange;
 }
 
+[CRepr]
 struct TextureRegionDesc
 {
 	public uint16[3] offset;
@@ -671,6 +672,7 @@ struct TextureRegionDesc
 	public uint16 arrayOffset;
 }
 
+[CRepr]
 struct TextureDataLayoutDesc
 {
 	public uint64 offset;
@@ -713,6 +715,7 @@ struct MemoryDesc
 	public bool mustBeDedicated;
 }
 
+[CRepr]
 struct AddressModes
 {
 	public AddressMode u;
