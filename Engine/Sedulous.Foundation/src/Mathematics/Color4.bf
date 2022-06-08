@@ -1,5 +1,7 @@
+using System;
 namespace Sedulous.Foundation.Mathematics;
 
+[CRepr]
 struct Color4<T>
 {
 	public T R;

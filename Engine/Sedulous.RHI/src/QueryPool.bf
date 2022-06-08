@@ -3,7 +3,7 @@ namespace Sedulous.RHI
 {
 	abstract class QueryPool
 	{
-		public abstract void SetDebugName(in StringView name);
+		public abstract void SetDebugName(StringView name);
 
 		public abstract uint32 GetQuerySize();
 	}

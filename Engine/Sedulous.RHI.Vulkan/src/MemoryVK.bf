@@ -16,7 +16,7 @@ namespace Sedulous.RHI.Vulkan
 		//////////////////////////////Internal Methods//////////////////////////////
 		public readonly ref DeviceVK GetDevice() => ref m_Device;
 
-		public Result Create(uint32 physicalDeviceMask, in MemoryType memoryType, uint64 size)
+		public Result Create(uint32 physicalDeviceMask, MemoryType memoryType, uint64 size)
 		{
 			var physicalDeviceMask;
 
@@ -76,7 +76,7 @@ namespace Sedulous.RHI.Vulkan
 			return Result.SUCCESS;
 		}
 
-		public Result Create(in MemoryVulkanDesc memoryDesc)
+		public Result Create(MemoryVulkanDesc memoryDesc)
 		{
 			m_OwnsNativeObjects = false;
 
@@ -258,7 +258,7 @@ namespace Sedulous.RHI.Vulkan
 			}
 		}
 
-		public override void SetDebugName(in StringView name)
+		public override void SetDebugName(StringView name)
 		{
 			uint64[PHYSICAL_DEVICE_GROUP_MAX_SIZE] handles = .();
 			for (int i = 0; i < handles.Count; i++)

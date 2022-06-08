@@ -20,7 +20,7 @@ namespace Sedulous.RHI.Vulkan
 
 		public readonly ref DeviceVK GetDevice() => ref m_Device;
 
-		public Result Create(in CommandQueue commandQueue, uint32 physicalDeviceMask)
+		public Result Create(CommandQueue commandQueue, uint32 physicalDeviceMask)
 		{
 	//MaybeUnused(physicalDeviceMask); // TODO: use it
 
@@ -45,7 +45,7 @@ namespace Sedulous.RHI.Vulkan
 			return Result.SUCCESS;
 		}
 
-		public Result Create(in CommandAllocatorVulkanDesc commandAllocatorDesc)
+		public Result Create(CommandAllocatorVulkanDesc commandAllocatorDesc)
 		{
 			m_OwnsNativeObjects = false;
 			m_Handle = (VkCommandPool)commandAllocatorDesc.vkCommandPool;
@@ -65,7 +65,7 @@ namespace Sedulous.RHI.Vulkan
 				vkDestroyCommandPool(m_Device, m_Handle, m_Device.GetAllocationCallbacks());
 		}
 
-		public override void SetDebugName(in StringView name)
+		public override void SetDebugName(StringView name)
 		{
 			m_Device.SetDebugNameToTrivialObject(.VK_OBJECT_TYPE_COMMAND_POOL, (uint64)m_Handle.Handle, name);
 		}

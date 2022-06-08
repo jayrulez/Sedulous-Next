@@ -2,55 +2,29 @@ using Sedulous.Foundation.Utilities;
 using System;
 namespace Sedulous.Platform;
 
-abstract class Window
+/// <summary>
+/// Represent a Window on WindowSystem.
+/// </summary>
+abstract class Window : Surface
 {
-	public EventAccessor<delegate void()> OnFocusGained = new .();
-	public EventAccessor<delegate void()> OnFocusLost = new .();
-	public EventAccessor<delegate void(uint32 width, uint32 height)> OnResized = new .();
-	public EventAccessor<delegate void()> OnClosing = new .();
-
+	/// <summary>
+	/// Gets or sets window title.
+	/// </summary>
 	public abstract String Title { get; set; }
+
+	/// <summary>
+	/// Gets or sets a value indicating whether the window is visible.
+	/// </summary>
 	public abstract bool Visible { get; set; }
-	//public abstract readonly ref WindowHandleInfo NativeWindowInfo { get; }
 
-	public uint32 Width { get; protected set; }
-	public uint32 Height { get; protected set; }
-
-	public this(StringView title, uint32 width, uint32 height)
+	/// <summary>
+	/// Initializes a new instance of the <see cref="T:Sedulous.Graphics.Window" /> class.
+	/// </summary>
+	/// <param name="title">Window title.</param>
+	/// <param name="width">Window width.</param>
+	/// <param name="height">Window height.</param>
+	public this(in StringView title, uint32 width, uint32 height)
+		: base(width, height)
 	{
-		Width = width;
-		Height = height;
-	}
-
-	public ~this()
-	{
-		delete OnClosing;
-		delete OnResized;
-		delete OnFocusLost;
-		delete OnFocusGained;
-	}
-
-	protected virtual void FocusGained()
-	{
-		if (OnFocusGained.[Friend]mEvent.HasListeners)
-			OnFocusGained.[Friend]mEvent();
-	}
-
-	protected virtual void FocusLost()
-	{
-		if (OnFocusLost.[Friend]mEvent.HasListeners)
-			OnFocusLost.[Friend]mEvent();
-	}
-
-	protected virtual void Resized()
-	{
-		if (OnResized.[Friend]mEvent.HasListeners)
-			OnResized.[Friend]mEvent(Width, Height);
-	}
-
-	protected virtual void Closing()
-	{
-		if (OnClosing.[Friend]mEvent.HasListeners)
-			OnClosing.[Friend]mEvent();
 	}
 }

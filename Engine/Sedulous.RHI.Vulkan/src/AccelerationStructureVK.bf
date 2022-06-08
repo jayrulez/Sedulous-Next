@@ -20,7 +20,7 @@ namespace Sedulous.RHI.Vulkan
 
 		//////////////////////////////Private Methods//////////////////////////////
 
-		private void PrecreateBottomLevel(in AccelerationStructureDesc accelerationStructureDesc)
+		private void PrecreateBottomLevel(AccelerationStructureDesc accelerationStructureDesc)
 		{
 			const VkAccelerationStructureBuildTypeKHR buildType = .VK_ACCELERATION_STRUCTURE_BUILD_TYPE_DEVICE_KHR;
 
@@ -49,7 +49,7 @@ namespace Sedulous.RHI.Vulkan
 			FREE_SCRATCH!(m_Device, primitiveMaxNums, accelerationStructureDesc.instanceOrGeometryObjectNum);
 		}
 
-		private void PrecreateTopLevel(in AccelerationStructureDesc accelerationStructureDesc)
+		private void PrecreateTopLevel(AccelerationStructureDesc accelerationStructureDesc)
 		{
 			const VkAccelerationStructureBuildTypeKHR buildType = .VK_ACCELERATION_STRUCTURE_BUILD_TYPE_DEVICE_KHR;
 
@@ -83,7 +83,7 @@ namespace Sedulous.RHI.Vulkan
 		/////////////////////////////Internal Methods//////////////////////////////
 		public readonly ref DeviceVK GetDevice() => ref m_Device;
 
-		public Result Create(in AccelerationStructureDesc accelerationStructureDesc)
+		public Result Create(AccelerationStructureDesc accelerationStructureDesc)
 		{
 			m_Type = GetAccelerationStructureType(accelerationStructureDesc.type);
 			m_BuildFlags = GetAccelerationStructureBuildFlags(accelerationStructureDesc.flags);
@@ -167,7 +167,7 @@ namespace Sedulous.RHI.Vulkan
 			}
 		}
 
-		public override void SetDebugName(in StringView name)
+		public override void SetDebugName(StringView name)
 		{
 			uint64[PHYSICAL_DEVICE_GROUP_MAX_SIZE] handles = .();
 			for (int i = 0; i < handles.Count; i++)

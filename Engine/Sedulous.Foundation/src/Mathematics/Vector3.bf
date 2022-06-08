@@ -1,6 +1,8 @@
+using System;
 namespace Sedulous.Foundation.Mathematics;
 
-struct Vector3<T>
+[CRepr]
+struct TVector3<T>
 {
 	public T X;
 	public T Y;
@@ -27,7 +29,7 @@ struct Vector3<T>
 		Z = z;
 	}
 
-	public this(Vector2<T> vector, T z)
+	public this(TVector2<T> vector, T z)
 	{
 		X = vector.X;
 		Y = vector.Y;
@@ -35,5 +37,6 @@ struct Vector3<T>
 	}
 }
 
-typealias Vector3ui = Vector3<uint32>;
-typealias Vector3f = Vector3<float>;
+typealias Vector3ui = TVector3<uint32>;
+
+typealias Vector3 = TVector3<float>;

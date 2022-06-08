@@ -3,7 +3,7 @@ namespace Sedulous.RHI
 {
 	abstract class AccelerationStructure
 	{
-		public abstract void SetDebugName(in StringView name);
+		public abstract void SetDebugName(StringView name);
 
 		
 		public abstract void GetMemoryInfo(ref MemoryDesc memoryDesc);

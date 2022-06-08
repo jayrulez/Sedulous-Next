@@ -35,7 +35,7 @@ namespace Sedulous.RHI.Vulkan
 
 		public readonly ref DeviceVK GetDevice() => ref m_Device;
 
-		public Result Create(in DescriptorPoolDesc descriptorPoolDesc)
+		public Result Create(DescriptorPoolDesc descriptorPoolDesc)
 		{
 			m_OwnsNativeObjects = true;
 
@@ -118,12 +118,12 @@ namespace Sedulous.RHI.Vulkan
 			Deallocate!(m_Device.GetDeviceAllocator(), m_AllocatedSets);
 		}
 
-		public override void SetDebugName(in StringView name)
+		public override void SetDebugName(StringView name)
 		{
 			m_Device.SetDebugNameToTrivialObject(.VK_OBJECT_TYPE_DESCRIPTOR_POOL, (uint64)m_Handle.Handle, name);
 		}
 
-		public override Result AllocateDescriptorSets(in PipelineLayout pipelineLayout, uint32 setIndex, DescriptorSet* descriptorSets,
+		public override Result AllocateDescriptorSets(PipelineLayout pipelineLayout, uint32 setIndex, DescriptorSet* descriptorSets,
 			uint32 numberOfCopies, uint32 physicalDeviceMask, uint32 variableDescriptorNum)
 		{
 			var physicalDeviceMask;
@@ -135,22 +135,22 @@ namespace Sedulous.RHI.Vulkan
 
 			if (freeSetNum < numberOfCopies)
 			{
-			    readonly uint32 newSetNum = numberOfCopies - freeSetNum;
-			    readonly uint32 prevSetNum = (uint32)m_AllocatedSets.Count;
-			    m_AllocatedSets.Resize(prevSetNum + newSetNum);
+				readonly uint32 newSetNum = numberOfCopies - freeSetNum;
+				readonly uint32 prevSetNum = (uint32)m_AllocatedSets.Count;
+				m_AllocatedSets.Resize(prevSetNum + newSetNum);
 
-			    for (int i = 0; i < newSetNum; i++)
-			    {
+				for (int i = 0; i < newSetNum; i++)
+				{
 					m_AllocatedSets[prevSetNum + i] = Allocate!<DescriptorSetVK>(m_Device.GetDeviceAllocator(), m_Device);
-			    }
+				}
 			}
 
 			for (int i = 0; i < numberOfCopies; i++)
-			    descriptorSets[i] = (DescriptorSet)m_AllocatedSets[m_UsedSets + i];
+				descriptorSets[i] = (DescriptorSet)m_AllocatedSets[m_UsedSets + i];
 			m_UsedSets += numberOfCopies;
 
 			readonly VkDescriptorSetLayout setLayout = pipelineLayoutVK.GetDescriptorSetLayout(setIndex);
-			readonly ref DescriptorSetDesc setDesc = ref pipelineLayoutVK.GetRuntimeBindingInfo().descriptorSetDescs[setIndex];
+			/*readonly*/ ref DescriptorSetDesc setDesc = ref pipelineLayoutVK.GetRuntimeBindingInfo().descriptorSetDescs[setIndex];
 			readonly bool hasVariableDescriptorNum = pipelineLayoutVK.GetRuntimeBindingInfo().hasVariableDescriptorNum[setIndex];
 
 			VkDescriptorSetVariableDescriptorCountAllocateInfo variableDescriptorCountInfo;
@@ -161,33 +161,34 @@ namespace Sedulous.RHI.Vulkan
 
 			physicalDeviceMask = GetPhysicalDeviceGroupMask(physicalDeviceMask);
 
-			VkDescriptorSetLayout[PHYSICAL_DEVICE_GROUP_MAX_SIZE] setLayoutArray = .(){};
+			VkDescriptorSetLayout[PHYSICAL_DEVICE_GROUP_MAX_SIZE] setLayoutArray = .() { };
 			uint32 phyicalDeviceNum = 0;
 			for (uint32 i = 0; i < m_Device.GetPhyiscalDeviceGroupSize(); i++)
 			{
-			    if ((1 << i) & physicalDeviceMask != 0)
-			        setLayoutArray[phyicalDeviceNum++] = setLayout;
+				if ((1 << i) & physicalDeviceMask != 0)
+					setLayoutArray[phyicalDeviceNum++] = setLayout;
 			}
 
-			VkDescriptorSetAllocateInfo info = .(){
-			    sType = .VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO,
-			    pNext = hasVariableDescriptorNum ? &variableDescriptorCountInfo : null,
-			    descriptorPool = m_Handle,
-			    descriptorSetCount = phyicalDeviceNum,
-			    pSetLayouts = &setLayoutArray
-			};
+			VkDescriptorSetAllocateInfo info = .()
+				{
+					sType = .VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO,
+					pNext = hasVariableDescriptorNum ? &variableDescriptorCountInfo : null,
+					descriptorPool = m_Handle,
+					descriptorSetCount = phyicalDeviceNum,
+					pSetLayouts = &setLayoutArray
+				};
 
-			VkDescriptorSet[PHYSICAL_DEVICE_GROUP_MAX_SIZE] handles = .(){};
+			VkDescriptorSet[PHYSICAL_DEVICE_GROUP_MAX_SIZE] handles = .() { };
 
 			VkResult result = .VK_SUCCESS;
 			for (uint32 i = 0; i < numberOfCopies && result == .VK_SUCCESS; i++)
 			{
-			    result = vkAllocateDescriptorSets(m_Device, &info, &handles);
-			    ((DescriptorSetVK)descriptorSets[i]).Create(&handles, physicalDeviceMask, setDesc);
+				result = vkAllocateDescriptorSets(m_Device, &info, &handles);
+				((DescriptorSetVK)descriptorSets[i]).Create(&handles, physicalDeviceMask, ref setDesc);
 			}
 
 			RETURN_ON_FAILURE!(m_Device.GetLogger(), result == .VK_SUCCESS, GetReturnCode(result),
-			    "Can't allocate descriptor sets: vkAllocateDescriptorSets returned {0}.", (int32)result);
+				"Can't allocate descriptor sets: vkAllocateDescriptorSets returned {0}.", (int32)result);
 
 			return Result.SUCCESS;
 		}

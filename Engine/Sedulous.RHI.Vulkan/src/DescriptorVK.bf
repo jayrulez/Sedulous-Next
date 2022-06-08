@@ -34,7 +34,7 @@ namespace Sedulous.RHI.Vulkan
 
 	public static
 	{
-		public static void FillTextureDesc<T>(in T textureViewDesc, ref DescriptorTextureDesc descriptorTextureDesc) where T : var
+		public static void FillTextureDesc<T>(T textureViewDesc, ref DescriptorTextureDesc descriptorTextureDesc) where T : var
 		{
 			readonly TextureVK texture = (TextureVK)textureViewDesc.texture;
 
@@ -47,7 +47,7 @@ namespace Sedulous.RHI.Vulkan
 			descriptorTextureDesc.imageLayout = VulkanUtils.GetImageLayoutForView(textureViewDesc.viewType);
 		}
 
-		public static void FillTextureDesc(in Texture3DViewDesc textureViewDesc, ref DescriptorTextureDesc descriptorTextureDesc)
+		public static void FillTextureDesc(Texture3DViewDesc textureViewDesc, ref DescriptorTextureDesc descriptorTextureDesc)
 		{
 			readonly TextureVK texture = (TextureVK)textureViewDesc.texture;
 
@@ -60,7 +60,7 @@ namespace Sedulous.RHI.Vulkan
 			descriptorTextureDesc.imageLayout = VulkanUtils.GetImageLayoutForView(textureViewDesc.viewType);
 		}
 
-		public static void FillImageSubresourceRange<T>(in T textureViewDesc, ref VkImageSubresourceRange subresourceRange) where T : var
+		public static void FillImageSubresourceRange<T>(T textureViewDesc, ref VkImageSubresourceRange subresourceRange) where T : var
 		{
 			readonly TextureVK texture = (TextureVK)textureViewDesc.texture;
 
@@ -74,7 +74,7 @@ namespace Sedulous.RHI.Vulkan
 				};
 		}
 
-		public static void FillImageSubresourceRange(in Texture3DViewDesc textureViewDesc, ref VkImageSubresourceRange subresourceRange)
+		public static void FillImageSubresourceRange(Texture3DViewDesc textureViewDesc, ref VkImageSubresourceRange subresourceRange)
 		{
 			readonly TextureVK texture = (TextureVK)textureViewDesc.texture;
 
@@ -128,7 +128,7 @@ namespace Sedulous.RHI.Vulkan
 		/////////////////////////////Internal Methods//////////////////////////////
 		public readonly ref DeviceVK GetDevice() => ref m_Device;
 
-		public Result Create(in BufferViewDesc bufferViewDesc)
+		public Result Create(BufferViewDesc bufferViewDesc)
 		{
 			readonly BufferVK buffer = (BufferVK)bufferViewDesc.buffer;
 
@@ -175,22 +175,22 @@ namespace Sedulous.RHI.Vulkan
 			return Result.SUCCESS;
 		}
 
-		public Result Create(in Texture1DViewDesc textureViewDesc)
+		public Result Create(Texture1DViewDesc textureViewDesc)
 		{
 			return CreateTextureView(textureViewDesc);
 		}
 
-		public Result Create(in Texture2DViewDesc textureViewDesc)
+		public Result Create(Texture2DViewDesc textureViewDesc)
 		{
 			return CreateTextureView(textureViewDesc);
 		}
 
-		public Result Create(in Texture3DViewDesc textureViewDesc)
+		public Result Create(Texture3DViewDesc textureViewDesc)
 		{
 			return CreateTextureView(textureViewDesc);
 		}
 
-		public Result Create(in SamplerDesc samplerDesc)
+		public Result Create(SamplerDesc samplerDesc)
 		{
 			m_Type = DescriptorTypeVK.SAMPLER;
 
@@ -224,7 +224,7 @@ namespace Sedulous.RHI.Vulkan
 			return Result.SUCCESS;
 		}
 
-		public Result Create(in VkAccelerationStructureKHR* accelerationStructures, uint32 physicalDeviceMask)
+		public Result Create(VkAccelerationStructureKHR* accelerationStructures, uint32 physicalDeviceMask)
 		{
 			var physicalDeviceMask;
 			m_Type = DescriptorTypeVK.ACCELERATION_STRUCTURE;
@@ -278,7 +278,7 @@ namespace Sedulous.RHI.Vulkan
 
 		public VkImageLayout GetImageLayout() => m_TextureDesc.imageLayout;
 
-		public Result CreateTextureView<T>(in T textureViewDesc) where T : var
+		public Result CreateTextureView<T>(T textureViewDesc) where T : var
 		{
 			readonly TextureVK texture = (TextureVK)textureViewDesc.texture;
 
@@ -369,7 +369,7 @@ namespace Sedulous.RHI.Vulkan
 			}
 		}
 
-		public override void SetDebugName(in StringView name)
+		public override void SetDebugName(StringView name)
 		{
 			uint64[PHYSICAL_DEVICE_GROUP_MAX_SIZE] handles = .();
 

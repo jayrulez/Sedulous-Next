@@ -23,7 +23,7 @@ namespace Sedulous.RHI.Vulkan
 		private bool m_OwnsNativeObjects = false;
 
 		//////////////////////////////Private Methods//////////////////////////////
-		private Result CreateRenderPass(in OutputMergerDesc* outputMerger, in RasterizationDesc* rasterizationDesc)
+		private Result CreateRenderPass(OutputMergerDesc* outputMerger, RasterizationDesc* rasterizationDesc)
 		{
 			bool hasDepthStencil = false;
 			uint32 attachmentNum = 0;
@@ -125,7 +125,7 @@ namespace Sedulous.RHI.Vulkan
 			return Result.SUCCESS;
 		}
 
-		private void FillVertexInputState(in GraphicsPipelineDesc graphicsPipelineDesc, ref VkPipelineVertexInputStateCreateInfo state)
+		private void FillVertexInputState(GraphicsPipelineDesc graphicsPipelineDesc, ref VkPipelineVertexInputStateCreateInfo state)
 		{
 			state.sType = .VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO;
 
@@ -159,7 +159,7 @@ namespace Sedulous.RHI.Vulkan
 			}
 		}
 
-		private void FillInputAssemblyState(in GraphicsPipelineDesc graphicsPipelineDesc, ref VkPipelineInputAssemblyStateCreateInfo state)
+		private void FillInputAssemblyState(GraphicsPipelineDesc graphicsPipelineDesc, ref VkPipelineInputAssemblyStateCreateInfo state)
 		{
 			state.sType = .VK_STRUCTURE_TYPE_PIPELINE_INPUT_ASSEMBLY_STATE_CREATE_INFO;
 
@@ -168,13 +168,13 @@ namespace Sedulous.RHI.Vulkan
 			state.primitiveRestartEnable = inputAssembly.primitiveRestart != PrimitiveRestart.DISABLED;
 		}
 
-		private void FillTessellationState(in GraphicsPipelineDesc graphicsPipelineDesc, ref VkPipelineTessellationStateCreateInfo state)
+		private void FillTessellationState(GraphicsPipelineDesc graphicsPipelineDesc, ref VkPipelineTessellationStateCreateInfo state)
 		{
 			state.sType = .VK_STRUCTURE_TYPE_PIPELINE_TESSELLATION_STATE_CREATE_INFO;
 			state.patchControlPoints = graphicsPipelineDesc.inputAssembly.tessControlPointNum;
 		}
 
-		private void FillViewportState(in GraphicsPipelineDesc graphicsPipelineDesc, ref VkPipelineViewportStateCreateInfo state)
+		private void FillViewportState(GraphicsPipelineDesc graphicsPipelineDesc, ref VkPipelineViewportStateCreateInfo state)
 		{
 			state.sType = .VK_STRUCTURE_TYPE_PIPELINE_VIEWPORT_STATE_CREATE_INFO;
 
@@ -188,7 +188,7 @@ namespace Sedulous.RHI.Vulkan
 			state.scissorCount = graphicsPipelineDesc.rasterization.viewportNum;
 		}
 
-		private void FillRasterizationState(in GraphicsPipelineDesc graphicsPipelineDesc, ref VkPipelineRasterizationStateCreateInfo state)
+		private void FillRasterizationState(GraphicsPipelineDesc graphicsPipelineDesc, ref VkPipelineRasterizationStateCreateInfo state)
 		{
 			state.sType = .VK_STRUCTURE_TYPE_PIPELINE_RASTERIZATION_STATE_CREATE_INFO;
 
@@ -208,7 +208,7 @@ namespace Sedulous.RHI.Vulkan
 			state.lineWidth = 1.0f;
 		}
 
-		private void FillMultisampleState(in GraphicsPipelineDesc graphicsPipelineDesc, ref VkPipelineMultisampleStateCreateInfo state)
+		private void FillMultisampleState(GraphicsPipelineDesc graphicsPipelineDesc, ref VkPipelineMultisampleStateCreateInfo state)
 		{
 			state.sType = .VK_STRUCTURE_TYPE_PIPELINE_MULTISAMPLE_STATE_CREATE_INFO;
 
@@ -224,7 +224,7 @@ namespace Sedulous.RHI.Vulkan
 			state.alphaToOneEnable = false;
 		}
 
-		private void FillDepthStencilState(in GraphicsPipelineDesc graphicsPipelineDesc, ref VkPipelineDepthStencilStateCreateInfo state)
+		private void FillDepthStencilState(GraphicsPipelineDesc graphicsPipelineDesc, ref VkPipelineDepthStencilStateCreateInfo state)
 		{
 			state.sType = .VK_STRUCTURE_TYPE_PIPELINE_DEPTH_STENCIL_STATE_CREATE_INFO;
 
@@ -258,7 +258,7 @@ namespace Sedulous.RHI.Vulkan
 			state.back.reference = stencil.reference;
 		}
 
-		private void FillColorBlendState(in GraphicsPipelineDesc graphicsPipelineDesc, ref VkPipelineColorBlendStateCreateInfo state)
+		private void FillColorBlendState(GraphicsPipelineDesc graphicsPipelineDesc, ref VkPipelineColorBlendStateCreateInfo state)
 		{
 			state.sType = .VK_STRUCTURE_TYPE_PIPELINE_COLOR_BLEND_STATE_CREATE_INFO;
 
@@ -334,7 +334,7 @@ namespace Sedulous.RHI.Vulkan
 			return Result.SUCCESS;
 		}
 
-		private void FillGroupIndices(in RayTracingPipelineDesc rayTracingPipelineDesc, uint32* groupIndices)
+		private void FillGroupIndices(RayTracingPipelineDesc rayTracingPipelineDesc, uint32* groupIndices)
 		{
 			for (uint32 i = 0; i < rayTracingPipelineDesc.shaderGroupDescNum; i++)
 			{
@@ -355,7 +355,7 @@ namespace Sedulous.RHI.Vulkan
 
 		public VkPipelineBindPoint GetBindPoint() => m_BindPoint;
 
-		public Result Create(in GraphicsPipelineDesc graphicsPipelineDesc)
+		public Result Create(GraphicsPipelineDesc graphicsPipelineDesc)
 		{
 			m_OwnsNativeObjects = true;
 			m_BindPoint = .VK_PIPELINE_BIND_POINT_GRAPHICS;
@@ -366,15 +366,15 @@ namespace Sedulous.RHI.Vulkan
 			if (result != Result.SUCCESS)
 				return result;
 
-			VkPipelineVertexInputStateCreateInfo vertexInputState = .() { };
-			VkPipelineInputAssemblyStateCreateInfo inputAssemblyState = .() { };
-			VkPipelineTessellationStateCreateInfo tessellationState = .() { };
-			VkPipelineViewportStateCreateInfo viewportState = .() { };
-			VkPipelineRasterizationStateCreateInfo rasterizationState = .() { };
-			VkPipelineMultisampleStateCreateInfo multisampleState = .() { };
-			VkPipelineDepthStencilStateCreateInfo depthStencilState = .() { };
-			VkPipelineColorBlendStateCreateInfo colorBlendState = .() { };
-			VkPipelineDynamicStateCreateInfo dynamicState = .() { };
+			VkPipelineVertexInputStateCreateInfo vertexInputState = .();
+			VkPipelineInputAssemblyStateCreateInfo inputAssemblyState = .();
+			VkPipelineTessellationStateCreateInfo tessellationState = .();
+			VkPipelineViewportStateCreateInfo viewportState = .();
+			VkPipelineRasterizationStateCreateInfo rasterizationState = .();
+			VkPipelineMultisampleStateCreateInfo multisampleState = .();
+			VkPipelineDepthStencilStateCreateInfo depthStencilState = .();
+			VkPipelineColorBlendStateCreateInfo colorBlendState = .();
+			VkPipelineDynamicStateCreateInfo dynamicState = .();
 
 			VkPipelineShaderStageCreateInfo* stages = STACK_ALLOC!<VkPipelineShaderStageCreateInfo>(graphicsPipelineDesc.shaderStageNum);
 			VkShaderModule* modules = STACK_ALLOC!<VkShaderModule>(graphicsPipelineDesc.shaderStageNum);
@@ -444,7 +444,7 @@ namespace Sedulous.RHI.Vulkan
 			return Result.SUCCESS;
 		}
 
-		public Result Create(in ComputePipelineDesc computePipelineDesc)
+		public Result Create(ComputePipelineDesc computePipelineDesc)
 		{
 			m_OwnsNativeObjects = true;
 			m_BindPoint = .VK_PIPELINE_BIND_POINT_COMPUTE;
@@ -499,7 +499,7 @@ namespace Sedulous.RHI.Vulkan
 			return Result.SUCCESS;
 		}
 
-		public Result Create(in RayTracingPipelineDesc rayTracingPipelineDesc)
+		public Result Create(RayTracingPipelineDesc rayTracingPipelineDesc)
 		{
 			m_OwnsNativeObjects = true;
 			m_BindPoint = .VK_PIPELINE_BIND_POINT_RAY_TRACING_KHR;
@@ -636,7 +636,7 @@ namespace Sedulous.RHI.Vulkan
 				vkDestroyRenderPass(m_Device, m_RenderPass, m_Device.GetAllocationCallbacks());
 		}
 
-		public override void SetDebugName(in StringView name)
+		public override void SetDebugName(StringView name)
 		{
 			m_Device.SetDebugNameToTrivialObject(.VK_OBJECT_TYPE_PIPELINE, (uint64)m_Handle.Handle, name);
 		}

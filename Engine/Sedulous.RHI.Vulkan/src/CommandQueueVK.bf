@@ -21,7 +21,7 @@ namespace Sedulous.RHI.Vulkan
 
 		public readonly ref DeviceVK GetDevice() => ref m_Device;
 
-		public Result Create(in CommandQueueVulkanDesc commandQueueDesc)
+		public Result Create(CommandQueueVulkanDesc commandQueueDesc)
 		{
 			m_Handle = (VkQueue)commandQueueDesc.vkQueue;
 			m_FamilyIndex = commandQueueDesc.familyIndex;
@@ -49,12 +49,12 @@ namespace Sedulous.RHI.Vulkan
 			m_Type = type;
 		}
 
-		public override void SetDebugName(in StringView name)
+		public override void SetDebugName(StringView name)
 		{
 			m_Device.SetDebugNameToTrivialObject(.VK_OBJECT_TYPE_QUEUE, (uint64)m_Handle.Handle, name);
 		}
 
-		public override void Submit(in WorkSubmissionDesc workSubmissionDesc, DeviceSemaphore deviceSemaphore)
+		public override void Submit(WorkSubmissionDesc workSubmissionDesc, DeviceSemaphore deviceSemaphore)
 		{
 			VkCommandBuffer* commandBuffers = STACK_ALLOC!<VkCommandBuffer>(workSubmissionDesc.commandBufferNum);
 			VkSemaphore* waitSemaphores = STACK_ALLOC!<VkSemaphore>(workSubmissionDesc.waitNum);
@@ -127,7 +127,7 @@ namespace Sedulous.RHI.Vulkan
 				"Can't submit work to a command queue: vkQueueSubmit returned {0}.", (int32)result);
 		}
 
-		public override void Wait(ref DeviceSemaphore deviceSemaphore)
+		public override void Wait(DeviceSemaphore deviceSemaphore)
 		{
 			/*readonly*/ VkFence fence = (DeviceSemaphoreVK)deviceSemaphore;
 
@@ -145,15 +145,15 @@ namespace Sedulous.RHI.Vulkan
 		}
 
 
-		public override Result ChangeResourceStates(in TransitionBarrierDesc transitionBarriers)
+		public override Result ChangeResourceStates(TransitionBarrierDesc transitionBarriers)
 		{
 			ResourceStateChangeHelper resourceStateChange = scope .(m_Device, this);
 
 			return resourceStateChange.ChangeStates(transitionBarriers);
 		}
 
-		public override Result UploadData(in TextureUploadDesc* textureUploadDescs, uint32 textureUploadDescNum,
-			in BufferUploadDesc* bufferUploadDescs, uint32 bufferUploadDescNum)
+		public override Result UploadData(TextureUploadDesc* textureUploadDescs, uint32 textureUploadDescNum,
+			BufferUploadDesc* bufferUploadDescs, uint32 bufferUploadDescNum)
 		{
 			DataUploadHelper helperDataUpload = scope .(m_Device, m_Device.GetDeviceAllocator(), this);
 

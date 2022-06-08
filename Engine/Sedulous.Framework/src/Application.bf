@@ -4,27 +4,23 @@ using System;
 using System.Collections;
 namespace Sedulous.Framework;
 
-class ApplicationSettings : EngineSettings
-{
-}
-
 abstract class Application
 {
 	private bool mIsRunning = false;
 	protected readonly Engine mEngine = null ~ delete _;
-	protected readonly ApplicationSettings mSettings;
 
 	public ILogger Logger => mEngine.Logger;
 
-	public this(ApplicationSettings settings)
+	public this(ILogger logger)
 	{
-		mSettings = settings;
-		mEngine = new Engine(mSettings);
+		mEngine = new Engine(logger, null);
 	}
 
 	protected virtual Result<void> OnStartup() => .Ok;
 
 	protected virtual Result<void> OnInitialize() => .Ok;
+
+	protected virtual void OnFinalize() => void();
 
 	protected virtual void OnShutdown() => void();
 
@@ -72,11 +68,14 @@ abstract class Application
 			return;
 		}
 
-		if (Startup() case .Err)
+		if (Startup() case .Err){
+			OnShutdown();
 			return;
+		}
 
 		if (Initialize() case .Err)
 		{
+			OnFinalize();
 			Shutdown();
 			return;
 		}
@@ -87,6 +86,7 @@ abstract class Application
 			RunFrame();
 		}
 
+		OnFinalize();
 		Shutdown();
 	}
 

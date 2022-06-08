@@ -33,7 +33,7 @@ namespace Sedulous.RHI.Helpers
 				WorkSubmissionDesc workSubmissionDesc = . { };
 				workSubmissionDesc.physicalDeviceIndex = i;
 				m_CommandQueue.Submit(workSubmissionDesc, m_DeviceSemaphore);
-				m_CommandQueue.Wait(ref m_DeviceSemaphore);
+				m_CommandQueue.Wait(m_DeviceSemaphore);
 			}
 
 			return Result.SUCCESS;

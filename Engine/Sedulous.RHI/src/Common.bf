@@ -663,6 +663,7 @@ struct ClearStorageTextureDesc
 	public uint32 offsetInRange;
 }
 
+[CRepr]
 struct TextureRegionDesc
 {
 	public uint16[3] offset;
@@ -671,6 +672,7 @@ struct TextureRegionDesc
 	public uint16 arrayOffset;
 }
 
+[CRepr]
 struct TextureDataLayoutDesc
 {
 	public uint64 offset;
@@ -713,6 +715,7 @@ struct MemoryDesc
 	public bool mustBeDedicated;
 }
 
+[CRepr]
 struct AddressModes
 {
 	public AddressMode u;
@@ -1345,6 +1348,7 @@ enum WindowSystemType : uint8
 	WINDOWS,
 	X11,
 	WAYLAND,
+	METAL,
 	MAX_NUM
 }
 
@@ -1365,11 +1369,17 @@ struct WaylandWindow
 	public void* surface; // wl_surface*
 }
 
+struct MetalWindow
+{
+    public void* caMetalLayer;
+}
+
 [Union] struct Window
 {
 	public WindowsWindow windows;
 	public X11Window x11;
 	public WaylandWindow wayland;
+	public MetalWindow metal;
 }
 
 // SwapChain buffers will be created as "color attachment" resources
@@ -1377,7 +1387,7 @@ struct SwapChainDesc
 {
 	public WindowSystemType windowSystemType;
 	public Window window;
-	public readonly CommandQueue commandQueue;
+	public CommandQueue commandQueue;
 	public uint16 width;
 	public uint16 height;
 	public uint16 textureNum;
