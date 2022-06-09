@@ -28,10 +28,10 @@ namespace Sedulous.Graphics.Vulkan
 			result.ComputeFamily = -1;
 			uint32 num = 0u;
 			VulkanNative.vkGetPhysicalDeviceQueueFamilyProperties(physicalDevice, &num, null);
-			VkQueueFamilyProperties* ptr = scope VkQueueFamilyProperties[(int32)num];
+			VkQueueFamilyProperties* ptr = scope VkQueueFamilyProperties[(int32)num]*;
 			VulkanNative.vkGetPhysicalDeviceQueueFamilyProperties(physicalDevice, &num, ptr);
 			VkBool32 vkBool = default(VkBool32);
-			for (int32 i = 0; i < num; i++)
+			for (int i = 0; i < num; i++)
 			{
 				VkQueueFamilyProperties vkQueueFamilyProperties = ptr[i];
 				if (surface.HasValue)
@@ -39,20 +39,20 @@ namespace Sedulous.Graphics.Vulkan
 					VulkanNative.vkGetPhysicalDeviceSurfaceSupportKHR(physicalDevice, (uint32)i, surface.Value, &vkBool);
 					if (result.Presentfamily < 0 && vkQueueFamilyProperties.queueCount != 0 && (bool)vkBool)
 					{
-						result.Presentfamily = i;
+						result.Presentfamily = (.)i;
 					}
 				}
 				if (vkQueueFamilyProperties.queueCount != 0 && (vkQueueFamilyProperties.queueFlags & VkQueueFlags.VK_QUEUE_GRAPHICS_BIT) != 0)
 				{
-					result.GraphicsFamily = i;
+					result.GraphicsFamily = (.)i;
 				}
 				if (vkQueueFamilyProperties.queueCount != 0 && (vkQueueFamilyProperties.queueFlags & VkQueueFlags.VK_QUEUE_TRANSFER_BIT) != 0)
 				{
-					result.CopyFamily = i;
+					result.CopyFamily = (.)i;
 				}
 				if (vkQueueFamilyProperties.queueCount != 0 && (vkQueueFamilyProperties.queueFlags & VkQueueFlags.VK_QUEUE_COMPUTE_BIT) != 0)
 				{
-					result.ComputeFamily = i;
+					result.ComputeFamily = (.)i;
 				}
 			}
 			return result;

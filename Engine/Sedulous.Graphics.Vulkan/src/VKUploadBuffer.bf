@@ -3,6 +3,7 @@ using Sedulous.Graphics;
 
 namespace Sedulous.Graphics.Vulkan
 {
+	using internal Sedulous.Graphics;
 	internal class VKUploadBuffer : UploadBuffer
 	{
 		/// <summary>
@@ -12,7 +13,7 @@ namespace Sedulous.Graphics.Vulkan
 
 		public VkDeviceMemory BufferMemory;
 
-		public VKUploadBuffer(VKGraphicsContext context, uint64 size, uint32 align = 512u)
+		public this(VKGraphicsContext context, uint64 size, uint32 align = 512u)
 			: base(context, size, align)
 		{
 		}
@@ -26,7 +27,7 @@ namespace Sedulous.Graphics.Vulkan
 			vkBufferCreateInfo.usage = VkBufferUsageFlags.VK_BUFFER_USAGE_TRANSFER_SRC_BIT;
 			vkBufferCreateInfo.sharingMode = (vKGraphicsContext.CopyQueueSupported ? VkSharingMode.VK_SHARING_MODE_CONCURRENT : VkSharingMode.VK_SHARING_MODE_EXCLUSIVE);
 			int32 num = ((!vKGraphicsContext.CopyQueueSupported) ? 1 : 2);
-			uint32* ptr = scope uint32[num];
+			uint32* ptr = scope uint32[num]*;
 			*ptr = (uint32)vKGraphicsContext.QueueIndices.GraphicsFamily;
 			if (vKGraphicsContext.CopyQueueSupported)
 			{
@@ -55,7 +56,7 @@ namespace Sedulous.Graphics.Vulkan
 			VulkanNative.vkBindBufferMemory(vKGraphicsContext.VkDevice, NativeBuffer, BufferMemory, 0uL);
 			void* ptr2 = null;
 			VulkanNative.vkMapMemory(vKGraphicsContext.VkDevice, BufferMemory, 0uL, (uint32)size, 0u, &ptr2);
-			DataCurrent = (DataBegin = (uint64)ptr2);
+			DataCurrent = (DataBegin = (uint64)(int)ptr2);
 			TotalSize = size;
 			DataEnd = DataBegin + size;
 		}

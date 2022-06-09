@@ -54,47 +54,47 @@ namespace Sedulous.Graphics.Vulkan
 			{
 				sType = VkStructureType.VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO
 			};
-			VkDescriptorSetLayoutBinding* ptr = scope VkDescriptorSetLayoutBinding[description.Elements.Count]*;
-			uint32 num = 0u;
-			uint32 num2 = 0u;
-			uint32 num3 = 0u;
-			uint32 num4 = 0u;
-			uint32 num5 = 0u;
-			uint32 num6 = 0u;
-			for (uint32 num7 = 0u; num7 < description.Elements.Count; num7++)
+			VkDescriptorSetLayoutBinding* bindings = scope VkDescriptorSetLayoutBinding[description.Elements.Count]*;
+			uint32 uniformBufferCount  = 0u;
+			uint32 sampledImageCount  = 0u;
+			uint32 samplerCount  = 0u;
+			uint32 storageBufferCount  = 0u;
+			uint32 storageImageCount  = 0u;
+			uint32 accelerationStructureCount = 0u;
+			for (uint32 i = 0u; i < description.Elements.Count; i++)
 			{
-				LayoutElementDescription element = description.Elements[num7];
-				uint32 num8 = (ptr[num7].binding = VKHelpers.GetBinding(element));
-				ptr[num7].descriptorCount = 1u;
-				ptr[num7].descriptorType = element.Type.ToVulkan(element.AllowDynamicOffset);
-				ptr[num7].stageFlags = element.Stages.ToVulkan();
+				ref LayoutElementDescription element = ref description.Elements[i];
+				bindings[i].binding = VKHelpers.GetBinding(element);
+				bindings[i].descriptorCount = 1u;
+				bindings[i].descriptorType = element.Type.ToVulkan(element.AllowDynamicOffset);
+				bindings[i].stageFlags = element.Stages.ToVulkan();
 				switch (element.Type.ToVulkan())
 				{
 				case VkDescriptorType.VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER:
-					num++;
+					uniformBufferCount ++;
 					break;
 				case VkDescriptorType.VK_DESCRIPTOR_TYPE_SAMPLED_IMAGE:
-					num2++;
+					sampledImageCount ++;
 					break;
 				case VkDescriptorType.VK_DESCRIPTOR_TYPE_SAMPLER:
-					num3++;
+					samplerCount ++;
 					break;
 				case VkDescriptorType.VK_DESCRIPTOR_TYPE_STORAGE_BUFFER:
-					num4++;
+					storageBufferCount ++;
 					break;
 				case VkDescriptorType.VK_DESCRIPTOR_TYPE_STORAGE_IMAGE:
-					num5++;
+					storageImageCount ++;
 					break;
 				case VkDescriptorType.VK_DESCRIPTOR_TYPE_ACCELERATION_STRUCTURE_KHR:
-					num6++;
+					accelerationStructureCount++;
 					break;
 
 				default:break;
 				}
 			}
-			ResourceCounts = VKResourceCounts(num, num2, num3, num4, num5, num6);
+			ResourceCounts = VKResourceCounts(uniformBufferCount , sampledImageCount , samplerCount , storageBufferCount , storageImageCount , accelerationStructureCount);
 			vkDescriptorSetLayoutCreateInfo.bindingCount = (uint32)description.Elements.Count;
-			vkDescriptorSetLayoutCreateInfo.pBindings = ptr;
+			vkDescriptorSetLayoutCreateInfo.pBindings = bindings;
 			VkDescriptorSetLayout descriptorSetLayout = default(VkDescriptorSetLayout);
 			VulkanNative.vkCreateDescriptorSetLayout(vkContext.VkDevice, &vkDescriptorSetLayoutCreateInfo, null, &descriptorSetLayout);
 			DescriptorSetLayout = descriptorSetLayout;

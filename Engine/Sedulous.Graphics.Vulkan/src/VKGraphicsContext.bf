@@ -129,15 +129,13 @@ namespace Sedulous.Graphics.Vulkan
 
 		private PFN_vkDebugReportCallbackEXT debugCallbackFunc;
 
-		private List<String> instanceExtensionEnabled;
-
 		/// <summary>
 		/// Set of device extensions to be enabled for this application.
 		/// </summary>
 		/// <remarks>
 		/// Must be set before create device.
 		/// </remarks>
-		public readonly List<String> DeviceExtensionsToEnable;
+		public readonly Span<String> DeviceExtensionsToEnable;
 
 		/// <summary>
 		/// Set of device instance extensions to be enabled for this application.
@@ -145,7 +143,7 @@ namespace Sedulous.Graphics.Vulkan
 		/// <remarks>
 		/// Must be set before create device.
 		/// </remarks>
-		public readonly List<String> InstanceExtensionsToEnable;
+		public readonly Span<String> InstanceExtensionsToEnable;
 
 		/// <inheritdoc />
 		public override void* NativeDevicePointer => (void*)VkDevice.Handle;
@@ -160,7 +158,7 @@ namespace Sedulous.Graphics.Vulkan
 		/// Initializes a new instance of the <see cref="T:Sedulous.Graphics.Vulkan.VKGraphicsContext" /> class.
 		/// </summary>
 		public this()
-			: this(Array.Empty<String>(), Array.Empty<String>())
+			: this(Span<String>(), Span<String>())
 		{
 		}
 
@@ -169,16 +167,23 @@ namespace Sedulous.Graphics.Vulkan
 		/// </summary>
 		/// <param name="deviceExtensionsToEnable">Set of device extensions to be enabled for this application.</param>
 		/// <param name="instanceExtensionsToEnable">Set of device instance extensions to be enabled for this application.</param>
-		public this(IEnumerable<String> deviceExtensionsToEnable, IEnumerable<String> instanceExtensionsToEnable)
+		public this(Span<String> deviceExtensionsToEnable, Span<String> instanceExtensionsToEnable)
 		{
 			base.Factory = new VKResourceFactory(this);
-			DeviceExtensionsToEnable = deviceExtensionsToEnable.ToList();
-			InstanceExtensionsToEnable = instanceExtensionsToEnable.ToList();
+			DeviceExtensionsToEnable = deviceExtensionsToEnable;
+			InstanceExtensionsToEnable = instanceExtensionsToEnable;
 		}
 
 		/// <inheritdoc />
 		public override void CreateDeviceInternal()
 		{
+			VulkanNative.Initialize();
+			VulkanNative.SetLoadFunctionErrorCallBack(new (functionName) =>
+			{
+				//GetLogger().LogError(scope $"Failed to load function: '{functionName}'.");
+				Console.WriteLine(scope $"Failed to load function: '{functionName}'.");
+			} );
+
 			CreateInstance();
 			CreatePhysicalDevice();
 			CreateLogicalDevice();
@@ -193,7 +198,7 @@ namespace Sedulous.Graphics.Vulkan
 		/// <inheritdoc />
 		public override SwapChain CreateSwapChain(SwapChainDescription description)
 		{
-			_ = VkDevice;
+			//_ = VkDevice;
 			return new VKSwapChain(this, description);
 		}
 
@@ -264,7 +269,7 @@ namespace Sedulous.Graphics.Vulkan
 		}
 
 		/// <inheritdoc />
-		protected override void InternalUpdateBufferData(Sedulous.Graphics.Buffer buffer, void* source, uint32 sourceSizeInBytes, uint32 destinationOffsetInBytes = 0u)
+		protected override void InternalUpdateBufferData(Sedulous.Graphics.Buffer buffer, void* source, uint32 sourceSizeInBytes, uint32 destinationOffsetInBytes = 0)
 		{
 			(buffer as VKBuffer).SetData(copyCommandBuffer, source, sourceSizeInBytes, destinationOffsetInBytes);
 		}
@@ -299,40 +304,44 @@ namespace Sedulous.Graphics.Vulkan
 
 		private  void CreateInstance()
 		{
-			String[] source = VKHelpers.EnumerateInstanceLayers(this);
-			String[] array = VKHelpers.EnumerateInstanceExtensions(this);
-			instanceExtensionEnabled = new List<String>();
-			List<String> list = new List<String>();
-			CheckExtension(array, instanceExtensionEnabled, "VK_KHR_surface");
+			String[] availableInstanceLayers = VKHelpers.EnumerateInstanceLayers(this, .. ?);
+			DeleteContainerAndItems!(availableInstanceLayers);
+
+			String[] availableInstanceExtensions = VKHelpers.EnumerateInstanceExtensions(this, .. ?);
+			DeleteContainerAndItems!(availableInstanceExtensions);
+
+			List<char8*> instanceExtensionEnabled = scope List<char8*>();
+			List<char8*> instanceLayersEnabled = scope List<char8*>();
+			CheckExtension(availableInstanceExtensions, instanceExtensionEnabled, "VK_KHR_surface");
 			switch (VKHelpers.GetCurrentPlatfom())
 			{
 			case VKHelpers.OS.Windows:
-				CheckExtension(array, instanceExtensionEnabled, "VK_KHR_win32_surface");
+				CheckExtension(availableInstanceExtensions, instanceExtensionEnabled, "VK_KHR_win32_surface");
 				break;
 			case VKHelpers.OS.Linux:
-				CheckExtension(array, instanceExtensionEnabled, "VK_KHR_xlib_surface");
+				CheckExtension(availableInstanceExtensions, instanceExtensionEnabled, "VK_KHR_xlib_surface");
 				break;
 			case VKHelpers.OS.Android:
-				CheckExtension(array, instanceExtensionEnabled, "VK_KHR_android_surface");
+				CheckExtension(availableInstanceExtensions, instanceExtensionEnabled, "VK_KHR_android_surface");
 				break;
 			case VKHelpers.OS.MacOS:
-				CheckExtension(array, instanceExtensionEnabled, "VK_MVK_macos_surface");
+				CheckExtension(availableInstanceExtensions, instanceExtensionEnabled, "VK_MVK_macos_surface");
 				break;
 			case VKHelpers.OS.iOS:
-				CheckExtension(array, instanceExtensionEnabled, "VK_MVK_ios_surface");
+				CheckExtension(availableInstanceExtensions, instanceExtensionEnabled, "VK_MVK_ios_surface");
 				break;
 			}
-			foreach (String item in InstanceExtensionsToEnable)
+			for (String instanceExtensionToEnable in InstanceExtensionsToEnable)
 			{
-				CheckExtension(array, instanceExtensionEnabled, item);
+				CheckExtension(availableInstanceExtensions, instanceExtensionEnabled, instanceExtensionToEnable);
 			}
-			if (array.Any((String e) => e == "VK_KHR_get_physical_device_properties2"))
+			if (availableInstanceExtensions.Contains("VK_KHR_get_physical_device_properties2"))
 			{
 				instanceExtensionEnabled.Add("VK_KHR_get_physical_device_properties2");
 			}
 			if (base.IsValidationLayerEnabled)
 			{
-				if (array.Any((String e) => e == "VK_EXT_debug_utils"))
+				if (availableInstanceExtensions.Contains("VK_EXT_debug_utils"))
 				{
 					instanceExtensionEnabled.Add("VK_EXT_debug_utils");
 					DebugUtilsEnabled = true;
@@ -345,25 +354,26 @@ namespace Sedulous.Graphics.Vulkan
 				switch (VKHelpers.GetCurrentPlatfom())
 				{
 				case VKHelpers.OS.Windows:
-					if (source.Any((String l) => l == "VK_LAYER_KHRONOS_validation"))
+					if (availableInstanceLayers.Contains("VK_LAYER_KHRONOS_validation"))
 					{
-						list.Add("VK_LAYER_KHRONOS_validation");
+						instanceLayersEnabled.Add("VK_LAYER_KHRONOS_validation");
 					}
 					break;
 				case VKHelpers.OS.Android:
-					if (source.Any((String l) => l == "VK_LAYER_LUNARG_core_validation"))
+					if (availableInstanceLayers.Contains("VK_LAYER_LUNARG_core_validation"))
 					{
-						list.Add("VK_LAYER_LUNARG_core_validation");
+						instanceLayersEnabled.Add("VK_LAYER_LUNARG_core_validation");
 					}
-					if (source.Any((String l) => l == "VK_LAYER_LUNARG_swapchain"))
+					if (availableInstanceLayers.Contains("VK_LAYER_LUNARG_swapchain"))
 					{
-						list.Add("VK_LAYER_LUNARG_swapchain");
+						instanceLayersEnabled.Add("VK_LAYER_LUNARG_swapchain");
 					}
-					if (source.Any((String l) => l == "VK_LAYER_LUNARG_parameter_validation"))
+					if (availableInstanceLayers.Contains("VK_LAYER_LUNARG_parameter_validation"))
 					{
-						list.Add("VK_LAYER_LUNARG_parameter_validation");
+						instanceLayersEnabled.Add("VK_LAYER_LUNARG_parameter_validation");
 					}
 					break;
+				default:break;
 				}
 			}
 			VkApplicationInfo vkApplicationInfo = default(VkApplicationInfo);
@@ -371,30 +381,17 @@ namespace Sedulous.Graphics.Vulkan
 			vkApplicationInfo.apiVersion = Version_1_2;
 			vkApplicationInfo.applicationVersion = Version_1_0;
 			vkApplicationInfo.engineVersion = Version_1_0;
-			vkApplicationInfo.pEngineName = "Sedulous".ToPointer();
-			vkApplicationInfo.pApplicationName = "Sedulous".ToPointer();
+			vkApplicationInfo.pEngineName = "Sedulous";
+			vkApplicationInfo.pApplicationName = "Sedulous";
 			VkApplicationInfo vkApplicationInfo2 = vkApplicationInfo;
-			int32 count = list.Count;
-			IntPtr* ptr = scope IntPtr[count];
-			for (int32 i = 0; i < count; i++)
-			{
-				String s = list[i];
-				ptr[i] = Marshal.StringToHGlobalAnsi(s);
-			}
-			int32 count2 = instanceExtensionEnabled.Count;
-			IntPtr* ptr2 = scope IntPtr[count2];
-			for (int32 j = 0; j < count2; j++)
-			{
-				String s2 = instanceExtensionEnabled[j];
-				ptr2[j] = Marshal.StringToHGlobalAnsi(s2);
-			}
+
 			VkInstanceCreateInfo vkInstanceCreateInfo = default(VkInstanceCreateInfo);
 			vkInstanceCreateInfo.sType = VkStructureType.VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO;
 			vkInstanceCreateInfo.pApplicationInfo = &vkApplicationInfo2;
-			vkInstanceCreateInfo.enabledLayerCount = (uint32)list.Count;
-			vkInstanceCreateInfo.ppEnabledLayerNames = (uint8**)ptr;
-			vkInstanceCreateInfo.enabledExtensionCount = (uint32)count2;
-			vkInstanceCreateInfo.ppEnabledExtensionNames = (uint8**)ptr2;
+			vkInstanceCreateInfo.enabledLayerCount = (uint32)instanceLayersEnabled.Count;
+			vkInstanceCreateInfo.ppEnabledLayerNames = instanceLayersEnabled.Ptr;
+			vkInstanceCreateInfo.enabledExtensionCount = (uint32)instanceExtensionEnabled.Count;
+			vkInstanceCreateInfo.ppEnabledExtensionNames = instanceExtensionEnabled.Ptr;
 			VkDebugUtilsMessengerCreateInfoEXT vkDebugUtilsMessengerCreateInfoEXT = default(VkDebugUtilsMessengerCreateInfoEXT);
 			VkDebugReportCallbackCreateInfoEXT vkDebugReportCallbackCreateInfoEXT = default(VkDebugReportCallbackCreateInfoEXT);
 			if (base.IsValidationLayerEnabled)
@@ -404,31 +401,24 @@ namespace Sedulous.Graphics.Vulkan
 					vkDebugUtilsMessengerCreateInfoEXT.sType = VkStructureType.VK_STRUCTURE_TYPE_DEBUG_UTILS_MESSENGER_CREATE_INFO_EXT;
 					vkDebugUtilsMessengerCreateInfoEXT.messageSeverity = VkDebugUtilsMessageSeverityFlagsEXT.VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT | VkDebugUtilsMessageSeverityFlagsEXT.VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT;
 					vkDebugUtilsMessengerCreateInfoEXT.messageType = VkDebugUtilsMessageTypeFlagsEXT.VK_DEBUG_UTILS_MESSAGE_TYPE_VALIDATION_BIT_EXT;
-					debugUtilsMessegerCallbackFunc = DebugUtilsMessengerCallback;
-					vkDebugUtilsMessengerCreateInfoEXT.pfnUserCallback = Marshal.GetFunctionPointerForDelegate(debugUtilsMessegerCallbackFunc);
+					debugUtilsMessegerCallbackFunc = => DebugUtilsMessengerCallback;
+					vkDebugUtilsMessengerCreateInfoEXT.pfnUserCallback = debugUtilsMessegerCallbackFunc;
 					vkInstanceCreateInfo.pNext = &vkDebugUtilsMessengerCreateInfoEXT;
 				}
 				else
 				{
 					vkDebugReportCallbackCreateInfoEXT.sType = VkStructureType.VK_STRUCTURE_TYPE_DEBUG_REPORT_CALLBACK_CREATE_INFO_EXT;
 					vkDebugReportCallbackCreateInfoEXT.flags = VkDebugReportFlagsEXT.VK_DEBUG_REPORT_WARNING_BIT_EXT | VkDebugReportFlagsEXT.VK_DEBUG_REPORT_ERROR_BIT_EXT;
-					debugCallbackFunc = DebugCallback;
-					vkDebugReportCallbackCreateInfoEXT.pfnCallback = Marshal.GetFunctionPointerForDelegate(debugCallbackFunc);
+					debugCallbackFunc = => DebugCallback;
+					vkDebugReportCallbackCreateInfoEXT.pfnCallback = debugCallbackFunc;
 					vkInstanceCreateInfo.pNext = &vkDebugReportCallbackCreateInfoEXT;
 				}
 			}
 			VkInstance vkInstance = default(VkInstance);
 			VulkanNative.vkCreateInstance(&vkInstanceCreateInfo, null, &vkInstance);
 			VkInstance = vkInstance;
-			VulkanNative.LoadFuncionPointers(vkInstance);
-			for (int32 k = 0; k < count; k++)
-			{
-				Marshal.FreeHGlobal(ptr[k]);
-			}
-			for (int32 m = 0; m < count2; m++)
-			{
-				Marshal.FreeHGlobal(ptr2[m]);
-			}
+			VulkanNative.LoadInstanceFunctions(vkInstance);
+
 			if (base.IsValidationLayerEnabled)
 			{
 				if (DebugUtilsEnabled)
@@ -446,34 +436,34 @@ namespace Sedulous.Graphics.Vulkan
 			}
 		}
 
-		private void CheckExtension(String[] availableinstanceExtensions, List<String> extensionsToEnable, String extension)
+		private void CheckExtension(String[] availableinstanceExtensions, List<char8*> extensionsToEnable, String @extension)
 		{
-			if (!availableinstanceExtensions.Any((String e) => e == extension))
-			{
-				base.ValidationLayer?.Notify("Vulkan", "The requiered instance extensions was not available: " + extension);
+			if(availableinstanceExtensions.Contains(@extension)){
+				extensionsToEnable.Add(@extension);
+			}else{
+				base.ValidationLayer?.Notify("Vulkan", scope $"The required instance extensions was not available: {@extension}");
 			}
-			extensionsToEnable.Add(extension);
 		}
 
-		private  VkBool32 DebugUtilsMessengerCallback(VkDebugUtilsMessageSeverityFlagsEXT messageSeverity, uint32 messageTypes, VkDebugUtilsMessengerCallbackDataEXT* pCallbackData, void* pUserData)
+		private static VkBool32 DebugUtilsMessengerCallback(VkDebugUtilsMessageSeverityFlagsEXT messageSeverity, uint32 messageTypes, VkDebugUtilsMessengerCallbackDataEXT* pCallbackData, void* pUserData)
 		{
-			String arg = Marshal.PtrToStringAnsi((IntPtr)pCallbackData->pMessage);
-			int32 messageIdNumber = pCallbackData->messageIdNumber;
-			String message = $"[{(VkDebugUtilsMessageTypeFlagsEXT)messageTypes}] ({messageIdNumber}) {arg}";
+			GraphicsContext context = (VKGraphicsContext)Internal.UnsafeCastToObject(pUserData);
+			int32 messageIdNumber = pCallbackData.messageIdNumber;
+			String message = scope $"[{(VkDebugUtilsMessageTypeFlagsEXT)messageTypes}] ({messageIdNumber}) {scope String(pCallbackData.pMessage)}";
 			if (messageSeverity == VkDebugUtilsMessageSeverityFlagsEXT.VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT)
 			{
-				base.ValidationLayer?.Notify("Vulkan", message);
+				context.ValidationLayer?.Notify("Vulkan", message);
 			}
 			return false;
 		}
 
-		private  VkBool32 DebugCallback(uint32 flags, VkDebugReportObjectTypeEXT objectType, uint64 @Object, UIntPtr location, int32 messageCode, uint8* pLayerPrefix, uint8* pMessage, void* pUserData)
+		private static VkBool32 DebugCallback(uint32 flags, VkDebugReportObjectTypeEXT objectType, uint64 @Object, uint location, int32 messageCode, char8* pLayerPrefix, char8* pMessage, void* pUserData)
 		{
-			String arg = Marshal.PtrToStringAnsi((IntPtr)pMessage);
-			String message = $"[{(VkDebugReportFlagsEXT)flags}] ({objectType}) {arg}";
+			GraphicsContext context = (VKGraphicsContext)Internal.UnsafeCastToObject(pUserData);
+			String message = scope $"[{(VkDebugReportFlagsEXT)flags}] ({objectType}) {scope String(pMessage)}";
 			if (flags == 8)
 			{
-				base.ValidationLayer?.Notify("Vulkan", message);
+				context.ValidationLayer?.Notify("Vulkan", message);
 			}
 			return false;
 		}
@@ -492,7 +482,7 @@ namespace Sedulous.Graphics.Vulkan
 			vkPhysicalDeviceProperties.sType = VkStructureType.VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PROPERTIES_2;
 			if (num != 0)
 			{
-				VkPhysicalDevice @null = VkPhysicalDevice.Null;
+				VkPhysicalDevice @null = /*VkPhysicalDevice*/.Null;
 				for (uint32 num2 = 0u; num2 < num; num2++)
 				{
 					@null = ptr[num2];
@@ -503,12 +493,12 @@ namespace Sedulous.Graphics.Vulkan
 						break;
 					}
 				}
-				if (VkPhysicalDevice == VkPhysicalDevice.Null)
+				if (VkPhysicalDevice == /*VkPhysicalDevice*/.Null)
 				{
 					VkPhysicalDevice = *ptr;
 				}
 			}
-			if (VkPhysicalDevice == VkPhysicalDevice.Null)
+			if (VkPhysicalDevice == /*VkPhysicalDevice*/.Null)
 			{
 				base.ValidationLayer?.Notify("Vulkan", "Failed to find a suitable GPU");
 			}
@@ -541,15 +531,15 @@ namespace Sedulous.Graphics.Vulkan
 		private  void CreateLogicalDevice()
 		{
 			QueueIndices = VKQueueFamilyIndices.FindQueueFamilies(this, VkPhysicalDevice, null);
-			float num = 1f;
-			int32 num2 = ((QueueIndices.CopyFamily == -1) ? 1 : 2);
+			float priorities = 1f;
+			int32 queueCount = ((QueueIndices.CopyFamily == -1) ? 1 : 2);
 			VkDeviceQueueCreateInfo vkDeviceQueueCreateInfo = default(VkDeviceQueueCreateInfo);
 			vkDeviceQueueCreateInfo.sType = VkStructureType.VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO;
 			vkDeviceQueueCreateInfo.queueFamilyIndex = (uint32)QueueIndices.GraphicsFamily;
 			vkDeviceQueueCreateInfo.queueCount = 1u;
-			vkDeviceQueueCreateInfo.pQueuePriorities = &num;
-			VkDeviceQueueCreateInfo* ptr = scope VkDeviceQueueCreateInfo[num2]*;
-			*ptr = vkDeviceQueueCreateInfo;
+			vkDeviceQueueCreateInfo.pQueuePriorities = &priorities;
+			VkDeviceQueueCreateInfo* queueCreateInfos = scope VkDeviceQueueCreateInfo[queueCount]*;
+			*queueCreateInfos = vkDeviceQueueCreateInfo;
 			CopyQueueSupported = QueueIndices.CopyFamily != -1;
 			if (CopyQueueSupported)
 			{
@@ -557,55 +547,52 @@ namespace Sedulous.Graphics.Vulkan
 				vkDeviceQueueCreateInfo2.sType = VkStructureType.VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO;
 				vkDeviceQueueCreateInfo2.queueFamilyIndex = (uint32)QueueIndices.CopyFamily;
 				vkDeviceQueueCreateInfo2.queueCount = 1u;
-				vkDeviceQueueCreateInfo2.pQueuePriorities = &num;
-				ptr[1] = vkDeviceQueueCreateInfo2;
+				vkDeviceQueueCreateInfo2.pQueuePriorities = &priorities;
+				queueCreateInfos[1] = vkDeviceQueueCreateInfo2;
 			}
-			uint32 num3 = 0u;
-			VulkanNative.vkEnumerateDeviceExtensionProperties(VkPhysicalDevice, null, &num3, null);
-			VkExtensionProperties* ptr2 = scope VkExtensionProperties[(int32)num3]*;
-			VulkanNative.vkEnumerateDeviceExtensionProperties(VkPhysicalDevice, null, &num3, ptr2);
-			List<String> list = new List<String>();
-			for (int i = 0; i < num3; i++)
+			uint32 deviceExtensionCount = 0u;
+			VulkanNative.vkEnumerateDeviceExtensionProperties(VkPhysicalDevice, null, &deviceExtensionCount, null);
+			VkExtensionProperties* deviceExtensions = scope VkExtensionProperties[(int32)deviceExtensionCount]*;
+			VulkanNative.vkEnumerateDeviceExtensionProperties(VkPhysicalDevice, null, &deviceExtensionCount, deviceExtensions);
+			List<char8*> enabledExtensions = scope List<char8*>();
+			for (int i = 0; i < deviceExtensionCount; i++)
 			{
-				String text = Marshal.PtrToStringAnsi((IntPtr)ptr2[i].extensionName);
-				switch (text)
+				String availableExtension = scope :: String(&deviceExtensions[i].extensionName);
+				switch (availableExtension)
 				{
 				case "VK_KHR_swapchain":
 				case "VK_EXT_shader_viewport_index_layer":
 				case "VK_NV_viewport_array2":
-					list.Add(text);
+					enabledExtensions.Add(availableExtension);
 					break;
 				case "VK_EXT_debug_marker":
-					list.Add(text);
+					enabledExtensions.Add(availableExtension);
 					DebugMarkerEnabled = true;
 					break;
 				case "VK_KHR_maintenance1":
 					ClipSpaceYInvertedSupported = true;
-					list.Add(text);
+					enabledExtensions.Add(availableExtension);
 					break;
 				case "VK_KHR_spirv_1_4":
-					list.Add(text);
+					enabledExtensions.Add(availableExtension);
 					break;
 				case "VK_KHR_acceleration_structure":
-					list.Add(text);
+					enabledExtensions.Add(availableExtension);
 					break;
 				case "VK_KHR_ray_tracing_pipeline":
 					raytracingSupported = true;
-					list.Add(text);
+					enabledExtensions.Add(availableExtension);
 					break;
 				case "VK_KHR_deferred_host_operations":
-					list.Add(text);
+					enabledExtensions.Add(availableExtension);
 					break;
 				}
 			}
-			list.AddRange(DeviceExtensionsToEnable);
-			int32 count = list.Count;
-			IntPtr* ptr3 = scope IntPtr[count];
-			for (int32 j = 0; j < count; j++)
-			{
-				String s = list[j];
-				ptr3[j] = Marshal.StringToHGlobalAnsi(s);
+
+			for(String deviceExtensionToEnable in DeviceExtensionsToEnable){
+				enabledExtensions.Add(deviceExtensionToEnable);
 			}
+
 			VkPhysicalDeviceFeatures2 vkPhysicalDeviceFeatures = default(VkPhysicalDeviceFeatures2);
 			VkPhysicalDeviceVulkan11Features vkPhysicalDeviceVulkan11Features = default(VkPhysicalDeviceVulkan11Features);
 			VkPhysicalDeviceVulkan12Features vkPhysicalDeviceVulkan12Features = default(VkPhysicalDeviceVulkan12Features);
@@ -653,19 +640,15 @@ namespace Sedulous.Graphics.Vulkan
 			features_1_2 = vkPhysicalDeviceVulkan12Features;
 			VkDeviceCreateInfo vkDeviceCreateInfo = default(VkDeviceCreateInfo);
 			vkDeviceCreateInfo.sType = VkStructureType.VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO;
-			vkDeviceCreateInfo.enabledExtensionCount = (uint32)count;
-			vkDeviceCreateInfo.ppEnabledExtensionNames = (uint8**)ptr3;
-			vkDeviceCreateInfo.queueCreateInfoCount = (uint32)num2;
-			vkDeviceCreateInfo.pQueueCreateInfos = ptr;
+			vkDeviceCreateInfo.enabledExtensionCount = (uint32)enabledExtensions.Count;
+			vkDeviceCreateInfo.ppEnabledExtensionNames = enabledExtensions.Ptr;
+			vkDeviceCreateInfo.queueCreateInfoCount = (uint32)queueCount;
+			vkDeviceCreateInfo.pQueueCreateInfos = queueCreateInfos;
 			vkDeviceCreateInfo.pEnabledFeatures = null;
 			vkDeviceCreateInfo.pNext = &vkPhysicalDeviceFeatures;
 			VkDevice vkDevice = default(VkDevice);
 			VulkanNative.vkCreateDevice(VkPhysicalDevice, &vkDeviceCreateInfo, null, &vkDevice);
 			VkDevice = vkDevice;
-			for (int32 k = 0; k < count; k++)
-			{
-				Marshal.FreeHGlobal(ptr3[k]);
-			}
 			VkQueue vkQueue = default(VkQueue);
 			VulkanNative.vkGetDeviceQueue(VkDevice, (uint32)QueueIndices.GraphicsFamily, 0u, &vkQueue);
 			vkGraphicsQueue = vkQueue;
@@ -715,18 +698,11 @@ namespace Sedulous.Graphics.Vulkan
 		{
 			if (DebugMarkerEnabled && !String.IsNullOrEmpty(name))
 			{
-				int32 byteCount = Encoding.UTF8.GetByteCount(name);
-				uint8* ptr = scope uint8[(int32)(uint32)(byteCount + 1)];
-				fixed (char* chars = name)
-				{
-					Encoding.UTF8.GetBytes(chars, name.Length, ptr, byteCount);
-				}
-				ptr[byteCount] = 0;
 				VkDebugUtilsObjectNameInfoEXT vkDebugUtilsObjectNameInfoEXT = default(VkDebugUtilsObjectNameInfoEXT);
 				vkDebugUtilsObjectNameInfoEXT.sType = VkStructureType.VK_STRUCTURE_TYPE_DEBUG_UTILS_OBJECT_NAME_INFO_EXT;
 				vkDebugUtilsObjectNameInfoEXT.objectHandle = target;
 				vkDebugUtilsObjectNameInfoEXT.objectType = type;
-				vkDebugUtilsObjectNameInfoEXT.pObjectName = ptr;
+				vkDebugUtilsObjectNameInfoEXT.pObjectName = name.CStr();
 				VulkanNative.vkSetDebugUtilsObjectNameEXT(VkDevice, &vkDebugUtilsObjectNameInfoEXT);
 			}
 		}
@@ -746,7 +722,8 @@ namespace Sedulous.Graphics.Vulkan
 					VulkanNative.vkDestroyFence(VkDevice, vkImageAvailableFence, null);
 					VulkanNative.vkDestroyDevice(VkDevice, null);
 					debugCallbackFunc = null;
-					Marshal.GetDelegateForFunctionPointer<vkDestroyDebugReportCallbackEXT_d>(VulkanNative.vkGetInstanceProcAddr(VkInstance, "vkDestroyDebugReportCallbackEXT".ToPointer()))(VkInstance, debugCallbackHandle, null);
+					VulkanNative.vkDestroyDebugReportCallbackEXTFunction destroyFunction = (.)VulkanNative.vkGetInstanceProcAddr(VkInstance, "vkDestroyDebugReportCallbackEXT");
+					destroyFunction(VkInstance, debugCallbackHandle, null);
 					VulkanNative.vkDestroyInstance(VkInstance, null);
 				}
 				disposed = true;

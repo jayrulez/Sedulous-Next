@@ -8,6 +8,8 @@ using Sedulous.Foundation.Mathematics;
 namespace Sedulous.Graphics.Vulkan
 {
 	using internal Sedulous.Graphics;
+	using static Sedulous.Graphics.Vulkan.VKExtensionsMethods;
+	using static Sedulous.Graphics.Vulkan.VKHelpers;
 
 	/// <summary>
 	/// The Vulkan implementation of a command buffer Object.
@@ -57,8 +59,8 @@ namespace Sedulous.Graphics.Vulkan
 			set
 			{
 				name = value;
-				context.SetDebugName(VkObjectType.VK_OBJECT_TYPE_COMMAND_BUFFER, (uint64)(int64)CommandBuffer.Handle, name + "_CommandBuffer");
-				context.SetDebugName(VkObjectType.VK_OBJECT_TYPE_COMMAND_POOL, commandPool.Handle, name + "_CommandPool");
+				context.SetDebugName(VkObjectType.VK_OBJECT_TYPE_COMMAND_BUFFER, (uint64)(int64)CommandBuffer.Handle, scope String(name)..Append("_CommandBuffer"));
+				context.SetDebugName(VkObjectType.VK_OBJECT_TYPE_COMMAND_POOL, commandPool.Handle, scope String(name)..Append("_CommandPool"));
 			}
 		}
 
@@ -330,7 +332,7 @@ namespace Sedulous.Graphics.Vulkan
 			activePipelineState = vKGraphicsPipelineState;
 			if (!currentGraphicsPipelineState.Description.RenderStates.RasterizerState.ScissorEnable)
 			{
-				VkRect2D vkRect2D = new VkRect2D(0, 0, 15360, 8640);
+				VkRect2D vkRect2D = VkRect2D(0, 0, 15360, 8640);
 				VulkanNative.vkCmdSetScissor(CommandBuffer, 0, 1u, &vkRect2D);
 			}
 		}
@@ -368,16 +370,16 @@ namespace Sedulous.Graphics.Vulkan
 				vKTexture2.TransitionImageLayout(CommandBuffer, VkImageLayout.VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL, 0, vKTexture2.Description.MipLevels, 0, vKTexture2.Description.ArraySize);
 			}
 			VkDescriptorSet descriptorSet = vKResourceSet.DescriptorAllocationToken.DescriptorSet;
-			uint32* ptr = scope uint32[(int32)vKResourceSet.DynamicBufferCount];
+			uint32* ptr = scope uint32[(int32)vKResourceSet.DynamicBufferCount]*;
 			if (vKResourceSet.DynamicBufferCount != 0 && offsets != null)
 			{
-				if (offsets.Length < vKResourceSet.DynamicBufferCount)
+				if (offsets.Count < vKResourceSet.DynamicBufferCount)
 				{
 					GraphicsContext.ValidationLayer?.Notify("Vulkan", "offsets error.");
 				}
 				else
 				{
-					for (int32 k = 0; k < vKResourceSet.DynamicBufferCount; k++)
+					for (int k = 0; k < vKResourceSet.DynamicBufferCount; k++)
 					{
 						ptr[k] = offsets[k];
 					}
@@ -660,18 +662,24 @@ namespace Sedulous.Graphics.Vulkan
 		/// <inheritdoc />
 		public override BottomLevelAS BuildRaytracingAccelerationStructure(BottomLevelASDescription description)
 		{
+			var description;
+
 			return new VKBottomLevelAS(context, CommandBuffer, ref description);
 		}
 
 		/// <inheritdoc />
 		public override TopLevelAS BuildRaytracingAccelerationStructure(TopLevelASDescription description)
 		{
+			var description;
+
 			return new VKTopLevelAS(context, CommandBuffer, ref description);
 		}
 
 		/// <inheritdoc />
 		public override void UpdateRaytracingAccelerationStructure(ref TopLevelAS tlas, TopLevelASDescription newDescription)
 		{
+			var newDescription;
+
 			((VKTopLevelAS)tlas).UpdateAccelerationStructure(CommandBuffer, ref newDescription);
 		}
 

@@ -201,6 +201,7 @@ namespace Sedulous.RHI.Vulkan
 
 		public void Create(in VkDescriptorSet* handles, uint32 physicalDeviceMask, in DescriptorSetDesc setDesc)
 		{
+			var setDesc;
 			m_SetDesc = &setDesc;
 			m_DynamicConstantBufferNum = setDesc.dynamicConstantBufferNum;
 

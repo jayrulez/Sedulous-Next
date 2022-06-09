@@ -136,6 +136,7 @@ namespace Sedulous.Graphics.Vulkan
 
 		public  VKDescriptorAllocationToken Allocate(VkDescriptorSetLayout layout, VKResourceCounts resourceCounts)
 		{
+			var layout;
 			VkDescriptorPool pool = GetPool(resourceCounts);
 			VkDescriptorSetAllocateInfo vkDescriptorSetAllocateInfo = default(VkDescriptorSetAllocateInfo);
 			vkDescriptorSetAllocateInfo.sType = VkStructureType.VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO;

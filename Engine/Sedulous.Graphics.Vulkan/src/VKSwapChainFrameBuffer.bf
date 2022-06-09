@@ -157,7 +157,7 @@ namespace Sedulous.Graphics.Vulkan
 		public override void TransitionToFinalLayout(VkCommandBuffer cb)
 		{
 			FrameBufferAttachment[] colorTargets = FrameBuffers[CurrentBackBufferIndex].ColorTargets;
-			foreach (FrameBufferAttachment frameBufferAttachment in colorTargets)
+			for (FrameBufferAttachment frameBufferAttachment in colorTargets)
 			{
 				(frameBufferAttachment.Texture as VKTexture).TransitionImageLayout(cb, VkImageLayout.VK_IMAGE_LAYOUT_PRESENT_SRC_KHR, 0u, 1u, 0u, 1u);
 			}

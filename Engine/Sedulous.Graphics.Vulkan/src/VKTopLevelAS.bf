@@ -4,6 +4,9 @@ using Sedulous.Graphics.Raytracing;
 
 namespace Sedulous.Graphics.Vulkan
 {
+	using static Sedulous.Graphics.Vulkan.VKHelpers;
+	using static Sedulous.Graphics.Vulkan.VKExtensionsMethods;
+
 	/// <summary>
 	/// Vulkan Top Level Acceleration Structure implementation.
 	/// </summary>

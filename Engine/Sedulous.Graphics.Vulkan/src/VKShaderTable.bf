@@ -4,6 +4,11 @@ using System.Collections;
 
 namespace Sedulous.Graphics.Vulkan
 {
+	using internal Sedulous.Graphics;
+
+	using static Sedulous.Graphics.Vulkan.VKExtensionsMethods;
+	using static Sedulous.Graphics.Vulkan.VKHelpers;
+
 	/// <summary>
 	/// Vulkan Shader binding table.
 	/// </summary>
@@ -65,8 +70,6 @@ namespace Sedulous.Graphics.Vulkan
 		protected bool disposed;
 
 		private uint16[] data;
-
-		private GCHandle gcHandle;
 
 		private int64 dataPointer;
 
@@ -143,47 +146,50 @@ namespace Sedulous.Graphics.Vulkan
 		{
 			shaderTableEntrySize = 32u;
 			shaderTableEntrySizeAligned = AlignTo(shaderTableEntrySize, 64u);
-			uint32 num = shaderTableEntrySize * (uint32)entries.Count;
-			data = new uint16[num];
-			gcHandle = GCHandle.Alloc(data, GCHandleType.Pinned);
-			dataPointer = (int64)gcHandle.AddrOfPinnedObject();
-			VulkanNative.vkGetRayTracingShaderGroupHandlesKHR(context.VkDevice, pipeline, 0u, (uint32)entries.Count, new UIntPtr(num), (void*)dataPointer);
+			uint32 dataSize = shaderTableEntrySize * (uint32)entries.Count;
+			data = new uint16[dataSize];
+			dataPointer = (int64)(int)(void*)data.Ptr;
+			VulkanNative.vkGetRayTracingShaderGroupHandlesKHR(context.VkDevice, pipeline, 0u, (uint32)entries.Count, dataSize, (void*)(int)dataPointer);
 			uint32 num2 = shaderTableEntrySizeAligned * raygenCount;
 			rayGenBuffer = VKRaytracingHelpers.CreateBuffer(context, num2, VkBufferUsageFlags.VK_BUFFER_USAGE_SHADER_DEVICE_ADDRESS_BIT | VkBufferUsageFlags.VK_BUFFER_USAGE_SHADER_BINDING_TABLE_BIT_KHR);
+
 			void* value = default(void*);
-			VulkanNative.vkMapMemory(context.VkDevice, rayGenBuffer.Memory, 0uL, num, 0u, &value);
+			VulkanNative.vkMapMemory(context.VkDevice, rayGenBuffer.Memory, 0uL, dataSize, 0u, &value);
 			uint32 num3 = shaderTableEntrySizeAligned * missCount;
 			missBuffer = VKRaytracingHelpers.CreateBuffer(context, num3, VkBufferUsageFlags.VK_BUFFER_USAGE_SHADER_DEVICE_ADDRESS_BIT | VkBufferUsageFlags.VK_BUFFER_USAGE_SHADER_BINDING_TABLE_BIT_KHR);
+
 			void* value2 = default(void*);
-			VulkanNative.vkMapMemory(context.VkDevice, missBuffer.Memory, 0uL, num, 0u, &value2);
+			VulkanNative.vkMapMemory(context.VkDevice, missBuffer.Memory, 0uL, dataSize, 0u, &value2);
 			uint32 num4 = shaderTableEntrySizeAligned * hitgroupCount;
 			hitBuffer = VKRaytracingHelpers.CreateBuffer(context, num4, VkBufferUsageFlags.VK_BUFFER_USAGE_SHADER_DEVICE_ADDRESS_BIT | VkBufferUsageFlags.VK_BUFFER_USAGE_SHADER_BINDING_TABLE_BIT_KHR);
+
 			void* value3 = default(void*);
-			VulkanNative.vkMapMemory(context.VkDevice, hitBuffer.Memory, 0uL, num, 0u, &value3);
-			IntPtr intPtr = new IntPtr(value);
-			IntPtr intPtr2 = new IntPtr(value2);
-			IntPtr intPtr3 = new IntPtr(value3);
+			VulkanNative.vkMapMemory(context.VkDevice, hitBuffer.Memory, 0uL, dataSize, 0u, &value3);
+
+			int intPtr = (int)value;
+			int intPtr2 = (int)value2;
+			int intPtr3 = (int)value3;
 			for (int32 i = 0; i < entries.Count; i++)
 			{
 				switch (entries[i].type)
 				{
 				case ShaderTableRecord.RecordType.RayGen:
-					Unsafe.CopyBlock((void*)intPtr, (void*)dataPointer, shaderTableEntrySize);
+					Internal.MemCpy((void*)intPtr, (void*)(int)dataPointer, shaderTableEntrySize);
 					intPtr += (int32)shaderTableEntrySizeAligned;
 					break;
 				case ShaderTableRecord.RecordType.Miss:
-					Unsafe.CopyBlock((void*)intPtr2, (void*)dataPointer, shaderTableEntrySize);
+					Internal.MemCpy((void*)intPtr2, (void*)(int)dataPointer, shaderTableEntrySize);
 					intPtr2 += (int32)shaderTableEntrySizeAligned;
 					break;
 				case ShaderTableRecord.RecordType.Hit:
-					Unsafe.CopyBlock((void*)intPtr3, (void*)dataPointer, shaderTableEntrySize);
+					Internal.MemCpy((void*)intPtr3, (void*)(int)dataPointer, shaderTableEntrySize);
 					intPtr3 += (int32)shaderTableEntrySizeAligned;
 					break;
 				}
 				dataPointer += shaderTableEntrySize;
 			}
 			VulkanNative.vkUnmapMemory(context.VkDevice, rayGenBuffer.Memory);
-			gcHandle.Free();
+			delete data;
 		}
 
 		/// <summary>

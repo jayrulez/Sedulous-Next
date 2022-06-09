@@ -35,6 +35,7 @@ namespace Sedulous.RHI.Helpers
 
 		public Result ChangeStates(in TransitionBarrierDesc transitionBarriers)
 		{
+			var transitionBarriers;
 			if (m_CommandBuffer == null)
 				return Result.FAILURE;
 

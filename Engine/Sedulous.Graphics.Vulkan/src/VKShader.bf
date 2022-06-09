@@ -4,6 +4,11 @@ using Sedulous.Graphics;
 
 namespace Sedulous.Graphics.Vulkan
 {
+	using internal Sedulous.Graphics;
+
+	using static Sedulous.Graphics.Vulkan.VKExtensionsMethods;
+	using static Sedulous.Graphics.Vulkan.VKHelpers;
+
 	/// <summary>
 	/// This class represents a native shader Object on Metal.
 	/// </summary>
@@ -43,12 +48,12 @@ namespace Sedulous.Graphics.Vulkan
 			{
 				if (!shaderStateInfo.HasValue)
 				{
-					shaderStateInfo = new VkPipelineShaderStageCreateInfo
+					shaderStateInfo = VkPipelineShaderStageCreateInfo
 					{
 						sType = VkStructureType.VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO,
 						stage = Description.Stage.ToVulkan(),
 						module = ShaderModule,
-						pName = Description.EntryPoint.ToPointer(),
+						pName = Description.EntryPoint,
 						pSpecializationInfo = null
 					};
 				}
@@ -57,25 +62,25 @@ namespace Sedulous.Graphics.Vulkan
 		}
 
 		/// <inheritdoc />
-		public override IntPtr NativePointer => (IntPtr)(int64)ShaderModule.Handle;
+		public override void* NativePointer => (void*)(int)ShaderModule.Handle;
 
 		/// <summary>
 		/// Initializes a new instance of the <see cref="T:Sedulous.Graphics.Vulkan.VKShader" /> class.
 		/// </summary>
 		/// <param name="context">The graphics context.</param>
 		/// <param name="description">The shader description.</param>
-		public  VKShader(GraphicsContext context, ref ShaderDescription description)
+		public  this(GraphicsContext context, ref ShaderDescription description)
 			: base(context, ref description)
 		{
 			vkContext = Context as VKGraphicsContext;
 			VkDevice vkDevice = vkContext.VkDevice;
-			VkShaderModuleCreateInfo vkShaderModuleCreateInfo = new VkShaderModuleCreateInfo
+			VkShaderModuleCreateInfo vkShaderModuleCreateInfo = VkShaderModuleCreateInfo
 			{
 				sType = VkStructureType.VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO
 			};
-			fixed (uint8* pCode = description.ShaderBytes)
+			uint8* pCode = description.ShaderBytes.Ptr;
 			{
-				vkShaderModuleCreateInfo.codeSize = (UIntPtr)(uint64)description.ShaderBytes.Length;
+				vkShaderModuleCreateInfo.codeSize = (uint)description.ShaderBytes.Count;
 				vkShaderModuleCreateInfo.pCode = (uint32*)pCode;
 				VkShaderModule shaderModule = default(VkShaderModule);
 				VulkanNative.vkCreateShaderModule(vkDevice, &vkShaderModuleCreateInfo, null, &shaderModule);

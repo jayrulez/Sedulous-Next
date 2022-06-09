@@ -355,7 +355,7 @@ namespace Sedulous.Graphics.Vulkan
 				{
 					flag = true;
 				}
-				VkAttachmentDescription item = CreateAttachment(format2, sampleCount, num2, loadOp, VkAttachmentStoreOp.VK_ATTACHMENT_STORE_OP_STORE, (!flag) ? VkAttachmentStoreOp.VK_ATTACHMENT_STORE_OP_DONT_CARE : VkAttachmentStoreOp.VK_ATTACHMENT_STORE_OP_STORE, VkImageLayout.VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL, isDepth: true).Item1;
+				VkAttachmentDescription item = CreateAttachment(format2, sampleCount, num2, loadOp, VkAttachmentStoreOp.VK_ATTACHMENT_STORE_OP_STORE, (!flag) ? VkAttachmentStoreOp.VK_ATTACHMENT_STORE_OP_DONT_CARE : VkAttachmentStoreOp.VK_ATTACHMENT_STORE_OP_STORE, VkImageLayout.VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL, /*isDepth:*/ true).0;
 				VkAttachmentReference vkAttachmentReference3 = default(VkAttachmentReference);
 				vkAttachmentReference3.attachment = num2;
 				vkAttachmentReference3.layout = VkImageLayout.VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
@@ -363,7 +363,7 @@ namespace Sedulous.Graphics.Vulkan
 				ptr[num2++] = item;
 				if (value.ResolveMSAA)
 				{
-					VkAttachmentDescription item2 = CreateAttachment(format2, sampleCount, num2, loadOp, VkAttachmentStoreOp.VK_ATTACHMENT_STORE_OP_STORE, (!flag) ? VkAttachmentStoreOp.VK_ATTACHMENT_STORE_OP_DONT_CARE : VkAttachmentStoreOp.VK_ATTACHMENT_STORE_OP_STORE, VkImageLayout.VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL, isDepth: true).Item1;
+					VkAttachmentDescription item2 = CreateAttachment(format2, sampleCount, num2, loadOp, VkAttachmentStoreOp.VK_ATTACHMENT_STORE_OP_STORE, (!flag) ? VkAttachmentStoreOp.VK_ATTACHMENT_STORE_OP_DONT_CARE : VkAttachmentStoreOp.VK_ATTACHMENT_STORE_OP_STORE, VkImageLayout.VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL, /*isDepth:*/ true).0;
 					vkAttachmentReference3 = default(VkAttachmentReference);
 					vkAttachmentReference3.attachment = num2;
 					vkAttachmentReference3.layout = VkImageLayout.VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;

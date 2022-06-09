@@ -204,7 +204,7 @@ namespace Sedulous.Graphics.Vulkan
 				{
 					flag = true;
 				}
-				VkAttachmentDescription item = CreateAttachment(vKTexture3.Description.Format.ToVulkan(/*depthFormat:*/ true), vKTexture3.Description.SampleCount.ToVulkan(), num4, depthLoadOp, VkAttachmentStoreOp.VK_ATTACHMENT_STORE_OP_STORE, flag ? stencilLoadOp : VkAttachmentLoadOp.VK_ATTACHMENT_LOAD_OP_DONT_CARE, (!flag) ? VkAttachmentStoreOp.VK_ATTACHMENT_STORE_OP_DONT_CARE : VkAttachmentStoreOp.VK_ATTACHMENT_STORE_OP_STORE, VkImageLayout.VK_IMAGE_LAYOUT_UNDEFINED, VkImageLayout.VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL).Item1;
+				VkAttachmentDescription item = CreateAttachment(vKTexture3.Description.Format.ToVulkan(/*depthFormat:*/ true), vKTexture3.Description.SampleCount.ToVulkan(), num4, depthLoadOp, VkAttachmentStoreOp.VK_ATTACHMENT_STORE_OP_STORE, flag ? stencilLoadOp : VkAttachmentLoadOp.VK_ATTACHMENT_LOAD_OP_DONT_CARE, (!flag) ? VkAttachmentStoreOp.VK_ATTACHMENT_STORE_OP_DONT_CARE : VkAttachmentStoreOp.VK_ATTACHMENT_STORE_OP_STORE, VkImageLayout.VK_IMAGE_LAYOUT_UNDEFINED, VkImageLayout.VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL).0;
 				VkAttachmentReference vkAttachmentReference3 = default(VkAttachmentReference);
 				vkAttachmentReference3.attachment = num4;
 				vkAttachmentReference3.layout = VkImageLayout.VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
@@ -213,7 +213,7 @@ namespace Sedulous.Graphics.Vulkan
 				VKTexture vKTexture4 = DepthStencilTarget.Value.ResolvedTexture as VKTexture;
 				if (vKTexture4 != null)
 				{
-					VkAttachmentDescription item2 = CreateAttachment(vKTexture4.Description.Format.ToVulkan(/*depthFormat:*/ true), vKTexture4.Description.SampleCount.ToVulkan(), num4, depthLoadOp, VkAttachmentStoreOp.VK_ATTACHMENT_STORE_OP_STORE, flag ? stencilLoadOp : VkAttachmentLoadOp.VK_ATTACHMENT_LOAD_OP_DONT_CARE, (!flag) ? VkAttachmentStoreOp.VK_ATTACHMENT_STORE_OP_DONT_CARE : VkAttachmentStoreOp.VK_ATTACHMENT_STORE_OP_STORE, VkImageLayout.VK_IMAGE_LAYOUT_UNDEFINED, VkImageLayout.VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL).Item1;
+					VkAttachmentDescription item2 = CreateAttachment(vKTexture4.Description.Format.ToVulkan(/*depthFormat:*/ true), vKTexture4.Description.SampleCount.ToVulkan(), num4, depthLoadOp, VkAttachmentStoreOp.VK_ATTACHMENT_STORE_OP_STORE, flag ? stencilLoadOp : VkAttachmentLoadOp.VK_ATTACHMENT_LOAD_OP_DONT_CARE, (!flag) ? VkAttachmentStoreOp.VK_ATTACHMENT_STORE_OP_DONT_CARE : VkAttachmentStoreOp.VK_ATTACHMENT_STORE_OP_STORE, VkImageLayout.VK_IMAGE_LAYOUT_UNDEFINED, VkImageLayout.VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL).0;
 					vkAttachmentReference3 = default(VkAttachmentReference);
 					vkAttachmentReference3.attachment = num4;
 					vkAttachmentReference3.layout = VkImageLayout.VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;

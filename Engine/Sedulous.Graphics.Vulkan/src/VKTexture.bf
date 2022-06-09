@@ -352,7 +352,7 @@ namespace Sedulous.Graphics.Vulkan
 			VKTexture vKTexture = new VKTexture(context, null, ref description);
 			vKTexture.vkContext = context;
 			vKTexture.NativeImage = image;
-			vKTexture.ImageLayouts = Enumerable.Repeat(VkImageLayout.VK_IMAGE_LAYOUT_UNDEFINED, (int32)description.ArraySize).ToArray();
+			vKTexture.ImageLayouts = new VkImageLayout[description.ArraySize]..Fill(VkImageLayout.VK_IMAGE_LAYOUT_UNDEFINED);
 			if (description.Usage != ResourceUsage.Staging)
 			{
 				bool depthFormat = (description.Flags & TextureFlags.DepthStencil) != 0;

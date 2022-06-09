@@ -116,7 +116,7 @@ namespace Sedulous.Graphics.Vulkan
 		/// <inheritdoc />
 		protected override Texture GetTextureFromNativePointerInternal(void* texturePointer, ref TextureDescription textureDescription)
 		{
-			return VKTexture.FromVulkanImage(image: new VkImage((uint64)(int64)texturePointer), context: context, description: ref textureDescription);
+			return VKTexture.FromVulkanImage(/*context:*/ context,  /*description:*/ ref textureDescription, /*image:*/ VkImage((uint64)(int)texturePointer));
 		}
 
 		/// <inheritdoc />

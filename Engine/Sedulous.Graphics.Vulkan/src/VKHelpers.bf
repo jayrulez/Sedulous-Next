@@ -135,22 +135,22 @@ namespace Sedulous.Graphics.Vulkan
 		/// </summary>
 		/// <param name="context">The graphics context.</param>
 		/// <returns>The String array of supported layers.</returns>
-		public  static String[] EnumerateInstanceLayers(GraphicsContext context)
+		public  static void EnumerateInstanceLayers(GraphicsContext context, out String[] layers)
 		{
-			uint32 num = 0u;
-			VulkanNative.vkEnumerateInstanceLayerProperties(&num, null);
-			if (num == 0)
+			uint32 layerCount = 0u;
+			VulkanNative.vkEnumerateInstanceLayerProperties(&layerCount, null);
+			if (layerCount == 0)
 			{
-				return Array.Empty<String>();
+				layers = new String[0];
+				return;
 			}
-			VkLayerProperties* ptr = scope VkLayerProperties[(int32)num]*;
-			VulkanNative.vkEnumerateInstanceLayerProperties(&num, ptr);
-			String[] array = new String[num];
-			for (int i = 0; i < num; i++)
+			layers = new String[layerCount];
+			VkLayerProperties* ptr = scope VkLayerProperties[(int32)layerCount]*;
+			VulkanNative.vkEnumerateInstanceLayerProperties(&layerCount, ptr);
+			for (int i = 0; i < layerCount; i++)
 			{
-				array[i] = Marshal.PtrToStringAnsi((IntPtr)ptr[i].layerName);
+				layers[i] = new String(&ptr[i].layerName);
 			}
-			return array;
 		}
 
 		/// <summary>
@@ -158,22 +158,22 @@ namespace Sedulous.Graphics.Vulkan
 		/// </summary>
 		/// <param name="context">The graphics context.</param>
 		/// <returns>A String array of supported extensions.</returns>
-		public  static String[] EnumerateInstanceExtensions(GraphicsContext context)
+		public  static void EnumerateInstanceExtensions(GraphicsContext context, out String[] extensions)
 		{
-			uint32 num = 0u;
-			VulkanNative.vkEnumerateInstanceExtensionProperties(null, &num, null);
-			if (num == 0)
+			uint32 extensionCount = 0u;
+			VulkanNative.vkEnumerateInstanceExtensionProperties(null, &extensionCount, null);
+			if (extensionCount == 0)
 			{
-				return Array.Empty<String>();
+				extensions = new String[0];
+				return;
 			}
-			VkExtensionProperties* ptr = scope VkExtensionProperties[(int32)num]*;
-			VulkanNative.vkEnumerateInstanceExtensionProperties(null, &num, ptr);
-			String[] array = new String[num];
-			for (int i = 0; i < num; i++)
+			VkExtensionProperties* ptr = scope VkExtensionProperties[(int32)extensionCount]*;
+			VulkanNative.vkEnumerateInstanceExtensionProperties(null, &extensionCount, ptr);
+			extensions = new String[extensionCount];
+			for (int i = 0; i < extensionCount; i++)
 			{
-				array[i] = Marshal.PtrToStringAnsi((IntPtr)ptr[i].extensionName);
+				extensions[i] = new String(&ptr[i].extensionName);
 			}
-			return array;
 		}
 
 		/// <summary>

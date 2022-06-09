@@ -125,7 +125,7 @@ namespace Sedulous.Graphics.Vulkan
 				VkWin32SurfaceCreateInfoKHR vkWin32SurfaceCreateInfoKHR = default(VkWin32SurfaceCreateInfoKHR);
 				vkWin32SurfaceCreateInfoKHR.sType = VkStructureType.VK_STRUCTURE_TYPE_WIN32_SURFACE_CREATE_INFO_KHR;
 				vkWin32SurfaceCreateInfoKHR.hwnd = base.SwapChainDescription.SurfaceInfo.Handles[0];
-				vkWin32SurfaceCreateInfoKHR.hinstance = Process.GetCurrentProcess().Handle;
+				vkWin32SurfaceCreateInfoKHR.hinstance = Environment.ModuleHandle;//Process.GetCurrentProcess().Handle;
 				VulkanNative.vkCreateWin32SurfaceKHR(vkContext.VkInstance, &vkWin32SurfaceCreateInfoKHR, null, &@null);
 				break;
 			}
@@ -217,17 +217,17 @@ namespace Sedulous.Graphics.Vulkan
 			vkContext.QueueIndices = VKQueueFamilyIndices.FindQueueFamilies(vkContext, vkContext.VkPhysicalDevice, vkSurface);
 			uint32 graphicsFamily = (uint32)vkContext.QueueIndices.GraphicsFamily;
 			uint32 presentfamily = (uint32)vkContext.QueueIndices.Presentfamily;
-			uint32* pQueueFamilyIndices = scope uint32[2] { graphicsFamily, presentfamily };
+			uint32* pQueueFamilyIndices = scope uint32[2]* ( graphicsFamily, presentfamily );
 			if (graphicsFamily != presentfamily)
 			{
 				vkSwapchainCreateInfoKHR.imageSharingMode = VkSharingMode.VK_SHARING_MODE_CONCURRENT;
-				vkSwapchainCreateInfoKHR.queueFamilyIndexCount = 2u;
+				vkSwapchainCreateInfoKHR.queueFamilyIndexCount = 2;
 				vkSwapchainCreateInfoKHR.pQueueFamilyIndices = pQueueFamilyIndices;
 			}
 			else
 			{
 				vkSwapchainCreateInfoKHR.imageSharingMode = VkSharingMode.VK_SHARING_MODE_EXCLUSIVE;
-				vkSwapchainCreateInfoKHR.queueFamilyIndexCount = 0u;
+				vkSwapchainCreateInfoKHR.queueFamilyIndexCount = 0;
 			}
 			swapchainInfo = vkSwapchainCreateInfoKHR;
 			VkSwapchainKHR vkSwapchainKHR = default(VkSwapchainKHR);
@@ -236,7 +236,7 @@ namespace Sedulous.Graphics.Vulkan
 			if (vkPresentQueue == VkQueue.Null)
 			{
 				VkQueue vkQueue = default(VkQueue);
-				VulkanNative.vkGetDeviceQueue(vkContext.VkDevice, presentfamily, 0u, &vkQueue);
+				VulkanNative.vkGetDeviceQueue(vkContext.VkDevice, presentfamily, 0, &vkQueue);
 				vkPresentQueue = vkQueue;
 			}
 			VKSwapChainFrameBuffer vKSwapChainFrameBuffer = new VKSwapChainFrameBuffer(GraphicsContext as VKGraphicsContext, this);

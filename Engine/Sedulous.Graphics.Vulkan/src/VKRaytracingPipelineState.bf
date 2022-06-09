@@ -1,5 +1,4 @@
 using System;
-using System.Collections.Generic;
 using Bulkan;
 using Sedulous.Graphics;
 using Sedulous.Graphics.Raytracing;
