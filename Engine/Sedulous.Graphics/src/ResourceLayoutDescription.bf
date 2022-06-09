@@ -1,0 +1,35 @@
+namespace Sedulous.Graphics
+{
+	/// <summary>
+	/// This class describes the elements inside a <see cref="T:Sedulous.Graphics.ResourceLayout" />.
+	/// </summary>
+	public struct ResourceLayoutDescription
+	{
+		/// <summary>
+		/// The Layout elements.
+		/// </summary>
+		public LayoutElementDescription[] Elements;
+
+		/// <summary>
+		/// The number of dynamic constant buffers.
+		/// </summary>
+		public int32 DynamicConstantBufferCount;
+
+		/// <summary>
+		/// Initializes a new instance of the <see cref="T:Sedulous.Graphics.ResourceLayoutDescription" /> struct.
+		/// </summary>
+		/// <param name="elements">The elements descriptions.</param>
+		public this(params LayoutElementDescription[] elements)
+		{
+			Elements = elements;
+			DynamicConstantBufferCount = 0;
+			for (int32 i = 0; i < elements.Count; i++)
+			{
+				if (elements[i].AllowDynamicOffset)
+				{
+					DynamicConstantBufferCount++;
+				}
+			}
+		}
+	}
+}

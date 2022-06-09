@@ -1,0 +1,41 @@
+using System;
+
+namespace Sedulous.Graphics
+{
+	/// <summary>
+	/// A pool of <see cref="M:Sedulous.Graphics.CommandQueue.CommandBuffer" />.
+	/// </summary>
+	public abstract class CommandQueue : IDisposable
+	{
+		/// <summary>
+		/// The command buffer array size.
+		/// </summary>
+		public const int32 CommandBufferArraySize = 64;
+
+		/// <summary>
+		/// Gets or sets a String identifying this instance. Can be used in graphics debuggers tools.
+		/// </summary>
+		public abstract String Name { get; set; }
+
+		/// <summary>
+		/// Gets the next <see cref="M:Sedulous.Graphics.CommandQueue.CommandBuffer" />.
+		/// </summary>
+		/// <returns>The CommandBuffer.</returns>
+		public abstract CommandBuffer CommandBuffer();
+
+		/// <summary>
+		/// Submits a CommandBuffer list to be executed by the GPU.
+		/// </summary>
+		public abstract void Submit();
+
+		/// <summary>
+		/// Wait for all command buffers are executed.
+		/// </summary>
+		public abstract void WaitIdle();
+
+		/// <summary>
+		/// Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
+		/// </summary>
+		public abstract void Dispose();
+	}
+}

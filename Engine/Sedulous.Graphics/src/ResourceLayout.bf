@@ -1,0 +1,34 @@
+using System;
+
+namespace Sedulous.Graphics
+{
+	/// <summary>
+	/// This class represent a set of bindable resources.
+	/// </summary>
+	public abstract class ResourceLayout : IDisposable
+	{
+		/// <summary>
+		/// The resource layout description.
+		/// </summary>
+		public readonly ResourceLayoutDescription Description;
+
+		/// <summary>
+		/// Gets or sets a String identifying this instance. Can be used in graphics debuggers tools.
+		/// </summary>
+		public abstract String Name { get; set; }
+
+		/// <summary>
+		/// Frees managed and unmanaged resources.
+		/// </summary>
+		public abstract void Dispose();
+
+		/// <summary>
+		/// Initializes a new instance of the <see cref="T:Sedulous.Graphics.ResourceLayout" /> class.
+		/// </summary>
+		/// <param name="description">The resource layout description.</param>
+		public this(ref ResourceLayoutDescription description)
+		{
+			Description = description;
+		}
+	}
+}

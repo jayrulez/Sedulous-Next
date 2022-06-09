@@ -1,6 +1,9 @@
+using System;
+using Sedulous.Foundation.Utilities;
 namespace Sedulous.Foundation.Mathematics;
 
-struct Vector4<T>
+struct TVector4<T> : IHashable
+	where int : operator explicit T
 {
 	public T X;
 	public T Y;
@@ -23,13 +26,26 @@ struct Vector4<T>
 		W = w;
 	}
 
-	public this(Vector3<T> vector, T scalar)
+	public this(TVector3<T> vector, T scalar)
 	{
 		X = vector.X;
 		Y = vector.Y;
 		Z = vector.Z;
 		W = scalar;
 	}
+
+	public int GetHashCode()
+	{
+		int hash = 0;
+
+		hash = HashHelper.CombineHash(hash, (.)X);
+		hash = HashHelper.CombineHash(hash, (.)Y);
+		hash = HashHelper.CombineHash(hash, (.)Z);
+		hash = HashHelper.CombineHash(hash, (.)W);
+
+		return hash;
+	}
 }
 
-typealias Vector4ui = Vector4<uint32>;
+typealias Vector4ui = TVector4<uint32>;
+typealias Vector4 = TVector4<float>;

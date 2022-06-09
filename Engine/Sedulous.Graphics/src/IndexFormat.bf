@@ -1,0 +1,17 @@
+namespace Sedulous.Graphics
+{
+	/// <summary>
+	/// The index data format.
+	/// </summary>
+	public enum IndexFormat : uint8
+	{
+		/// <summary>
+		/// Unsigned 16 bits integer format.
+		/// </summary>
+		UInt16,
+		/// <summary>
+		/// Unsigned 32 bits integer format.
+		/// </summary>
+		UInt32
+	}
+}

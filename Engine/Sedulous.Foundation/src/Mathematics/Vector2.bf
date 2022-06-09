@@ -1,6 +1,6 @@
 namespace Sedulous.Foundation.Mathematics;
 
-struct Vector2<T>
+struct TVector2<T>
 {
 	public T X;
 	public T Y;
@@ -24,4 +24,6 @@ struct Vector2<T>
 	}
 }
 
-typealias Vector2ui = Vector2<uint32>;
+typealias Vector2ui = TVector2<uint32>;
+
+typealias Vector2 = TVector2<float>;

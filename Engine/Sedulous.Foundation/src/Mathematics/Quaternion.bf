@@ -1,6 +1,6 @@
 namespace Sedulous.Foundation.Mathematics;
 
-struct Quaternion<T>
+struct TQuaternion<T>
 {
 	public T X;
 	public T Y;
@@ -23,7 +23,7 @@ struct Quaternion<T>
 		W = w;
 	}
 
-	public this(Vector3<T> vector, T scalar)
+	public this(TVector3<T> vector, T scalar)
 	{
 		X = vector.X;
 		Y = vector.Y;
@@ -32,5 +32,4 @@ struct Quaternion<T>
 	}
 }
 
-typealias Quaternionui = Quaternion<uint32>;
-typealias Quaternionf = Quaternion<float>;
+typealias Quaternion = TQuaternion<float>;

@@ -1,7 +1,25 @@
 namespace Sedulous.Foundation.Mathematics;
 
-struct Rect<T>
+struct TRect<T>
+	where T : operator T + T
 {
+	public T X;
+	public T Y;
+	public T Width;
+	public T Height;
+
+	public T Left => X;
+	public T Top => Y;
+	public T Right => X + Width;
+	public T Bottom => Y + Height;
+
+	public this(T x, T y, T width, T height){
+		X = x;
+		Y = y;
+		Width = width;
+		Height = height;
+	}
 }
 
-typealias Rectui = Rect<uint32>;
+typealias Rect = TRect<int>;
+typealias FloatRect = TRect<float>;

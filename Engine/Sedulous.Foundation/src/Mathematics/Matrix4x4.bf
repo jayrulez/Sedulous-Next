@@ -1,6 +1,6 @@
 namespace Sedulous.Foundation.Mathematics;
 
-struct Matrix4x4<T>
+struct TMatrix4x4<T>
 	where T : operator - T
 	where T : operator implicit int
 {
@@ -51,9 +51,9 @@ struct Matrix4x4<T>
 		this.M44 = M44;
 	}
 
-	public static Matrix4x4<T> Identity { get; } = .(1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);
+	public static TMatrix4x4<T> Identity { get; } = .(1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);
 
-	public Vector3<T> Right
+	public TVector3<T> Right
 	{
 		get { return .(M11, M12, M13); }
 		set mut
@@ -64,7 +64,7 @@ struct Matrix4x4<T>
 		}
 	}
 
-	public Vector3<T> Left
+	public TVector3<T> Left
 	{
 		get { return .(-M11, -M12, -M13); }
 		set mut
@@ -75,7 +75,7 @@ struct Matrix4x4<T>
 		}
 	}
 
-	public Vector3<T> Up
+	public TVector3<T> Up
 	{
 		get { return .(M21, M22, M23); }
 		set mut
@@ -86,7 +86,7 @@ struct Matrix4x4<T>
 		}
 	}
 
-	public Vector3<T> Down
+	public TVector3<T> Down
 	{
 		get { return .(-M21, -M22, -M23); }
 		set mut
@@ -97,7 +97,7 @@ struct Matrix4x4<T>
 		}
 	}
 
-	public Vector3<T> Backward
+	public TVector3<T> Backward
 	{
 		get { return .(M31, M32, M33); }
 		set mut
@@ -108,7 +108,7 @@ struct Matrix4x4<T>
 		}
 	}
 
-	public Vector3<T> Forward
+	public TVector3<T> Forward
 	{
 		get { return .(-M31, -M32, -M33); }
 		set mut
@@ -119,7 +119,7 @@ struct Matrix4x4<T>
 		}
 	}
 
-	public Vector3<T> Translation
+	public TVector3<T> Translation
 	{
 		get { return .(M41, M42, M43); }
 		set mut
@@ -131,4 +131,4 @@ struct Matrix4x4<T>
 	}
 }
 
-typealias Matrix4x4f = Matrix4x4<float>;
+typealias Matrix4x4 = TMatrix4x4<float>;
