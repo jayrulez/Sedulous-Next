@@ -59,27 +59,10 @@ namespace Sedulous.Graphics.Vulkan
 			return num2 == VkResult.VK_SUCCESS;
 		}
 
-		/// <inheritdoc />
-		public override void Dispose()
+		public ~this()
 		{
-			/*Dispose(disposing: true);
-			GC.SuppressFinalize(this);*/
-		}
-
-		/// <summary>
-		/// Releases unmanaged and - optionally - managed resources.
-		/// </summary>
-		/// <param name="disposing"><c>true</c> to release both managed and unmanaged resources; <c>false</c> to release only unmanaged resources.</param>
-		private  void Dispose(bool disposing)
-		{
-			if (!disposed)
-			{
-				if (disposing)
-				{
-					VulkanNative.vkDestroyQueryPool((Context as VKGraphicsContext).VkDevice, nativeQueryHeap, null);
-				}
-				disposed = true;
-			}
+			OnDestroy();
+			VulkanNative.vkDestroyQueryPool((Context as VKGraphicsContext).VkDevice, nativeQueryHeap, null);
 		}
 	}
 }

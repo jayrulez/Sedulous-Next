@@ -3,10 +3,10 @@ using System;
 using Sedulous.Platform;
 using SDL2;
 using Sedulous.Renderer;
-using Sedulous.RHI;
-using Sedulous.RHI.Vulkan;
 using Sedulous.Audio;
 using System.Collections;
+using Sedulous.Graphics;
+using Sedulous.Graphics.Vulkan;
 namespace Sedulous.Framework.SDL;
 
 public class SDLApplicationSettings : ApplicationSettings
@@ -20,10 +20,13 @@ class SDLApplication : Application
 {
 	private readonly SDLApplicationSettings mApplicationSettings ~ delete _;
 	private Sedulous.Platform.Window mWindow = null;
-	private RendererPlugin mRendererPlugin = null;
-	private AudioPlugin mAudioPlugin = null;
-	private Device mDevice = null;
-	private DeviceAllocator mDeviceAllocator = new DeviceAllocator() ~ delete _;
+	//private RendererPlugin mRendererPlugin = null;
+	//private AudioPlugin mAudioPlugin = null;
+	//private Device mDevice = null;
+	//private DeviceAllocator mDeviceAllocator = new DeviceAllocator() ~ delete _;
+
+	private ValidationLayer mGraphicsValidationLayer = null;
+	private GraphicsContext mGraphicsContext = null;
 
 	public this(ILogger logger, in StringView windowTitle, uint32 windowWidth, uint32 windowHeight)
 		: base(mApplicationSettings = new .()
@@ -52,12 +55,12 @@ class SDLApplication : Application
 	protected override Result<void> OnInitialize()
 	{
 		mWindow = new SDLWindow(mApplicationSettings.WindowTitle, mApplicationSettings.WindowWidth, mApplicationSettings.WindowHeight);
-		mWindow.OnClosing.Subscribe(new () =>
+		mWindow.Closing.Subscribe(new () =>
 			{
 				this.Stop();
 			});
 
-		DeviceCreationDesc deviceDesc = .()
+		/*DeviceCreationDesc deviceDesc = .()
 			{
 				enableAPIValidation = true,
 				enableNRIValidation = true
@@ -68,17 +71,16 @@ class SDLApplication : Application
 		{
 			Logger.LogError("Failed to create Device");
 			return .Err;
-		}
+		}*/
 
-		uint32 numDisplays = 0;
-		mDevice.GetDisplays(null, ref numDisplays);
+		//mApplicationSettings.Plugins.Add(mRendererPlugin = new RendererPlugin(mEngine, mDevice));
+		//mApplicationSettings.Plugins.Add(mAudioPlugin = new AudioPlugin(mEngine));
 
-		List<Display*> displays = scope .(){Count = numDisplays};
-
-		mDevice.GetDisplays(displays.Ptr, ref numDisplays);
-
-		mApplicationSettings.Plugins.Add(mRendererPlugin = new RendererPlugin(mEngine, mDevice));
-		mApplicationSettings.Plugins.Add(mAudioPlugin = new AudioPlugin(mEngine));
+		
+		mGraphicsValidationLayer = new ValidationLayer();
+		mGraphicsContext = new VKGraphicsContext();
+		
+		mGraphicsContext.CreateDevice(mGraphicsValidationLayer);
 
 		SDL.PumpEvents();
 		return .Ok;
@@ -86,14 +88,20 @@ class SDLApplication : Application
 
 	protected override void OnShutdown()
 	{
-		if (mAudioPlugin != null)
+		/*if (mAudioPlugin != null)
 			delete mAudioPlugin;
 
 		if (mRendererPlugin != null)
 			delete mRendererPlugin;
 
 		if (mDevice != null)
-			delete mDevice;
+			delete mDevice;*/
+
+		if(mGraphicsContext != null)
+			delete mGraphicsContext;
+
+		if(mGraphicsValidationLayer != null)
+			delete mGraphicsValidationLayer;
 
 		if (mWindow != null)
 			delete mWindow;

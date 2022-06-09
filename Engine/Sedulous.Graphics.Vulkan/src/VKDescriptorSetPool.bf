@@ -87,6 +87,10 @@ namespace Sedulous.Graphics.Vulkan
 			pools.Add(CreateNewPool());
 		}
 
+		public ~this(){
+			DeleteContainerAndItems!(pools);
+		}
+
 		public  PoolInfo CreateNewPool()
 		{
 			uint32 num = 1000u;

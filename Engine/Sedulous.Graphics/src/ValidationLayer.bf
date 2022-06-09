@@ -59,7 +59,7 @@ namespace Sedulous.Graphics
 		/// <summary>
 		/// Pointer to Notify function.
 		/// </summary>
-		public NotifyAction Notify;
+		public NotifyAction Notify = null;
 
 		/// <summary>
 		/// Event that allow to obtains the error messages if NofityMethod is set to Events.
@@ -83,6 +83,13 @@ namespace Sedulous.Graphics
 			case NotifyMethod.Events:
 				Notify = new => NotifyEvent;
 				break;
+			}
+		}
+
+		public ~this(){
+			if(Notify != null){
+				delete Notify;
+				Notify = null;
 			}
 		}
 
@@ -330,7 +337,8 @@ namespace Sedulous.Graphics
 				Console.WriteLine(errorMessage);
 				break;
 			case Severity.Error:
-				Runtime.FatalError(errorMessage);
+				//Runtime.FatalError(errorMessage);
+				Console.WriteLine(errorMessage);
 			}
 		}
 

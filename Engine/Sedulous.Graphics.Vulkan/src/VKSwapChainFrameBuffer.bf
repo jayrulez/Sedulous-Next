@@ -163,20 +163,16 @@ namespace Sedulous.Graphics.Vulkan
 			}
 		}
 
-		/// <summary>
-		/// Releases unmanaged and - optionally - managed resources.
-		/// </summary>
-		/// <param name="disposing"><c>true</c> to release both managed and unmanaged resources; <c>false</c> to release only unmanaged resources.</param>
-		protected override void Dispose(bool disposing)
+		public ~this()
 		{
-			if (!disposed && disposing)
-			{
-				DepthTargetTexture?.Dispose();
+			OnDestroy();
+			if(DepthTargetTexture != null)
+			delete DepthTargetTexture;
 				for (int32 i = 0; i < FrameBuffers.Count; i++)
 				{
-					FrameBuffers[i]?.Dispose();
+					if(FrameBuffers[i] != null)
+					delete FrameBuffers[i];
 				}
-			}
 		}
 	}
 }

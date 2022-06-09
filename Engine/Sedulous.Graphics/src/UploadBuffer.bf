@@ -7,7 +7,7 @@ namespace Sedulous.Graphics
 	/// <summary>
 	/// This abstract class represent and strategy to fast upload buffers to GPU.
 	/// </summary>
-	public abstract class UploadBuffer : IDisposable
+	public abstract class UploadBuffer
 	{
 		/// <summary>
 		/// Pointer to the begin of the buffer.
@@ -59,6 +59,10 @@ namespace Sedulous.Graphics
 			RefreshBuffer(size);
 		}
 
+		public ~this(){
+			DisposeNativeResources();
+		}
+
 		/// <summary>
 		/// Refresh the native buffer used by the uploadbuffer with the new size.
 		/// </summary>
@@ -81,7 +85,7 @@ namespace Sedulous.Graphics
 					{
 						context.SyncUpcopyQueue();
 					}
-					Dispose();
+					DisposeNativeResources();
 					uint64 size = MathHelper.NextPowerOfTwo(dataSize);
 					RefreshBuffer(size);
 				}
@@ -129,6 +133,6 @@ namespace Sedulous.Graphics
 		/// <summary>
 		/// Dispose all resource of this instance.
 		/// </summary>
-		public abstract void Dispose();
+		public abstract void DisposeNativeResources();
 	}
 }

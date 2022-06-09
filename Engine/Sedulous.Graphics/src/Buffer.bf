@@ -53,5 +53,9 @@ namespace Sedulous.Graphics
 		{
 			updateCounter++;
 		}
+
+		protected override void OnDestroy(){
+
+		}
 	}
 }

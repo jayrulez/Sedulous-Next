@@ -182,27 +182,10 @@ namespace Sedulous.Graphics.Vulkan
 			VulkanNative.vkCmdPipelineBarrier(commandBuffer, VkPipelineStageFlags.VK_PIPELINE_STAGE_ACCELERATION_STRUCTURE_BUILD_BIT_KHR, VkPipelineStageFlags.VK_PIPELINE_STAGE_ACCELERATION_STRUCTURE_BUILD_BIT_KHR, VkDependencyFlags.None, 1u, &vkMemoryBarrier, 0u, null, 0u, null);
 		}
 
-		/// <inheritdoc />
-		public override void Dispose()
+		public ~this()
 		{
-			/*Dispose(disposing: true);
-			GC.SuppressFinalize(this);*/
-		}
-
-		/// <summary>
-		/// Releases unmanaged and - optionally - managed resources.
-		/// </summary>
-		/// <param name="disposing"><c>true</c> to release both managed and unmanaged resources; <c>false</c> to release only unmanaged resources.</param>
-		private  void Dispose(bool disposing)
-		{
-			if (!disposed)
-			{
-				if (disposing)
-				{
-					VulkanNative.vkDestroyAccelerationStructureKHR(vkContext.VkDevice, BottomLevelAS, null);
-				}
-				disposed = true;
-			}
+			OnDestroy();
+			VulkanNative.vkDestroyAccelerationStructureKHR(vkContext.VkDevice, BottomLevelAS, null);
 		}
 	}
 }

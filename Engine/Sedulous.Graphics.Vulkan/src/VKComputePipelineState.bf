@@ -73,7 +73,7 @@ namespace Sedulous.Graphics.Vulkan
 			VulkanNative.vkCreatePipelineLayout(context.VkDevice, &vkPipelineLayoutCreateInfo, null, &nativePipelineLayout);
 			NativePipelineLayout = nativePipelineLayout;
 			vkComputePipelineCreateInfo.layout = NativePipelineLayout;
-			VkPipelineShaderStageCreateInfo vkPipelineShaderStageCreateInfo = (vkComputePipelineCreateInfo.stage = (description.shaderDescription.ComputeShader as VKShader).ShaderStateInfo);
+			vkComputePipelineCreateInfo.stage = (description.shaderDescription.ComputeShader as VKShader).ShaderStateInfo;
 			VkPipeline nativePipeline = default(VkPipeline);
 			VulkanNative.vkCreateComputePipelines(context.VkDevice, VkPipelineCache.Null, 1u, &vkComputePipelineCreateInfo, null, &nativePipeline);
 			NativePipeline = nativePipeline;

@@ -27,6 +27,10 @@ namespace Sedulous.Graphics
 			Description = description;
 		}
 
+		protected override void OnDestroy(){
+
+		}
+
 		/// <summary>
 		/// Returns a hash code for this instance.
 		/// </summary>

@@ -83,14 +83,9 @@ namespace Sedulous.Graphics.Vulkan
 			NativeSampler = nativeSampler;
 		}
 
-		/// <inheritdoc />
-		public  override void Dispose()
-		{
-			if (!disposed)
-			{
-				VulkanNative.vkDestroySampler(vkContext.VkDevice, NativeSampler, null);
-				disposed = true;
-			}
+		public ~this(){
+			OnDestroy();
+			VulkanNative.vkDestroySampler(vkContext.VkDevice, NativeSampler, null);
 		}
 	}
 }

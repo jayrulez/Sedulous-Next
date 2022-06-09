@@ -88,14 +88,11 @@ namespace Sedulous.Graphics.Vulkan
 			}
 		}
 
-		/// <inheritdoc />
-		public  override void Dispose()
+		public ~this()
 		{
-			if (!disposed)
-			{
-				disposed = true;
-				VulkanNative.vkDestroyShaderModule(vkContext.VkDevice, ShaderModule, null);
-			}
+			OnDestroy();
+
+			VulkanNative.vkDestroyShaderModule(vkContext.VkDevice, ShaderModule, null);
 		}
 	}
 }

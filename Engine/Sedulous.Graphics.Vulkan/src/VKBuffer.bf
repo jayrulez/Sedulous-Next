@@ -276,29 +276,12 @@ namespace Sedulous.Graphics.Vulkan
 			VulkanNative.vkCmdPipelineBarrier(commandBuffer, VkPipelineStageFlags.VK_PIPELINE_STAGE_TRANSFER_BIT, vkPipelineStageFlags, VkDependencyFlags.VK_DEPENDENCY_BY_REGION_BIT, 0u, null, 1u, &vkBufferMemoryBarrier, 0u, null);
 		}
 
-		/// <inheritdoc />
-		public override void Dispose()
-		{
-			//Dispose(disposing: true);
-			//GC.SuppressFinalize(this);
-		}
-
-		/// <summary>
-		/// Releases unmanaged and - optionally - managed resources.
-		/// </summary>
-		/// <param name="disposing"><c>true</c> to release both managed and unmanaged resources; <c>false</c> to release only unmanaged resources.</param>
-		private  void Dispose(bool disposing)
-		{
-			if (!disposed)
-			{
-				if (disposing)
-				{
-					VKGraphicsContext obj = Context as VKGraphicsContext;
-					VulkanNative.vkDestroyBuffer(obj.VkDevice, NativeBuffer, null);
-					VulkanNative.vkFreeMemory(obj.VkDevice, BufferMemory, null);
-				}
-				disposed = true;
-			}
+		public ~this(){
+			OnDestroy();
+			
+			VKGraphicsContext obj = Context as VKGraphicsContext;
+			VulkanNative.vkDestroyBuffer(obj.VkDevice, NativeBuffer, null);
+			VulkanNative.vkFreeMemory(obj.VkDevice, BufferMemory, null);
 		}
 	}
 }

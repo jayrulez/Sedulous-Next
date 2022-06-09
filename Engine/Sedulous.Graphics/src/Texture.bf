@@ -33,9 +33,8 @@ namespace Sedulous.Graphics
 			Description = description;
 		}
 
-		/// <inheritdoc />
-		public override void Dispose()
-		{
+		protected override void OnDestroy(){
+
 		}
 
 		/// <inheritdoc />

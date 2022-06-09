@@ -2,6 +2,7 @@ using System;
 using System.Diagnostics;
 using Bulkan;
 using Sedulous.Graphics;
+using Sedulous.Platform;
 
 namespace Sedulous.Graphics.Vulkan
 {
@@ -253,7 +254,9 @@ namespace Sedulous.Graphics.Vulkan
 			{
 				VulkanNative.vkDestroySwapchainKHR(vkContext.VkDevice, vkSwapChain, null);
 				vkSwapChain = VkSwapchainKHR.Null;
-				base.FrameBuffer?.Dispose();
+				if(base.FrameBuffer != null)
+				delete base.FrameBuffer; // todo sedulous
+				base.FrameBuffer = null; // todo sedulous
 			}
 		}
 
@@ -294,13 +297,6 @@ namespace Sedulous.Graphics.Vulkan
 			vkPresentInfoKHR.pImageIndices = &num;
 			VulkanNative.vkQueuePresentKHR(vkPresentQueue, &vkPresentInfoKHR);
 			AcquireNextImage();
-		}
-
-		/// <inheritdoc />
-		public override void Dispose()
-		{
-			/*Dispose(disposing: true);
-			GC.SuppressFinalize(this);*/
 		}
 
 		private  void AcquireNextImage()
@@ -398,22 +394,14 @@ namespace Sedulous.Graphics.Vulkan
 			return value;
 		}
 
-		/// <summary>
-		/// Releases unmanaged and - optionally - managed resources.
-		/// </summary>
-		/// <param name="disposing"><c>true</c> to release both managed and unmanaged resources; <c>false</c> to release only unmanaged resources.</param>
-		private  void Dispose(bool disposing)
+		public ~this()
 		{
-			if (!disposed)
-			{
-				if (disposing)
-				{
-					base.FrameBuffer?.Dispose();
+			OnDestroy();
+
+			if(base.FrameBuffer != null)
+			delete base.FrameBuffer;
 					VulkanNative.vkDestroySwapchainKHR(vkContext.VkDevice, vkSwapChain, null);
 					VulkanNative.vkDestroySurfaceKHR(vkContext.VkInstance, vkSurface, null);
-				}
-				disposed = true;
-			}
 		}
 	}
 }

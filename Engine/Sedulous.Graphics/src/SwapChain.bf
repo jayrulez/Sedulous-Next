@@ -1,17 +1,13 @@
 using System;
+using Sedulous.Platform;
 
 namespace Sedulous.Graphics
 {
 	/// <summary>
 	/// SwapChain instance.
 	/// </summary>
-	public abstract class SwapChain : IDisposable
+	public abstract class SwapChain
 	{
-		/// <summary>
-		/// Holds if the instance has been disposed.
-		/// </summary>
-		protected bool disposed;
-
 		/// <summary>
 		/// The device context refenrece.
 		/// </summary>
@@ -69,6 +65,8 @@ namespace Sedulous.Graphics
 		/// <summary>
 		/// Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
 		/// </summary>
-		public abstract void Dispose();
+		public virtual void OnDestroy(){
+
+		}
 	}
 }

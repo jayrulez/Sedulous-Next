@@ -361,15 +361,11 @@ namespace Sedulous.Graphics.Vulkan
 		}
 
 		/// <inheritdoc />
-		protected  override void Dispose(bool disposing)
+		public ~this()
 		{
-			if (disposed)
-			{
-				return;
-			}
-			if (disposing)
-			{
-				VulkanNative.vkDestroyFramebuffer(vkContext.VkDevice, NativeFrameBuffer, null);
+			OnDestroy();
+
+			VulkanNative.vkDestroyFramebuffer(vkContext.VkDevice, NativeFrameBuffer, null);
 				for (int32 i = 0; i < defaultRenderPasses.Count; i++)
 				{
 					VulkanNative.vkDestroyRenderPass(vkContext.VkDevice, defaultRenderPasses[i], null);
@@ -378,8 +374,6 @@ namespace Sedulous.Graphics.Vulkan
 				{
 					VulkanNative.vkDestroyImageView(vkContext.VkDevice, imageView, null);
 				}
-			}
-			disposed = true;
 		}
 	}
 }

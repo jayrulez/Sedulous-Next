@@ -107,7 +107,7 @@ namespace Sedulous.Graphics.Vulkan
 		/// <param name="data">The data pointer.</param>
 		/// <param name="description">The texture description.</param>
 		/// <param name="samplerState">the sampler state description for this texture.</param>
-		public  this(VKGraphicsContext context, DataBox[] data, ref TextureDescription description, ref SamplerStateDescription samplerState)
+		public this(VKGraphicsContext context, DataBox[] data, ref TextureDescription description, ref SamplerStateDescription samplerState)
 			: base(context, ref description)
 		{
 			vkContext = context;
@@ -116,12 +116,12 @@ namespace Sedulous.Graphics.Vulkan
 			{
 				uint32 num = Helpers.ComputeTextureSize(description);
 				VkBufferCreateInfo vkBufferCreateInfo = VkBufferCreateInfo
-				{
-					sType = VkStructureType.VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO,
-					usage = (VkBufferUsageFlags.VK_BUFFER_USAGE_TRANSFER_SRC_BIT | VkBufferUsageFlags.VK_BUFFER_USAGE_TRANSFER_DST_BIT),
-					size = num,
-					sharingMode = (context.CopyQueueSupported ? VkSharingMode.VK_SHARING_MODE_CONCURRENT : VkSharingMode.VK_SHARING_MODE_EXCLUSIVE)
-				};
+					{
+						sType = VkStructureType.VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO,
+						usage = (VkBufferUsageFlags.VK_BUFFER_USAGE_TRANSFER_SRC_BIT | VkBufferUsageFlags.VK_BUFFER_USAGE_TRANSFER_DST_BIT),
+						size = num,
+						sharingMode = (context.CopyQueueSupported ? VkSharingMode.VK_SHARING_MODE_CONCURRENT : VkSharingMode.VK_SHARING_MODE_EXCLUSIVE)
+					};
 				int32 num2 = ((!context.CopyQueueSupported) ? 1 : 2);
 				uint32* ptr = scope uint32[num2]*;
 				*ptr = (uint32)context.QueueIndices.GraphicsFamily;
@@ -138,10 +138,10 @@ namespace Sedulous.Graphics.Vulkan
 				VulkanNative.vkGetBufferMemoryRequirements(context.VkDevice, NativeBuffer, &memoryRequirements);
 				MemoryRequirements = memoryRequirements;
 				VkMemoryAllocateInfo vkMemoryAllocateInfo = VkMemoryAllocateInfo
-				{
-					sType = VkStructureType.VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO,
-					allocationSize = MemoryRequirements.size
-				};
+					{
+						sType = VkStructureType.VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO,
+						allocationSize = MemoryRequirements.size
+					};
 				int32 num3 = VKHelpers.FindMemoryType(context, MemoryRequirements.memoryTypeBits, VkMemoryPropertyFlags.VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VkMemoryPropertyFlags.VK_MEMORY_PROPERTY_HOST_COHERENT_BIT);
 				if (num3 == -1)
 				{
@@ -180,22 +180,22 @@ namespace Sedulous.Graphics.Vulkan
 			}
 			Format = description.Format.ToVulkan(flag2);
 			VkImageCreateInfo vkImageCreateInfo = VkImageCreateInfo
-			{
-				sType = VkStructureType.VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO,
-				mipLevels = description.MipLevels,
-				arrayLayers = description.ArraySize * description.Faces,
-				extent = .()
 				{
-					width = description.Width,
-					height = description.Height,
-					depth = description.Depth
-				},
-				initialLayout = VkImageLayout.VK_IMAGE_LAYOUT_UNDEFINED,
-				usage = vkImageUsageFlags,
-				tiling = (flag ? VkImageTiling.VK_IMAGE_TILING_LINEAR : VkImageTiling.VK_IMAGE_TILING_OPTIMAL),
-				samples = description.SampleCount.ToVulkan(),
-				format = Format
-			};
+					sType = VkStructureType.VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO,
+					mipLevels = description.MipLevels,
+					arrayLayers = description.ArraySize * description.Faces,
+					extent = .()
+						{
+							width = description.Width,
+							height = description.Height,
+							depth = description.Depth
+						},
+					initialLayout = VkImageLayout.VK_IMAGE_LAYOUT_UNDEFINED,
+					usage = vkImageUsageFlags,
+					tiling = (flag ? VkImageTiling.VK_IMAGE_TILING_LINEAR : VkImageTiling.VK_IMAGE_TILING_OPTIMAL),
+					samples = description.SampleCount.ToVulkan(),
+					format = Format
+				};
 			switch (description.Type)
 			{
 			case TextureType.Texture1D:
@@ -225,10 +225,10 @@ namespace Sedulous.Graphics.Vulkan
 			VulkanNative.vkGetImageMemoryRequirements(context.VkDevice, NativeImage, &memoryRequirements2);
 			MemoryRequirements = memoryRequirements2;
 			VkMemoryAllocateInfo vkMemoryAllocateInfo2 = VkMemoryAllocateInfo
-			{
-				sType = VkStructureType.VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO,
-				allocationSize = MemoryRequirements.size
-			};
+				{
+					sType = VkStructureType.VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO,
+					allocationSize = MemoryRequirements.size
+				};
 			int32 num5 = VKHelpers.FindMemoryType(context, MemoryRequirements.memoryTypeBits, VkMemoryPropertyFlags.VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT);
 			if (num5 == -1)
 			{
@@ -269,25 +269,25 @@ namespace Sedulous.Graphics.Vulkan
 						Internal.MemCpy((void*)(int)num18, (void*)dataBox.DataPointer, dataBox.SlicePitch * description.Depth);
 						num10 += dataBox.SlicePitch;
 						ptr2[num17] = VkBufferImageCopy
-						{
-							bufferOffset = context.TextureUploader.CalculateOffset(num18),
-							bufferRowLength = 0u,
-							bufferImageHeight = 0u,
-							imageSubresource = .()
 							{
-								aspectMask = VkImageAspectFlags.VK_IMAGE_ASPECT_COLOR_BIT,
-								mipLevel = num16,
-								baseArrayLayer = num11 * description.Faces + num12,
-								layerCount = 1u
-							},
-							imageOffset = default(VkOffset3D),
-							imageExtent = VkExtent3D
-							{
-								width = num13,
-								height = num14,
-								depth = num15
-							}
-						};
+								bufferOffset = context.TextureUploader.CalculateOffset(num18),
+								bufferRowLength = 0u,
+								bufferImageHeight = 0u,
+								imageSubresource = .()
+									{
+										aspectMask = VkImageAspectFlags.VK_IMAGE_ASPECT_COLOR_BIT,
+										mipLevel = num16,
+										baseArrayLayer = num11 * description.Faces + num12,
+										layerCount = 1u
+									},
+								imageOffset = default(VkOffset3D),
+								imageExtent = VkExtent3D
+									{
+										width = num13,
+										height = num14,
+										depth = num15
+									}
+							};
 						num13 = Math.Max(1, num13 / 2);
 						num14 = Math.Max(1, num14 / 2);
 						num15 = Math.Max(1, num15 / 2);
@@ -295,24 +295,24 @@ namespace Sedulous.Graphics.Vulkan
 				}
 			}
 			VkImageMemoryBarrier vkImageMemoryBarrier = VkImageMemoryBarrier
-			{
-				sType = VkStructureType.VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER,
-				image = NativeImage,
-				oldLayout = VkImageLayout.VK_IMAGE_LAYOUT_UNDEFINED,
-				newLayout = VkImageLayout.VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
-				srcAccessMask = VkAccessFlags.VK_ACCESS_NONE,
-				dstAccessMask = VkAccessFlags.VK_ACCESS_TRANSFER_WRITE_BIT,
-				subresourceRange = .()
 				{
-					aspectMask = VkImageAspectFlags.VK_IMAGE_ASPECT_COLOR_BIT,
-					baseArrayLayer = 0u,
-					layerCount = description.ArraySize * description.Faces,
-					baseMipLevel = 0u,
-					levelCount = description.MipLevels
-				},
-				srcQueueFamilyIndex = uint32.MaxValue,
-				dstQueueFamilyIndex = uint32.MaxValue
-			};
+					sType = VkStructureType.VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER,
+					image = NativeImage,
+					oldLayout = VkImageLayout.VK_IMAGE_LAYOUT_UNDEFINED,
+					newLayout = VkImageLayout.VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
+					srcAccessMask = VkAccessFlags.VK_ACCESS_NONE,
+					dstAccessMask = VkAccessFlags.VK_ACCESS_TRANSFER_WRITE_BIT,
+					subresourceRange = .()
+						{
+							aspectMask = VkImageAspectFlags.VK_IMAGE_ASPECT_COLOR_BIT,
+							baseArrayLayer = 0u,
+							layerCount = description.ArraySize * description.Faces,
+							baseMipLevel = 0u,
+							levelCount = description.MipLevels
+						},
+					srcQueueFamilyIndex = uint32.MaxValue,
+					dstQueueFamilyIndex = uint32.MaxValue
+				};
 			VulkanNative.vkCmdPipelineBarrier(context.copyCommandBuffer, VkPipelineStageFlags.VK_PIPELINE_STAGE_ALL_COMMANDS_BIT, VkPipelineStageFlags.VK_PIPELINE_STAGE_TRANSFER_BIT, VkDependencyFlags.None, 0u, null, 0u, null, 1u, &vkImageMemoryBarrier);
 			VulkanNative.vkCmdCopyBufferToImage(context.copyCommandBuffer, context.TextureUploader.NativeBuffer, NativeImage, VkImageLayout.VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, num9, ptr2);
 			if ((Description.Flags & TextureFlags.ShaderResource) != 0)
@@ -370,7 +370,7 @@ namespace Sedulous.Graphics.Vulkan
 		/// <param name="levelCount">The number of mip levels.</param>
 		/// <param name="baseArrayLayer">The start array layer.</param>
 		/// <param name="layerCount">The number of array layers.</param>
-		public  void TransitionImageLayout(VkCommandBuffer command, VkImageLayout newLayout, uint32 baseMiplevel, uint32 levelCount, uint32 baseArrayLayer, uint32 layerCount)
+		public void TransitionImageLayout(VkCommandBuffer command, VkImageLayout newLayout, uint32 baseMiplevel, uint32 levelCount, uint32 baseArrayLayer, uint32 layerCount)
 		{
 			uint32 num = Helpers.CalculateSubResource(Description, baseMiplevel, baseArrayLayer);
 			VkImageLayout vkImageLayout = ImageLayouts[num];
@@ -504,7 +504,7 @@ namespace Sedulous.Graphics.Vulkan
 		/// <param name="height">Destination heigh.</param>
 		/// <param name="depth">Destination depth.</param>
 		/// <param name="layerCount">Destination layer count.</param>
-		public  void CopyTo(VkCommandBuffer commandBuffer, uint32 sourceX, uint32 sourceY, uint32 sourceZ, uint32 sourceMipLevel, uint32 sourceBaseArray, Texture destination, uint32 destinationX, uint32 destinationY, uint32 destinationZ, uint32 destinationMipLevel, uint32 destinationBasedArray, uint32 width, uint32 height, uint32 depth, uint32 layerCount)
+		public void CopyTo(VkCommandBuffer commandBuffer, uint32 sourceX, uint32 sourceY, uint32 sourceZ, uint32 sourceMipLevel, uint32 sourceBaseArray, Texture destination, uint32 destinationX, uint32 destinationY, uint32 destinationZ, uint32 destinationMipLevel, uint32 destinationBasedArray, uint32 width, uint32 height, uint32 depth, uint32 layerCount)
 		{
 			bool flag = Description.Usage == ResourceUsage.Staging;
 			bool flag2 = destination.Description.Usage == ResourceUsage.Staging;
@@ -530,25 +530,25 @@ namespace Sedulous.Graphics.Vulkan
 				VkImageSubresourceLayers dstSubresource = vkImageSubresourceLayers;
 				VkImageCopy vkImageCopy = default(VkImageCopy);
 				vkOffset3D = (vkImageCopy.srcOffset = VkOffset3D
-				{
-					x = (int32)sourceX,
-					y = (int32)sourceY,
-					z = (int32)sourceZ
-				});
+					{
+						x = (int32)sourceX,
+						y = (int32)sourceY,
+						z = (int32)sourceZ
+					});
 				vkOffset3D = (vkImageCopy.dstOffset = VkOffset3D
-				{
-					x = (int32)destinationX,
-					y = (int32)destinationY,
-					z = (int32)destinationZ
-				});
+					{
+						x = (int32)destinationX,
+						y = (int32)destinationY,
+						z = (int32)destinationZ
+					});
 				vkImageCopy.srcSubresource = srcSubresource;
 				vkImageCopy.dstSubresource = dstSubresource;
 				vkExtent3D = (vkImageCopy.extent = VkExtent3D
-				{
-					width = Description.Width,
-					height = Description.Height,
-					depth = Description.Depth
-				});
+					{
+						width = Description.Width,
+						height = Description.Height,
+						depth = Description.Depth
+					});
 				VkImageCopy vkImageCopy2 = vkImageCopy;
 				VulkanNative.vkCmdCopyImage(commandBuffer, NativeImage, VkImageLayout.VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL, vKTexture.NativeImage, VkImageLayout.VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, 1u, &vkImageCopy2);
 				return;
@@ -577,17 +577,17 @@ namespace Sedulous.Graphics.Vulkan
 				vkBufferImageCopy = default(VkBufferImageCopy);
 				vkBufferImageCopy.imageSubresource = imageSubresource;
 				vkExtent3D = (vkBufferImageCopy.imageExtent = VkExtent3D
-				{
-					width = width,
-					height = height,
-					depth = depth
-				});
+					{
+						width = width,
+						height = height,
+						depth = depth
+					});
 				vkOffset3D = (vkBufferImageCopy.imageOffset = VkOffset3D
-				{
-					x = (int32)destinationX,
-					y = (int32)destinationY,
-					z = (int32)destinationZ
-				});
+					{
+						x = (int32)destinationX,
+						y = (int32)destinationY,
+						z = (int32)destinationZ
+					});
 				vkBufferImageCopy.bufferRowLength = num2;
 				vkBufferImageCopy.bufferImageHeight = num3;
 				vkBufferImageCopy.bufferOffset = bufferOffset;
@@ -618,17 +618,17 @@ namespace Sedulous.Graphics.Vulkan
 				vkBufferImageCopy = default(VkBufferImageCopy);
 				vkBufferImageCopy.imageSubresource = imageSubresource2;
 				vkExtent3D = (vkBufferImageCopy.imageExtent = VkExtent3D
-				{
-					width = width,
-					height = height,
-					depth = depth
-				});
+					{
+						width = width,
+						height = height,
+						depth = depth
+					});
 				vkOffset3D = (vkBufferImageCopy.imageOffset = VkOffset3D
-				{
-					x = (int32)sourceX,
-					y = (int32)sourceY,
-					z = (int32)sourceZ
-				});
+					{
+						x = (int32)sourceX,
+						y = (int32)sourceY,
+						z = (int32)sourceZ
+					});
 				vkBufferImageCopy.bufferRowLength = num8;
 				vkBufferImageCopy.bufferImageHeight = num9;
 				vkBufferImageCopy.bufferOffset = bufferOffset2;
@@ -696,7 +696,7 @@ namespace Sedulous.Graphics.Vulkan
 		/// <param name="destinationMipLevel">Destination mip level.</param>
 		/// <param name="destinationBasedArray">Destination array index.</param>
 		/// <param name="layerCount">Destination layer count.</param>
-		public  void Blit(VkCommandBuffer commandBuffer, uint32 sourceX, uint32 sourceY, uint32 sourceZ, uint32 sourceMipLevel, uint32 sourceBaseArray, Texture destination, uint32 destinationX, uint32 destinationY, uint32 destinationZ, uint32 destinationMipLevel, uint32 destinationBasedArray, uint32 layerCount)
+		public void Blit(VkCommandBuffer commandBuffer, uint32 sourceX, uint32 sourceY, uint32 sourceZ, uint32 sourceMipLevel, uint32 sourceBaseArray, Texture destination, uint32 destinationX, uint32 destinationY, uint32 destinationZ, uint32 destinationMipLevel, uint32 destinationBasedArray, uint32 layerCount)
 		{
 			VKTexture vKTexture = destination as VKTexture;
 			TransitionImageLayout(commandBuffer, VkImageLayout.VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL, sourceMipLevel, 1u, sourceBaseArray, layerCount);
@@ -715,29 +715,29 @@ namespace Sedulous.Graphics.Vulkan
 			VkImageSubresourceLayers dstSubresource = vkImageSubresourceLayers;
 			VkImageBlit vkImageBlit = default(VkImageBlit);
 			VkOffset3D vkOffset3D = (vkImageBlit.srcOffsets[0] = VkOffset3D
-			{
-				x = (int32)sourceX,
-				y = (int32)sourceY,
-				z = (int32)sourceZ
-			});
+				{
+					x = (int32)sourceX,
+					y = (int32)sourceY,
+					z = (int32)sourceZ
+				});
 			vkOffset3D = (vkImageBlit.srcOffsets[1] = VkOffset3D
-			{
-				x = (int32)Description.Width,
-				y = (int32)Description.Height,
-				z = (int32)Description.Depth
-			});
+				{
+					x = (int32)Description.Width,
+					y = (int32)Description.Height,
+					z = (int32)Description.Depth
+				});
 			vkOffset3D = (vkImageBlit.dstOffsets[0] = VkOffset3D
-			{
-				x = (int32)destinationX,
-				y = (int32)destinationY,
-				z = (int32)destinationZ
-			});
+				{
+					x = (int32)destinationX,
+					y = (int32)destinationY,
+					z = (int32)destinationZ
+				});
 			vkOffset3D = (vkImageBlit.dstOffsets[1] = VkOffset3D
-			{
-				x = (int32)Description.Width,
-				y = (int32)Description.Height,
-				z = (int32)Description.Depth
-			});
+				{
+					x = (int32)Description.Width,
+					y = (int32)Description.Height,
+					z = (int32)Description.Depth
+				});
 			vkImageBlit.srcSubresource = srcSubresource;
 			vkImageBlit.dstSubresource = dstSubresource;
 			VkImageBlit vkImageBlit2 = vkImageBlit;
@@ -774,7 +774,7 @@ namespace Sedulous.Graphics.Vulkan
 		/// <param name="source">The data pointer.</param>
 		/// <param name="sourceSizeInBytes">The size in bytes.</param>
 		/// <param name="subResource">The subresource index.</param>
-		public  void SetData(VkCommandBuffer commandBuffer, void* source, uint32 sourceSizeInBytes, uint32 subResource = 0u)
+		public void SetData(VkCommandBuffer commandBuffer, void* source, uint32 sourceSizeInBytes, uint32 subResource = 0u)
 		{
 			VKGraphicsContext vKGraphicsContext = Context as VKGraphicsContext;
 			bool num = Description.Usage == ResourceUsage.Staging;
@@ -805,11 +805,11 @@ namespace Sedulous.Graphics.Vulkan
 			vkBufferImageCopy.imageSubresource.layerCount = 1u;
 			vkBufferImageCopy.imageOffset = default(VkOffset3D);
 			vkBufferImageCopy.imageExtent = VkExtent3D
-			{
-				width = subResourceInfo.MipWidth,
-				height = subResourceInfo.MipHeight,
-				depth = subResourceInfo.MipDepth
-			};
+				{
+					width = subResourceInfo.MipWidth,
+					height = subResourceInfo.MipHeight,
+					depth = subResourceInfo.MipDepth
+				};
 			*ptr = vkBufferImageCopy;
 			TransitionImageLayout(commandBuffer, VkImageLayout.VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, subResourceInfo.MipLevel, 1u, subResourceInfo.ArrayLayer, Description.ArraySize * Description.Faces);
 			VulkanNative.vkCmdCopyBufferToImage(vKGraphicsContext.copyCommandBuffer, vKGraphicsContext.TextureUploader.NativeBuffer, NativeImage, VkImageLayout.VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, num3, ptr);
@@ -819,16 +819,7 @@ namespace Sedulous.Graphics.Vulkan
 			}
 		}
 
-		/// <summary>
-		/// Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
-		/// </summary>
-		public override void Dispose()
-		{
-			/*Dispose(disposing: true);
-			GC.SuppressFinalize(this);*/
-		}
-
-		private  VkImageView GetImageView()
+		private VkImageView GetImageView()
 		{
 			VkImageViewCreateInfo vkImageViewCreateInfo = default(VkImageViewCreateInfo);
 			vkImageViewCreateInfo.sType = VkStructureType.VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
@@ -840,13 +831,13 @@ namespace Sedulous.Graphics.Vulkan
 				aspectMask = VkImageAspectFlags.VK_IMAGE_ASPECT_DEPTH_BIT;
 			}
 			vkImageViewCreateInfo.subresourceRange = VkImageSubresourceRange
-			{
-				aspectMask = aspectMask,
-				baseMipLevel = 0u,
-				levelCount = Description.MipLevels,
-				baseArrayLayer = 0u,
-				layerCount = Description.ArraySize * Description.Faces
-			};
+				{
+					aspectMask = aspectMask,
+					baseMipLevel = 0u,
+					levelCount = Description.MipLevels,
+					baseArrayLayer = 0u,
+					layerCount = Description.ArraySize * Description.Faces
+				};
 			switch (Description.Type)
 			{
 			case TextureType.Texture1D:
@@ -876,27 +867,20 @@ namespace Sedulous.Graphics.Vulkan
 			return result;
 		}
 
-		private  void Dispose(bool disposing)
+		public ~this()
 		{
-			base.Dispose();
-			if (disposed)
+			OnDestroy();
+
+			if (Description.Usage == ResourceUsage.Staging)
 			{
-				return;
+				VulkanNative.vkDestroyBuffer(vkContext.VkDevice, NativeBuffer, null);
+				VulkanNative.vkFreeMemory(vkContext.VkDevice, BufferMemory, null);
 			}
-			if (disposing)
+			else
 			{
-				if (Description.Usage == ResourceUsage.Staging)
-				{
-					VulkanNative.vkDestroyBuffer(vkContext.VkDevice, NativeBuffer, null);
-					VulkanNative.vkFreeMemory(vkContext.VkDevice, BufferMemory, null);
-				}
-				else
-				{
-					VulkanNative.vkDestroyImage(vkContext.VkDevice, NativeImage, null);
-					VulkanNative.vkFreeMemory(vkContext.VkDevice, ImageMemory, null);
-				}
+				VulkanNative.vkDestroyImage(vkContext.VkDevice, NativeImage, null);
+				VulkanNative.vkFreeMemory(vkContext.VkDevice, ImageMemory, null);
 			}
-			disposed = true;
 		}
 	}
 }

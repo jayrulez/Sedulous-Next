@@ -72,10 +72,12 @@ public extension Array1<T>
 
 public extension Array1<T> where T : String
 {
-	public bool Contains(in StringView other, StringComparison comparisonType = StringComparison.Ordinal)
+	public bool Contains(in StringView other, bool ignoreCase = false)
 	{
-		for(String item in this){
-			if(item.Equals(other, comparisonType)){
+		for (int i = 0; i < Count; i++)
+		{
+			if (other.Equals(this[i], ignoreCase))
+			{
 				return true;
 			}
 		}
