@@ -13,6 +13,8 @@ namespace Sedulous.Graphics.Vulkan
 	/// </summary>
 	public class VKFrameBuffer : VKFrameBufferBase
 	{
+		private bool destroyed = false;
+
 		/// <summary>
 		/// The Vulkan frameBuffer struct.
 		/// </summary>
@@ -360,10 +362,10 @@ namespace Sedulous.Graphics.Vulkan
 			}
 		}
 
-		/// <inheritdoc />
-		public ~this()
-		{
-			OnDestroy();
+		protected override void OnDestroy(){
+
+			if(!destroyed){
+			base.OnDestroy();
 
 			VulkanNative.vkDestroyFramebuffer(vkContext.VkDevice, NativeFrameBuffer, null);
 				for (int32 i = 0; i < defaultRenderPasses.Count; i++)
@@ -372,8 +374,16 @@ namespace Sedulous.Graphics.Vulkan
 				}
 				for (VkImageView imageView in imageViews)
 				{
-					VulkanNative.vkDestroyImageView(vkContext.VkDevice, imageView, null);
+					//VulkanNative.vkDestroyImageView(vkContext.VkDevice, imageView, null);
 				}
+			   destroyed = true;
+			}
+		}
+
+		/// <inheritdoc />
+		public ~this()
+		{
+			OnDestroy();
 		}
 	}
 }

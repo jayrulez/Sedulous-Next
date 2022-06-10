@@ -46,7 +46,7 @@ class SDLWindow : Window
 	public this(in StringView title, uint32 width, uint32 height)
 		: base(title, width, height)
 	{
-		SDL.WindowFlags flags = .Shown | SDL.WindowFlags.Resizable; // | SDL.WindowFlags.Vulkan;
+		SDL.WindowFlags flags = .Shown | SDL.WindowFlags.Resizable | SDL.WindowFlags.Vulkan;
 		SDLNativeWindow = SDL.CreateWindow(title.Ptr, .Undefined, .Undefined, (int32)width, (int32)height, flags);
 
 		if (SDLNativeWindow == null)
@@ -60,7 +60,8 @@ class SDLWindow : Window
 		SDL.SDL_SYSWM_TYPE subsystem = info.subsystem;
 		switch (subsystem) {
 		case SDL.SDL_SYSWM_TYPE.SDL_SYSWM_WINDOWS:
-			SurfaceInfo = .(scope void*[](SDLNativeWindow, (void*)(int)info.info.win.window), .SDL);
+			NativeWindow = (void*)(int)info.info.win.window;
+			SurfaceInfo = .(scope void*[](NativeWindow, SDLNativeWindow), .SDL);
 			/*mNativeWindowHandleInfo = .()
 				{
 					windowSystemType = .WINDOWS,

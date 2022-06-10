@@ -198,15 +198,15 @@ namespace Sedulous.Graphics.Vulkan
 				};
 			switch (description.Type)
 			{
-			case TextureType.Texture1D:
+			case TextureType.Texture1D: fallthrough;
 			case TextureType.Texture1DArray:
 				vkImageCreateInfo.imageType = VkImageType.VK_IMAGE_TYPE_1D;
 				break;
-			case TextureType.Texture2D:
+			case TextureType.Texture2D: fallthrough;
 			case TextureType.Texture2DArray:
 				vkImageCreateInfo.imageType = VkImageType.VK_IMAGE_TYPE_2D;
 				break;
-			case TextureType.TextureCube:
+			case TextureType.TextureCube: fallthrough;
 			case TextureType.TextureCubeArray:
 				vkImageCreateInfo.imageType = VkImageType.VK_IMAGE_TYPE_2D;
 				vkImageCreateInfo.flags |= VkImageCreateFlags.VK_IMAGE_CREATE_CUBE_COMPATIBLE_BIT;
@@ -403,7 +403,7 @@ namespace Sedulous.Graphics.Vulkan
 			VkPipelineStageFlags dstStageMask = VkPipelineStageFlags.VK_PIPELINE_STAGE_NONE;
 			switch (vkImageLayout)
 			{
-			case VkImageLayout.VK_IMAGE_LAYOUT_UNDEFINED:
+			case VkImageLayout.VK_IMAGE_LAYOUT_UNDEFINED: fallthrough;
 			case VkImageLayout.VK_IMAGE_LAYOUT_PREINITIALIZED:
 				vkImageMemoryBarrier.srcAccessMask = VkAccessFlags.VK_ACCESS_NONE;
 				srcStageMask = VkPipelineStageFlags.VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT;
@@ -420,7 +420,7 @@ namespace Sedulous.Graphics.Vulkan
 				vkImageMemoryBarrier.srcAccessMask = VkAccessFlags.VK_ACCESS_SHADER_READ_BIT;
 				srcStageMask = VkPipelineStageFlags.VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT;
 				break;
-			case VkImageLayout.VK_IMAGE_LAYOUT_GENERAL:
+			case VkImageLayout.VK_IMAGE_LAYOUT_GENERAL: fallthrough;
 			case VkImageLayout.VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL:
 				vkImageMemoryBarrier.srcAccessMask = VkAccessFlags.VK_ACCESS_TRANSFER_READ_BIT;
 				srcStageMask = VkPipelineStageFlags.VK_PIPELINE_STAGE_TRANSFER_BIT;

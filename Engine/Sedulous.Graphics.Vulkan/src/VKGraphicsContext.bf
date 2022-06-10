@@ -8,6 +8,7 @@ namespace Sedulous.Graphics.Vulkan
 {
 	using internal Sedulous.Graphics;
 	using internal Sedulous.Graphics.Vulkan;
+	using Sedulous.Foundation.Utilities;
 
 	using static Sedulous.Graphics.Vulkan.VKExtensionsMethods;
 
@@ -419,9 +420,14 @@ namespace Sedulous.Graphics.Vulkan
 				}
 			}
 			VkInstance vkInstance = default(VkInstance);
-			VulkanNative.vkCreateInstance(&vkInstanceCreateInfo, null, &vkInstance);
+			VkResult result = VulkanNative.vkCreateInstance(&vkInstanceCreateInfo, null, &vkInstance);
+			if(result != .VK_SUCCESS){
+				Runtime.FatalError("Failed to create instance.");
+			}
 			VkInstance = vkInstance;
+
 			VulkanNative.LoadInstanceFunctions(vkInstance);
+
 			VulkanNative.LoadPostInstanceFunctions();
 
 			if (base.IsValidationLayerEnabled)
@@ -556,17 +562,24 @@ namespace Sedulous.Graphics.Vulkan
 				queueCreateInfos[1] = vkDeviceQueueCreateInfo2;
 			}
 			uint32 deviceExtensionCount = 0u;
-			VulkanNative.vkEnumerateDeviceExtensionProperties(VkPhysicalDevice, null, &deviceExtensionCount, null);
+			VkResult result = VulkanNative.vkEnumerateDeviceExtensionProperties(VkPhysicalDevice, null, &deviceExtensionCount, null);
+			//ReturnOnFailure!();
+			if(result != .VK_SUCCESS){
+				Runtime.FatalError("Failed to enumerate device extensions");
+			}
 			VkExtensionProperties* deviceExtensions = scope VkExtensionProperties[(int32)deviceExtensionCount]*;
-			VulkanNative.vkEnumerateDeviceExtensionProperties(VkPhysicalDevice, null, &deviceExtensionCount, deviceExtensions);
+			result = VulkanNative.vkEnumerateDeviceExtensionProperties(VkPhysicalDevice, null, &deviceExtensionCount, deviceExtensions);
+			if(result != .VK_SUCCESS){
+				Runtime.FatalError("Failed to enumerate device extensions");
+			}
 			List<char8*> enabledExtensions = scope List<char8*>();
 			for (int i = 0; i < deviceExtensionCount; i++)
 			{
 				String availableExtension = scope :: String(&deviceExtensions[i].extensionName);
 				switch (availableExtension)
 				{
-				case "VK_KHR_swapchain":
-				case "VK_EXT_shader_viewport_index_layer":
+				case "VK_KHR_swapchain": fallthrough;
+				case "VK_EXT_shader_viewport_index_layer": fallthrough;
 				case "VK_NV_viewport_array2":
 					enabledExtensions.Add(availableExtension);
 					break;
@@ -652,10 +665,13 @@ namespace Sedulous.Graphics.Vulkan
 			vkDeviceCreateInfo.pEnabledFeatures = null;
 			vkDeviceCreateInfo.pNext = &vkPhysicalDeviceFeatures;
 			VkDevice vkDevice = default(VkDevice);
-			VulkanNative.vkCreateDevice(VkPhysicalDevice, &vkDeviceCreateInfo, null, &vkDevice);
+			result = VulkanNative.vkCreateDevice(VkPhysicalDevice, &vkDeviceCreateInfo, null, &vkDevice);
+			if(result != .VK_SUCCESS){
+				Runtime.FatalError("Failed to create device.");
+			}
 			VkDevice = vkDevice;
 			VkQueue vkQueue = default(VkQueue);
-			VulkanNative.vkGetDeviceQueue(VkDevice, (uint32)QueueIndices.GraphicsFamily, 0u, &vkQueue);
+			VulkanNative.vkGetDeviceQueue(VkDevice, (uint32)QueueIndices.GraphicsFamily, 0, &vkQueue);
 			vkGraphicsQueue = vkQueue;
 		}
 

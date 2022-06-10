@@ -27,6 +27,7 @@ class SDLApplication : Application
 
 	private ValidationLayer mGraphicsValidationLayer = null;
 	private GraphicsContext mGraphicsContext = null;
+	private SwapChain mSwapChain = null;
 
 	public this(ILogger logger, in StringView windowTitle, uint32 windowWidth, uint32 windowHeight)
 		: base(mApplicationSettings = new .()
@@ -50,6 +51,24 @@ class SDLApplication : Application
 		}
 
 		return .Ok;
+	}
+
+	protected TextureSampleCount SampleCount = TextureSampleCount.None;
+
+	private SwapChainDescription CreateSwapChainDescription(uint32 width, uint32 height, ref SurfaceInfo surfaceInfo){
+		return SwapChainDescription()
+		{
+		    Width = width,
+		    Height = height,
+		    SurfaceInfo = surfaceInfo,
+		    ColorTargetFormat = PixelFormat.R8G8B8A8_UNorm,
+		    ColorTargetFlags = TextureFlags.RenderTarget | TextureFlags.ShaderResource,
+		    DepthStencilTargetFormat = PixelFormat.D24_UNorm_S8_UInt,
+		    DepthStencilTargetFlags = TextureFlags.DepthStencil,
+		    SampleCount = this.SampleCount,
+		    IsWindowed = true,
+		    RefreshRate = 60,
+		};
 	}
 
 	protected override Result<void> OnInitialize()
@@ -76,11 +95,17 @@ class SDLApplication : Application
 		//mApplicationSettings.Plugins.Add(mRendererPlugin = new RendererPlugin(mEngine, mDevice));
 		//mApplicationSettings.Plugins.Add(mAudioPlugin = new AudioPlugin(mEngine));
 
-		
-		mGraphicsValidationLayer = new ValidationLayer();
+
+		mGraphicsValidationLayer = new ValidationLayer(.Trace);
 		mGraphicsContext = new VKGraphicsContext();
-		
+
+		mGraphicsContext.DefaultTextureUploaderSize = 128 * 1024 * 1024;
+		mGraphicsContext.DefaultBufferUploaderSize = 64 * 1024 * 1024;
+
 		mGraphicsContext.CreateDevice(mGraphicsValidationLayer);
+
+		SwapChainDescription swapChainDescription = CreateSwapChainDescription(mWindow.Width, mWindow.Height, ref mWindow.SurfaceInfo);
+		mSwapChain = mGraphicsContext.CreateSwapChain(swapChainDescription);
 
 		SDL.PumpEvents();
 		return .Ok;
@@ -97,10 +122,13 @@ class SDLApplication : Application
 		if (mDevice != null)
 			delete mDevice;*/
 
-		if(mGraphicsContext != null)
+		if (mSwapChain != null)
+			delete mSwapChain;
+
+		if (mGraphicsContext != null)
 			delete mGraphicsContext;
 
-		if(mGraphicsValidationLayer != null)
+		if (mGraphicsValidationLayer != null)
 			delete mGraphicsValidationLayer;
 
 		if (mWindow != null)

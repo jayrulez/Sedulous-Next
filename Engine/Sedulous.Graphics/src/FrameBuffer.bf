@@ -7,6 +7,8 @@ namespace Sedulous.Graphics
 	/// </summary>
 	public abstract class FrameBuffer
 	{
+		private bool destroyed = false;
+
 		/// <summary>
 		/// A value indicating whether we need to dispose attachment textures when this framebuffer is disposed.
 		/// </summary>
@@ -95,7 +97,7 @@ namespace Sedulous.Graphics
 					SampleCount = textureDescription.Value.SampleCount;
 				}
 			}
-			OutputDescription = /*OutputDescription*/.CreateFromFrameBuffer(this);
+			OutputDescription = /*OutputDescription*/ .CreateFromFrameBuffer(this);
 		}
 
 		/// <summary>
@@ -105,27 +107,34 @@ namespace Sedulous.Graphics
 		{
 		}
 
-		protected virtual void OnDestroy(){
-			if(disposeAttachments){
-				
+		protected virtual void OnDestroy()
+		{
+			if(destroyed)
+				return;
+
+			if (disposeAttachments)
+			{
 				if (ColorTargets != null)
 				{
 					FrameBufferAttachment[] colorTargets = ColorTargets;
 					for (int32 i = 0; i < colorTargets.Count; i++)
 					{
 						FrameBufferAttachment frameBufferAttachment = colorTargets[i];
-						if(frameBufferAttachment.AttachmentTexture != null)
-						delete frameBufferAttachment.AttachmentTexture;
-						if(frameBufferAttachment.ResolvedTexture != null)
-						delete frameBufferAttachment.ResolvedTexture;
+						if (frameBufferAttachment.AttachmentTexture != null)
+							delete frameBufferAttachment.AttachmentTexture;
+						if (frameBufferAttachment.ResolvedTexture != null)
+							delete frameBufferAttachment.ResolvedTexture;
 					}
 				}
-				if(DepthStencilTarget?.AttachmentTexture != null)
-				delete DepthStencilTarget?.AttachmentTexture;
-				
-				if(DepthStencilTarget?.ResolvedTexture != null)
-				delete DepthStencilTarget?.ResolvedTexture;
+				/*if (DepthStencilTarget?.AttachmentTexture != null)
+					delete DepthStencilTarget?.AttachmentTexture;
+				DepthStencilTarget?.AttachmentTexture = null;
+
+				if (DepthStencilTarget?.ResolvedTexture != null)
+					delete DepthStencilTarget?.ResolvedTexture;
+				DepthStencilTarget?.ResolvedTexture = null;*/
 			}
+			destroyed = true;
 		}
 
 		/// <inheritdoc />

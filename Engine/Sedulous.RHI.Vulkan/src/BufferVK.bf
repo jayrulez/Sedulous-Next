@@ -40,7 +40,7 @@ namespace Sedulous.RHI.Vulkan
 			m_OwnsNativeObjects = true;
 			m_Size = bufferDesc.size;
 
-			const VkSharingMode sharingMode =
+			readonly VkSharingMode sharingMode =
 			    m_Device.IsConcurrentSharingModeEnabledForBuffers() ? .VK_SHARING_MODE_CONCURRENT : .VK_SHARING_MODE_EXCLUSIVE;
 
 			readonly ref List<uint32> queueIndices = ref m_Device.GetConcurrentSharingModeQueueIndices();

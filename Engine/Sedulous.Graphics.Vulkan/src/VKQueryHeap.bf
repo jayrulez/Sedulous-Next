@@ -38,7 +38,7 @@ namespace Sedulous.Graphics.Vulkan
 			case QueryType.Timestamp:
 				vkQueryPoolCreateInfo.queryType = VkQueryType.VK_QUERY_TYPE_TIMESTAMP;
 				break;
-			case QueryType.Occlusion:
+			case QueryType.Occlusion: fallthrough;
 			case QueryType.BinaryOcclusion:
 				vkQueryPoolCreateInfo.queryType = VkQueryType.VK_QUERY_TYPE_OCCLUSION;
 				break;

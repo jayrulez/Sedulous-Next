@@ -55,9 +55,6 @@ namespace Sedulous.Graphics.Vulkan
 			{
 				return FrameBuffers[CurrentBackBufferIndex].ColorTargets;
 			}
-			protected set
-			{
-			}
 		}
 
 		/// <summary>
@@ -89,17 +86,17 @@ namespace Sedulous.Graphics.Vulkan
 			}
 			TextureSampleCount sampleCount = swapchain.SwapChainDescription.SampleCount;
 			TextureDescription textureDescription = TextureDescription
-			{
-				Format = swapChainDescription.DepthStencilTargetFormat,
-				ArraySize = 1u,
-				Faces = 1u,
-				MipLevels = 1u,
-				Width = swapChainDescription.Width,
-				Height = swapChainDescription.Height,
-				Depth = 1u,
-				SampleCount = TextureSampleCount.None,
-				Flags = TextureFlags.DepthStencil
-			};
+				{
+					Format = swapChainDescription.DepthStencilTargetFormat,
+					ArraySize = 1u,
+					Faces = 1u,
+					MipLevels = 1u,
+					Width = swapChainDescription.Width,
+					Height = swapChainDescription.Height,
+					Depth = 1u,
+					SampleCount = TextureSampleCount.None,
+					Flags = TextureFlags.DepthStencil
+				};
 			TextureDescription description = textureDescription;
 			Texture texture = vkContext.Factory.CreateTexture(ref description);
 			Texture resolvedTexture = null;
@@ -110,22 +107,22 @@ namespace Sedulous.Graphics.Vulkan
 				texture = vkContext.Factory.CreateTexture(ref description);
 			}
 			DepthStencilTarget = FrameBufferAttachment(texture, resolvedTexture);
-			ColorTargets = new FrameBufferAttachment[1];
+			//ColorTargets = new FrameBufferAttachment[1];
 			FrameBuffers = new VKFrameBuffer[num];
 			for (int i = 0; i < num; i++)
 			{
 				textureDescription = TextureDescription
-				{
-					Format = swapchain.vkSurfaceFormat.format.FromVulkan(),
-					ArraySize = 1u,
-					Faces = 1u,
-					MipLevels = 1u,
-					Depth = 1u,
-					Width = swapchain.SwapChainDescription.Width,
-					Height = swapchain.SwapChainDescription.Height,
-					SampleCount = TextureSampleCount.None,
-					Flags = TextureFlags.RenderTarget
-				};
+					{
+						Format = swapchain.vkSurfaceFormat.format.FromVulkan(),
+						ArraySize = 1u,
+						Faces = 1u,
+						MipLevels = 1u,
+						Depth = 1u,
+						Width = swapchain.SwapChainDescription.Width,
+						Height = swapchain.SwapChainDescription.Height,
+						SampleCount = TextureSampleCount.None,
+						Flags = TextureFlags.RenderTarget
+					};
 				TextureDescription description2 = textureDescription;
 				Texture texture2 = VKTexture.FromVulkanImage(vkContext, ref description2, BackBufferImages[i]);
 				Texture resolvedTexture2 = null;
@@ -136,10 +133,9 @@ namespace Sedulous.Graphics.Vulkan
 					texture2 = vkContext.Factory.CreateTexture(ref description2);
 				}
 				FrameBufferAttachment frameBufferAttachment = FrameBufferAttachment(texture2, resolvedTexture2);
-				VKFrameBuffer vKFrameBuffer = new VKFrameBuffer(vkContext, DepthStencilTarget, new FrameBufferAttachment[1] ( frameBufferAttachment ), /*disposeAttachments:*/ true);
-				FrameBuffers[i] = vKFrameBuffer;
+				FrameBuffers[i] = new VKFrameBuffer(vkContext, DepthStencilTarget, new FrameBufferAttachment[1](frameBufferAttachment), /*disposeAttachments:*/ true);
 			}
-			base.OutputDescription = /*OutputDescription*/.CreateFromFrameBuffer(this);
+			base.OutputDescription = /*OutputDescription*/ .CreateFromFrameBuffer(this);
 		}
 
 		/// <inheritdoc />
@@ -166,13 +162,19 @@ namespace Sedulous.Graphics.Vulkan
 		public ~this()
 		{
 			OnDestroy();
-			if(DepthTargetTexture != null)
-			delete DepthTargetTexture;
-				for (int32 i = 0; i < FrameBuffers.Count; i++)
-				{
-					if(FrameBuffers[i] != null)
+
+			//delete ColorTargets;
+			//ColorTargets = null;
+
+			if (DepthTargetTexture != null)
+				delete DepthTargetTexture;
+			DepthTargetTexture = null;
+			for (int32 i = 0; i < FrameBuffers.Count; i++)
+			{
+				if (FrameBuffers[i] != null)
 					delete FrameBuffers[i];
-				}
+				FrameBuffers[i] = null;
+			}
 		}
 	}
 }
