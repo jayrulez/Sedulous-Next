@@ -26,6 +26,8 @@ abstract class Application
 
 	protected virtual Result<void> OnInitialize() => .Ok;
 
+	protected virtual void OnFinalize() => void();
+
 	protected virtual void OnShutdown() => void();
 
 	protected virtual void OnFrameBegin() => void();
@@ -72,11 +74,14 @@ abstract class Application
 			return;
 		}
 
-		if (Startup() case .Err)
+		if (Startup() case .Err){
+			OnShutdown();
 			return;
+		}
 
 		if (Initialize() case .Err)
 		{
+			OnFinalize();
 			Shutdown();
 			return;
 		}
@@ -87,6 +92,7 @@ abstract class Application
 			RunFrame();
 		}
 
+		OnFinalize();
 		Shutdown();
 	}
 

@@ -1,5 +1,8 @@
+using System;
 namespace Sedulous.Foundation.Mathematics;
 
+
+[CRepr]
 struct TQuaternion<T>
 {
 	public T X;

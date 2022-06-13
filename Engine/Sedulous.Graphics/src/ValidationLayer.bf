@@ -86,8 +86,10 @@ namespace Sedulous.Graphics
 			}
 		}
 
-		public ~this(){
-			if(Notify != null){
+		public ~this()
+		{
+			if (Notify != null)
+			{
 				delete Notify;
 				Notify = null;
 			}
@@ -214,7 +216,7 @@ namespace Sedulous.Graphics
 			{
 				NotifyInternal("The EntryPoint cannot be null or empty.");
 			}
-			if (description.ShaderBytes.Count == 0)
+			if (description.ShaderBytes.Length == 0)
 			{
 				NotifyInternal("The shader bytes cannot be zero.");
 			}
@@ -337,8 +339,7 @@ namespace Sedulous.Graphics
 				Console.WriteLine(errorMessage);
 				break;
 			case Severity.Error:
-				//Runtime.FatalError(errorMessage);
-				Console.WriteLine(errorMessage);
+				Runtime.FatalError(errorMessage);
 			}
 		}
 

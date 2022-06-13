@@ -1,0 +1,6 @@
+FileVersion = 1
+Dependencies = {corlib = "*", "Sedulous.Framework.SDL" = "*"}
+
+[Project]
+Name = "GraphicsTest"
+StartupObject = "GraphicsTest.Program"

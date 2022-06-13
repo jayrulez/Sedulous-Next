@@ -193,10 +193,27 @@ namespace Sedulous.Graphics.Vulkan
 			VulkanNative.vkCmdBuildAccelerationStructuresKHR(commandBuffer, vkAccelerationStructureBuildGeometryInfoKHR2.geometryCount, &vkAccelerationStructureBuildGeometryInfoKHR2, &ptr);
 		}
 
-		public ~this()
+		/// <inheritdoc />
+		public override void Dispose()
 		{
-			OnDestroy();
-			VulkanNative.vkDestroyAccelerationStructureKHR(vkContext.VkDevice, TopLevelAS, null);
+			Dispose(/*disposing:*/ true);
+			//GC.SuppressFinalize(this);
+		}
+
+		/// <summary>
+		/// Releases unmanaged and - optionally - managed resources.
+		/// </summary>
+		/// <param name="disposing"><c>true</c> to release both managed and unmanaged resources; <c>false</c> to release only unmanaged resources.</param>
+		private  void Dispose(bool disposing)
+		{
+			if (!disposed)
+			{
+				if (disposing)
+				{
+					VulkanNative.vkDestroyAccelerationStructureKHR(vkContext.VkDevice, TopLevelAS, null);
+				}
+				disposed = true;
+			}
 		}
 	}
 }

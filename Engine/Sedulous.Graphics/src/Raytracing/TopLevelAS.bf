@@ -20,11 +20,5 @@ namespace Sedulous.Graphics.Raytracing
 		{
 			Description = description;
 		}
-
-		
-
-		protected override void OnDestroy(){
-
-		}
 	}
 }

@@ -3,6 +3,6 @@ namespace Sedulous.RHI
 {
 	abstract class PipelineLayout
 	{
-		public abstract void SetDebugName(in StringView name);
+		public abstract void SetDebugName(StringView name);
 	}
 }

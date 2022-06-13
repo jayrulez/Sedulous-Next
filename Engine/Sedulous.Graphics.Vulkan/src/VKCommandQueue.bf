@@ -19,6 +19,7 @@ namespace Sedulous.Graphics.Vulkan
 		private String name;
 
 		private Queue<VKCommandBuffer> queue;
+		private List<VKCommandBuffer> commandBuffers = new .();
 
 		private VKCommandBuffer[] executionArray;
 
@@ -79,6 +80,7 @@ namespace Sedulous.Graphics.Vulkan
 			if (queue.Count == 0)
 			{
 				vKCommandBuffer = new VKCommandBuffer(vkContext, this);
+				commandBuffers.Add(vKCommandBuffer);
 			}
 			else
 			{
@@ -134,7 +136,7 @@ namespace Sedulous.Graphics.Vulkan
 		/// <inheritdoc />
 		public override void Dispose()
 		{
-			//Dispose(disposing: true);
+			Dispose(/*disposing:*/ true);
 			//GC.SuppressFinalize(this);
 		}
 
@@ -166,6 +168,16 @@ namespace Sedulous.Graphics.Vulkan
 					queue.PopFront().Dispose();
 				}
 				disposed = true;
+
+				for(var commandBuffer in commandBuffers){
+					commandBuffer.Dispose();
+					delete commandBuffer;
+				}
+
+				delete commandBuffers;
+
+				delete queue;
+				delete executionArray;
 			}
 		}
 	}

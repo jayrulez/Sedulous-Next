@@ -1,5 +1,8 @@
+using System;
 namespace Sedulous.Foundation.Mathematics;
 
+
+[CRepr]
 struct TMatrix3x3<T>
 {
 	public T M11;

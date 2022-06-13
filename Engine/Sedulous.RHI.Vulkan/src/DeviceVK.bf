@@ -322,7 +322,7 @@ class DeviceVK : Device
 
 	//////////////////////////////Private Methods//////////////////////////////
 
-	private Result CreateInstance(in DeviceCreationDesc deviceCreationDesc)
+	private Result CreateInstance(DeviceCreationDesc deviceCreationDesc)
 	{
 		List<char8*> layers = scope .();
 		List<char8*> extensions = scope .();
@@ -476,7 +476,7 @@ class DeviceVK : Device
 		return Result.SUCCESS;
 	}
 
-	private Result CreateLogicalDevice(in DeviceCreationDesc deviceCreationDesc)
+	private Result CreateLogicalDevice(DeviceCreationDesc deviceCreationDesc)
 	{
 		List<char8*> extensions = scope .();
 
@@ -1199,7 +1199,7 @@ class DeviceVK : Device
 	public readonly ref uint32[COMMAND_QUEUE_TYPE_NUM] GetQueueFamilyIndices() => ref m_FamilyIndices;
 	public readonly ref SPIRVBindingOffsets GetSPIRVBindingOffsets() => ref m_SPIRVBindingOffsets;
 
-	public Result Create(in DeviceCreationVulkanDesc deviceCreationVulkanDesc)
+	public Result Create(DeviceCreationVulkanDesc deviceCreationVulkanDesc)
 	{
 		m_OwnsNativeObjects = false;
 
@@ -1289,7 +1289,7 @@ class DeviceVK : Device
 		return .SUCCESS;
 	}
 
-	public Result Create(in DeviceCreationDesc deviceCreationDesc)
+	public Result Create(DeviceCreationDesc deviceCreationDesc)
 	{
 		m_OwnsNativeObjects = true;
 
@@ -1450,7 +1450,7 @@ class DeviceVK : Device
 	public bool IsBufferDeviceAddressSupported() => m_IsBufferDeviceAddressSupported;
 	public readonly ref List<uint32> GetConcurrentSharingModeQueueIndices() => ref m_ConcurrentSharingModeQueueIndices;
 
-	public void SetDebugNameToTrivialObject(VkObjectType objectType, uint64 handle, in StringView name)
+	public void SetDebugNameToTrivialObject(VkObjectType objectType, uint64 handle, StringView name)
 	{
 		if ([Friend]vkSetDebugUtilsObjectNameEXT_ptr == null)
 			return;
@@ -1470,7 +1470,7 @@ class DeviceVK : Device
 			"Can't set a debug name to an object: vkSetDebugUtilsObjectNameEXT returned {0}.", (int32)result);
 	}
 
-	public void SetDebugNameToDeviceGroupObject(VkObjectType objectType, in uint64* handles, in StringView name)
+	public void SetDebugNameToDeviceGroupObject(VkObjectType objectType, uint64* handles, StringView name)
 	{
 		if ([Friend]vkSetDebugUtilsObjectNameEXT_ptr == null)
 			return;
@@ -1499,7 +1499,7 @@ class DeviceVK : Device
 		}
 	}
 
-	public override void SetDebugName(in StringView name)
+	public override void SetDebugName(StringView name)
 	{
 		SetDebugNameToTrivialObject(.VK_OBJECT_TYPE_DEVICE, (uint64)m_Device.Handle, name);
 	}
@@ -1524,67 +1524,67 @@ class DeviceVK : Device
 		return CreateImplementation<CommandAllocatorVK...>(commandQueue, physicalDeviceMask, out commandAllocator);
 	}
 
-	public override Result CreateDescriptorPool(in DescriptorPoolDesc descriptorPoolDesc, out DescriptorPool descriptorPool)
+	public override Result CreateDescriptorPool(DescriptorPoolDesc descriptorPoolDesc, out DescriptorPool descriptorPool)
 	{
 		return CreateImplementation<DescriptorPoolVK...>(descriptorPoolDesc, out descriptorPool);
 	}
 
-	public override Result CreateBuffer(in BufferDesc bufferDesc, out Buffer buffer)
+	public override Result CreateBuffer(BufferDesc bufferDesc, out Buffer buffer)
 	{
 		return CreateImplementation<BufferVK...>(bufferDesc, out buffer);
 	}
 
-	public override Result CreateTexture(in TextureDesc textureDesc, out Texture texture)
+	public override Result CreateTexture(TextureDesc textureDesc, out Texture texture)
 	{
 		return CreateImplementation<TextureVK...>(textureDesc, out texture);
 	}
 
-	public override Result CreateBufferView(in BufferViewDesc bufferViewDesc, out Descriptor bufferView)
+	public override Result CreateBufferView(BufferViewDesc bufferViewDesc, out Descriptor bufferView)
 	{
 		return CreateImplementation<DescriptorVK...>(bufferViewDesc, out bufferView);
 	}
 
-	public override Result CreateTexture1DView(in Texture1DViewDesc textureViewDesc, out Descriptor textureView)
+	public override Result CreateTexture1DView(Texture1DViewDesc textureViewDesc, out Descriptor textureView)
 	{
 		return CreateImplementation<DescriptorVK...>(textureViewDesc, out textureView);
 	}
 
-	public override Result CreateTexture2DView(in Texture2DViewDesc textureViewDesc, out Descriptor textureView)
+	public override Result CreateTexture2DView(Texture2DViewDesc textureViewDesc, out Descriptor textureView)
 	{
 		return CreateImplementation<DescriptorVK...>(textureViewDesc, out textureView);
 	}
 
-	public override Result CreateTexture3DView(in Texture3DViewDesc textureViewDesc, out Descriptor textureView)
+	public override Result CreateTexture3DView(Texture3DViewDesc textureViewDesc, out Descriptor textureView)
 	{
 		return CreateImplementation<DescriptorVK...>(textureViewDesc, out textureView);
 	}
 
-	public override Result CreateSampler(in SamplerDesc samplerDesc, out Descriptor sampler)
+	public override Result CreateSampler(SamplerDesc samplerDesc, out Descriptor sampler)
 	{
 		return CreateImplementation<DescriptorVK...>(samplerDesc, out sampler);
 	}
 
-	public override Result CreatePipelineLayout(in PipelineLayoutDesc pipelineLayoutDesc, out PipelineLayout pipelineLayout)
+	public override Result CreatePipelineLayout(PipelineLayoutDesc pipelineLayoutDesc, out PipelineLayout pipelineLayout)
 	{
 		return CreateImplementation<PipelineLayoutVK...>(pipelineLayoutDesc, out pipelineLayout);
 	}
 
-	public override Result CreateGraphicsPipeline(in GraphicsPipelineDesc graphicsPipelineDesc, out Pipeline pipeline)
+	public override Result CreateGraphicsPipeline(GraphicsPipelineDesc graphicsPipelineDesc, out Pipeline pipeline)
 	{
 		return CreateImplementation<PipelineVK...>(graphicsPipelineDesc, out pipeline);
 	}
 
-	public override Result CreateComputePipeline(in ComputePipelineDesc computePipelineDesc, out Pipeline pipeline)
+	public override Result CreateComputePipeline(ComputePipelineDesc computePipelineDesc, out Pipeline pipeline)
 	{
 		return CreateImplementation<PipelineVK...>(computePipelineDesc, out pipeline);
 	}
 
-	public override Result CreateFrameBuffer(in FrameBufferDesc frameBufferDesc, out FrameBuffer frameBuffer)
+	public override Result CreateFrameBuffer(FrameBufferDesc frameBufferDesc, out FrameBuffer frameBuffer)
 	{
 		return CreateImplementation<FrameBufferVK...>(frameBufferDesc, out frameBuffer);
 	}
 
-	public override Result CreateQueryPool(in QueryPoolDesc queryPoolDesc, out QueryPool queryPool)
+	public override Result CreateQueryPool(QueryPoolDesc queryPoolDesc, out QueryPool queryPool)
 	{
 		return CreateImplementation<QueryPoolVK...>(queryPoolDesc, out queryPool);
 	}
@@ -1599,22 +1599,22 @@ class DeviceVK : Device
 		return CreateImplementation<DeviceSemaphoreVK...>(signaled, out deviceSemaphore);
 	}
 
-	public override Result CreateSwapChain(in SwapChainDesc swapChainDesc, out SwapChain swapChain)
+	public override Result CreateSwapChain(SwapChainDesc swapChainDesc, out SwapChain swapChain)
 	{
 		return CreateImplementation<SwapChainVK...>(swapChainDesc, out swapChain);
 	}
 
-	public override Result CreateRayTracingPipeline(in RayTracingPipelineDesc rayTracingPipelineDesc, out Pipeline pipeline)
+	public override Result CreateRayTracingPipeline(RayTracingPipelineDesc rayTracingPipelineDesc, out Pipeline pipeline)
 	{
 		return CreateImplementation<PipelineVK...>(rayTracingPipelineDesc, out pipeline);
 	}
 
-	public override Result CreateAccelerationStructure(in AccelerationStructureDesc accelerationStructureDesc, out AccelerationStructure accelerationStructure)
+	public override Result CreateAccelerationStructure(AccelerationStructureDesc accelerationStructureDesc, out AccelerationStructure accelerationStructure)
 	{
 		return CreateImplementation<AccelerationStructureVK...>(accelerationStructureDesc, out accelerationStructure);
 	}
 
-	public Result CreateCommandQueue(in CommandQueueVulkanDesc commandQueueDesc, out CommandQueue commandQueue)
+	public Result CreateCommandQueue(CommandQueueVulkanDesc commandQueueDesc, out CommandQueue commandQueue)
 	{
 		readonly uint32 commandQueueTypeIndex = (uint32)commandQueueDesc.commandQueueType;
 
@@ -1640,12 +1640,12 @@ class DeviceVK : Device
 		}
 	}
 
-	public Result CreateCommandAllocator(in CommandAllocatorVulkanDesc commandAllocatorDesc, out CommandAllocator commandAllocator)
+	public Result CreateCommandAllocator(CommandAllocatorVulkanDesc commandAllocatorDesc, out CommandAllocator commandAllocator)
 	{
 		return CreateImplementation<CommandAllocatorVK...>(commandAllocatorDesc, out commandAllocator);
 	}
 
-	public Result CreateCommandBuffer(in CommandBufferVulkanDesc commandBufferDesc, out CommandBuffer commandBuffer)
+	public Result CreateCommandBuffer(CommandBufferVulkanDesc commandBufferDesc, out CommandBuffer commandBuffer)
 	{
 		return CreateImplementation<CommandBufferVK...>(commandBufferDesc, out commandBuffer);
 	}
@@ -1655,17 +1655,17 @@ class DeviceVK : Device
 		return CreateImplementation<DescriptorPoolVK...>(vkDescriptorPool, out descriptorPool);
 	}
 
-	public Result CreateBuffer(in BufferVulkanDesc bufferDesc, out Buffer buffer)
+	public Result CreateBuffer(BufferVulkanDesc bufferDesc, out Buffer buffer)
 	{
 		return CreateImplementation<BufferVK...>(bufferDesc, out buffer);
 	}
 
-	public Result CreateTexture(in TextureVulkanDesc textureVulkanDesc, out Texture texture)
+	public Result CreateTexture(TextureVulkanDesc textureVulkanDesc, out Texture texture)
 	{
 		return CreateImplementation<TextureVK...>(textureVulkanDesc, out texture);
 	}
 
-	public Result CreateMemory(in MemoryVulkanDesc memoryVulkanDesc, out Memory memory)
+	public Result CreateMemory(MemoryVulkanDesc memoryVulkanDesc, out Memory memory)
 	{
 		return CreateImplementation<MemoryVK...>(memoryVulkanDesc, out memory);
 	}
@@ -1703,7 +1703,7 @@ class DeviceVK : Device
 		return result;
 	}
 
-	public Result CreateQueryPool(in QueryPoolVulkanDesc queryPoolVulkanDesc, out QueryPool queryPool)
+	public Result CreateQueryPool(QueryPoolVulkanDesc queryPoolVulkanDesc, out QueryPool queryPool)
 	{
 		return CreateImplementation<QueryPoolVK...>(queryPoolVulkanDesc, out queryPool);
 	}
@@ -1843,7 +1843,7 @@ class DeviceVK : Device
 		return CreateImplementation<MemoryVK...>(physicalDeviceMask, memoryType, size, out memory);
 	}
 
-	public override Result BindBufferMemory(in BufferMemoryBindingDesc* memoryBindingDescs, uint32 memoryBindingDescNum)
+	public override Result BindBufferMemory(BufferMemoryBindingDesc* memoryBindingDescs, uint32 memoryBindingDescNum)
 	{
 		if (memoryBindingDescNum == 0)
 			return Result.SUCCESS;
@@ -1920,7 +1920,7 @@ class DeviceVK : Device
 		return Result.SUCCESS;
 	}
 
-	public override Result BindTextureMemory(in TextureMemoryBindingDesc* memoryBindingDescs, uint32 memoryBindingDescNum)
+	public override Result BindTextureMemory(TextureMemoryBindingDesc* memoryBindingDescs, uint32 memoryBindingDescNum)
 	{
 		readonly uint32 infoMaxNum = memoryBindingDescNum * m_DeviceDesc.phyiscalDeviceGroupSize;
 
@@ -1980,7 +1980,7 @@ class DeviceVK : Device
 		return Result.SUCCESS;
 	}
 
-	public override Result BindAccelerationStructureMemory(in AccelerationStructureMemoryBindingDesc* memoryBindingDescs, uint32 memoryBindingDescNum)
+	public override Result BindAccelerationStructureMemory(AccelerationStructureMemoryBindingDesc* memoryBindingDescs, uint32 memoryBindingDescNum)
 	{
 		if (memoryBindingDescNum == 0)
 			return Result.SUCCESS;
@@ -2062,21 +2062,21 @@ class DeviceVK : Device
 		return mask;
 	}
 
-	public override uint32 CalculateAllocationNumber(in ResourceGroupDesc resourceGroupDesc)
+	public override uint32 CalculateAllocationNumber(ResourceGroupDesc resourceGroupDesc)
 	{
 		DeviceMemoryAllocatorHelper allocator = scope .(this, GetDeviceAllocator());
 
 		return allocator.CalculateAllocationNumber(resourceGroupDesc);
 	}
 
-	public override Result AllocateAndBindMemory(in ResourceGroupDesc resourceGroupDesc, Memory* allocations)
+	public override Result AllocateAndBindMemory(ResourceGroupDesc resourceGroupDesc, Memory* allocations)
 	{
 		DeviceMemoryAllocatorHelper allocator = scope .(this, GetDeviceAllocator());
 
 		return allocator.AllocateAndBindMemory(resourceGroupDesc, allocations);
 	}
 
-	public override void SetSPIRVBindingOffsets(in SPIRVBindingOffsets spirvBindingOffsets)
+	public override void SetSPIRVBindingOffsets(SPIRVBindingOffsets spirvBindingOffsets)
 	{
 		m_SPIRVBindingOffsets = spirvBindingOffsets;
 	}

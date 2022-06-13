@@ -287,8 +287,8 @@ namespace Sedulous.Graphics.Vulkan
 		/// <inheritdoc />
 		public void Dispose()
 		{
-			/*Dispose(disposing: true);
-			GC.SuppressFinalize(this);*/
+			Dispose(/*disposing:*/ true);
+			/*GC.SuppressFinalize(this);*/
 		}
 
 		/// <summary>

@@ -5,7 +5,7 @@ namespace Sedulous.Graphics
 	/// <summary>
 	/// Performs primitive-based rendering, creates resources, handles system-level variables, adjusts gamma ramp levels, and creates shaders.
 	/// </summary>
-	public abstract class GraphicsContext
+	public abstract class GraphicsContext : IDisposable
 	{
 		/// <summary>
 		/// the rate at which the GPU timestamp counter increments.
@@ -93,9 +93,6 @@ namespace Sedulous.Graphics
 			}
 		}
 
-		public ~this(){
-		}
-
 		/// <summary>
 		/// Initialize the graphics context to be used in a compute shader.
 		/// </summary>
@@ -111,13 +108,6 @@ namespace Sedulous.Graphics
 		/// Initialize the graphics context to be used in a compute shader.
 		/// </summary>
 		public abstract void CreateDeviceInternal();
-
-		protected void OnDestroy(){
-			if(DefaultSampler != null){
-				delete DefaultSampler;
-				DefaultSampler = null;
-			}
-		}
 
 		/// <summary>
 		/// Initialize the swapchain.
@@ -292,12 +282,22 @@ namespace Sedulous.Graphics
 		/// <summary>
 		/// Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
 		/// </summary>
-		/*public void Dispose()
+		public void Dispose()
 		{
-			//DefaultSampler?.Dispose();
-			/*Dispose(disposing: true);
-			GC.SuppressFinalize(this);*/
-		}*/
+			DefaultSampler?.Dispose();
+			Dispose(/*disposing:*/ true);
+			/*GC.SuppressFinalize(this);*/
+			if(DefaultSampler != null)
+				delete DefaultSampler;
+		}
+
+		/// <summary>
+		/// Releases unmanaged and - optionally - managed resources.
+		/// </summary>
+		/// <param name="disposing">
+		/// <c>true</c> to release both managed and unmanaged resources; <c>false</c> to release only unmanaged resources.
+		/// </param>
+		protected abstract void Dispose(bool disposing);
 
 		/// <summary>
 		/// Create the default sampler.

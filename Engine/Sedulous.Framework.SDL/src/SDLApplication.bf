@@ -5,16 +5,9 @@ using SDL2;
 using Sedulous.Renderer;
 using Sedulous.Audio;
 using System.Collections;
-using Sedulous.Graphics;
-using Sedulous.Graphics.Vulkan;
+using Sedulous.GAL;
+using Sedulous.GAL.Vulkan;
 namespace Sedulous.Framework.SDL;
-
-public class SDLApplicationSettings : ApplicationSettings
-{
-	public StringView WindowTitle;
-	public uint32 WindowWidth;
-	public uint32 WindowHeight;
-}
 
 class SDLApplication : Application
 {
@@ -25,9 +18,12 @@ class SDLApplication : Application
 	//private Device mDevice = null;
 	//private DeviceAllocator mDeviceAllocator = new DeviceAllocator() ~ delete _;
 
-	private ValidationLayer mGraphicsValidationLayer = null;
-	private GraphicsContext mGraphicsContext = null;
-	private SwapChain mSwapChain = null;
+	private GraphicsDevice mGraphicsDevice = null;
+	private SwapchainSource mSwapchainSource = null;
+	private Swapchain mSwapchain = null;
+	private bool _colorSrgb = true;
+
+	protected GraphicsDevice GraphicsDevice => mGraphicsDevice;
 
 	public this(ILogger logger, in StringView windowTitle, uint32 windowWidth, uint32 windowHeight)
 		: base(mApplicationSettings = new .()
@@ -53,24 +49,6 @@ class SDLApplication : Application
 		return .Ok;
 	}
 
-	protected TextureSampleCount SampleCount = TextureSampleCount.None;
-
-	private SwapChainDescription CreateSwapChainDescription(uint32 width, uint32 height, ref SurfaceInfo surfaceInfo){
-		return SwapChainDescription()
-		{
-		    Width = width,
-		    Height = height,
-		    SurfaceInfo = surfaceInfo,
-		    ColorTargetFormat = PixelFormat.R8G8B8A8_UNorm,
-		    ColorTargetFlags = TextureFlags.RenderTarget | TextureFlags.ShaderResource,
-		    DepthStencilTargetFormat = PixelFormat.D24_UNorm_S8_UInt,
-		    DepthStencilTargetFlags = TextureFlags.DepthStencil,
-		    SampleCount = this.SampleCount,
-		    IsWindowed = true,
-		    RefreshRate = 60,
-		};
-	}
-
 	protected override Result<void> OnInitialize()
 	{
 		mWindow = new SDLWindow(mApplicationSettings.WindowTitle, mApplicationSettings.WindowWidth, mApplicationSettings.WindowHeight);
@@ -78,6 +56,8 @@ class SDLApplication : Application
 			{
 				this.Stop();
 			});
+
+		mSwapchainSource = SwapchainSource.CreateWin32(mWindow.SurfaceInfo.Handles[0], Environment.ModuleHandle);
 
 		/*DeviceCreationDesc deviceDesc = .()
 			{
@@ -95,17 +75,19 @@ class SDLApplication : Application
 		//mApplicationSettings.Plugins.Add(mRendererPlugin = new RendererPlugin(mEngine, mDevice));
 		//mApplicationSettings.Plugins.Add(mAudioPlugin = new AudioPlugin(mEngine));
 
+		GraphicsDeviceOptions options = .(true, null, false, ResourceBindingModel.Improved, true, true, _colorSrgb);
 
-		mGraphicsValidationLayer = new ValidationLayer(.Trace);
-		mGraphicsContext = new VKGraphicsContext();
+		SwapchainDescription scDesc = SwapchainDescription(
+			mSwapchainSource,
+			(.)mWindow.Width,
+			(.)mWindow.Height,
+			options.SwapchainDepthFormat,
+			options.SyncToVerticalBlank,
+			_colorSrgb);
 
-		mGraphicsContext.DefaultTextureUploaderSize = 128 * 1024 * 1024;
-		mGraphicsContext.DefaultBufferUploaderSize = 64 * 1024 * 1024;
+		mGraphicsDevice = VKGraphicsDevice.CreateVulkan(options, scDesc);
 
-		mGraphicsContext.CreateDevice(mGraphicsValidationLayer);
-
-		SwapChainDescription swapChainDescription = CreateSwapChainDescription(mWindow.Width, mWindow.Height, ref mWindow.SurfaceInfo);
-		mSwapChain = mGraphicsContext.CreateSwapChain(swapChainDescription);
+		mSwapchain = mGraphicsDevice.MainSwapchain;
 
 		SDL.PumpEvents();
 		return .Ok;
@@ -122,14 +104,20 @@ class SDLApplication : Application
 		if (mDevice != null)
 			delete mDevice;*/
 
-		if (mSwapChain != null)
-			delete mSwapChain;
+		/*if (mSwapchain != null)
+			delete mSwapchain;*/
 
-		if (mGraphicsContext != null)
-			delete mGraphicsContext;
+		if (mGraphicsDevice != null){
+			mGraphicsDevice.Dispose();
+			delete mGraphicsDevice;
+		}
 
-		if (mGraphicsValidationLayer != null)
-			delete mGraphicsValidationLayer;
+		/*if (mGraphicsValidationLayer != null)
+			delete mGraphicsValidationLayer;*/
+
+		if(mSwapchainSource != null){
+			delete mSwapchainSource;
+		}
 
 		if (mWindow != null)
 			delete mWindow;

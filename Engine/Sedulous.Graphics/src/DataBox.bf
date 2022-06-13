@@ -5,13 +5,8 @@ namespace Sedulous.Graphics
 	/// <summary>
 	/// Provides access to data organized in 3D.
 	/// </summary>
-	public struct DataBox : IDisposable
+	public struct DataBox
 	{
-		/// <summary>
-		/// Handle to .NET GCHandle.
-		/// </summary>
-		//private GCHandle? pinnedHandle;
-
 		/// <summary>
 		/// Pointer to the data.
 		/// </summary>
@@ -49,7 +44,7 @@ namespace Sedulous.Graphics
 		/// <param name="datapointer">The datapointer.</param>
 		/// <param name="rowPitch">The row pitch.</param>
 		/// <param name="slicePitch">The slice pitch.</param>
-		public this(void* datapointer, uint32 rowPitch = 0u, uint32 slicePitch = 0u)
+		public this(void* datapointer, uint32 rowPitch = 0, uint32 slicePitch = 0)
 		{
 			DataPointer = datapointer;
 			RowPitch = rowPitch;
@@ -63,20 +58,11 @@ namespace Sedulous.Graphics
 		/// <param name="data">The data as uint8 array.</param>
 		/// <param name="rowPitch">The row pitch.</param>
 		/// <param name="slicePitch">The slice pitch.</param>
-		/*public this(uint8[] data, uint32 rowPitch = 0u, uint32 slicePitch = 0u)
+		public this(Span<uint8> data, uint32 rowPitch = 0, uint32 slicePitch = 0)
 		{
-			pinnedHandle = GCHandle.Alloc(data, GCHandleType.Pinned);
-			IntPtr intPtr = (DataPointer = Marshal.UnsafeAddrOfPinnedArrayElement(data, 0));
+			DataPointer = data.Ptr;
 			RowPitch = rowPitch;
 			SlicePitch = slicePitch;
-		}*/
-
-		/// <summary>
-		/// Dispose databox.
-		/// </summary>
-		public void Dispose()
-		{
-			//pinnedHandle?.Free();
 		}
 	}
 }

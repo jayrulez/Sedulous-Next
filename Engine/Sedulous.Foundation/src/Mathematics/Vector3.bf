@@ -1,5 +1,7 @@
+using System;
 namespace Sedulous.Foundation.Mathematics;
 
+[CRepr]
 struct TVector3<T>
 {
 	public T X;
@@ -36,4 +38,5 @@ struct TVector3<T>
 }
 
 typealias Vector3ui = TVector3<uint32>;
+
 typealias Vector3 = TVector3<float>;

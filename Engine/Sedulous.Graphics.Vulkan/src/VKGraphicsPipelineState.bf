@@ -80,7 +80,7 @@ namespace Sedulous.Graphics.Vulkan
 			vkPipelineRasterizationStateCreateInfo.rasterizerDiscardEnable = false;
 			ScissorEnabled = description.RenderStates.RasterizerState.ScissorEnable;
 			vkGraphicsPipelineCreateInfo.pRasterizationState = &vkPipelineRasterizationStateCreateInfo;
-			int num = description.Outputs.ColorAttachments.Count;
+			int num = description.Outputs.ColorAttachments.Length;
 			VkPipelineColorBlendAttachmentState* ptr = scope VkPipelineColorBlendAttachmentState[num]*;
 			BlendStateRenderTargetDescription renderTarget = description.RenderStates.BlendState.RenderTarget0;
 			BlendStateRenderTargetDescription* ptr2 = &renderTarget;
@@ -184,7 +184,7 @@ namespace Sedulous.Graphics.Vulkan
 				vkPipelineInputAssemblyStateCreateInfo.topology = description.PrimitiveTopology.ToVulkan();
 			}
 			vkGraphicsPipelineCreateInfo.pInputAssemblyState = &vkPipelineInputAssemblyStateCreateInfo;
-			List<VkPipelineShaderStageCreateInfo> list = new List<VkPipelineShaderStageCreateInfo>();
+			List<VkPipelineShaderStageCreateInfo> list = scope List<VkPipelineShaderStageCreateInfo>();
 			if (description.Shaders.VertexShader != null)
 			{
 				VKShader vKShader = description.Shaders.VertexShader as VKShader;
@@ -324,14 +324,14 @@ namespace Sedulous.Graphics.Vulkan
 		private  VkRenderPass CreateCompatibilityRenderPass(OutputDescription outputs)
 		{
 			VkAttachmentLoadOp loadOp = VkAttachmentLoadOp.VK_ATTACHMENT_LOAD_OP_DONT_CARE;
-			int num = (outputs.DepthAttachment.HasValue ? (outputs.ColorAttachments.Count + 1) : outputs.ColorAttachments.Count) * 2;
+			int num = (outputs.DepthAttachment.HasValue ? (outputs.ColorAttachments.Length + 1) : outputs.ColorAttachments.Length) * 2;
 			VkAttachmentDescription* ptr = scope VkAttachmentDescription[num]*;
-			VkAttachmentReference* ptr2 = scope VkAttachmentReference[outputs.ColorAttachments.Count]*;
-			VkAttachmentReference* ptr3 = scope VkAttachmentReference[outputs.ColorAttachments.Count]*;
+			VkAttachmentReference* ptr2 = scope VkAttachmentReference[outputs.ColorAttachments.Length]*;
+			VkAttachmentReference* ptr3 = scope VkAttachmentReference[outputs.ColorAttachments.Length]*;
 			uint32 num2 = 0u;
 			uint32 num3 = 0u;
 			uint32 num4 = 0u;
-			for (int32 i = 0; i < outputs.ColorAttachments.Count; i++)
+			for (int32 i = 0; i < outputs.ColorAttachments.Length; i++)
 			{
 				ref OutputAttachmentDescription reference = ref outputs.ColorAttachments[i];
 				VkFormat format = reference.Format.ToVulkan(/*depthFormat:*/ false);
@@ -477,8 +477,8 @@ namespace Sedulous.Graphics.Vulkan
 		/// <inheritdoc />
 		public override void Dispose()
 		{
-			/*Dispose(disposing: true);
-			GC.SuppressFinalize(this);*/
+			Dispose(/*disposing:*/ true);
+			/*GC.SuppressFinalize(this);*/
 		}
 
 		/// <summary>

@@ -5,7 +5,7 @@ namespace Sedulous.Graphics
 	/// <summary>
 	/// Contains properties that describe the characteristics of a new pipeline state Object.
 	/// </summary>
-	public struct OutputDescription : IEquatable<OutputDescription>, IDisposable
+	public struct OutputDescription : IEquatable<OutputDescription>
 	{
 		/// <summary>
 		/// A description of the depth attachment, or null if none exists.
@@ -15,7 +15,7 @@ namespace Sedulous.Graphics
 		/// <summary>
 		/// An array of attachment descriptions, one for each color attachment.
 		/// </summary>
-		public readonly OutputAttachmentDescription[] ColorAttachments;
+		public readonly Span<OutputAttachmentDescription> ColorAttachments;
 
 		/// <summary>
 		/// Gets the number of view counts.
@@ -42,20 +42,16 @@ namespace Sedulous.Graphics
 		public this(OutputAttachmentDescription? depth, OutputAttachmentDescription[] colors, TextureSampleCount sampleCount, uint32 arraySliceCount)
 		{
 			DepthAttachment = depth;
-			ColorAttachments = colors ?? new OutputAttachmentDescription[0];
+			ColorAttachments = colors ?? Span<OutputAttachmentDescription>();
 			SampleCount = sampleCount;
 			ArraySliceCount = arraySliceCount;
-			int num = DepthAttachment.GetValueOrDefault().GetHashCode();
-			for (int i = 0; i < ColorAttachments.Count; i++)
+			int hashCode = DepthAttachment.GetValueOrDefault().GetHashCode();
+			for (int i = 0; i < ColorAttachments.Length; i++)
 			{
-				num = (num * 397) ^ ColorAttachments[i].GetHashCode();
+				hashCode = (hashCode * 397) ^ ColorAttachments[i].GetHashCode();
 			}
-			CachedHashCode = (num * 397) ^ (int)SampleCount;
-			CachedHashCode = (num * 397) ^ (int)ArraySliceCount;
-		}
-
-		public void Dispose(){
-			delete ColorAttachments;
+			CachedHashCode = (hashCode * 397) ^ (int)SampleCount;
+			CachedHashCode = (hashCode * 397) ^ (int)ArraySliceCount;
 		}
 
 		/// <summary>
@@ -63,11 +59,11 @@ namespace Sedulous.Graphics
 		/// </summary>
 		/// <param name="frameBuffer">The framebuffer to extract the attachment description.</param>
 		/// <returns>A new instance of OutputDescription.</returns>
-		public static OutputDescription CreateFromFrameBuffer(FrameBuffer frameBuffer)
+		public static OutputDescription CreateFromFrameBuffer(FrameBuffer frameBuffer, out OutputAttachmentDescription[] colorAttachments)
 		{
 			TextureSampleCount sampleCount = TextureSampleCount.None;
 			OutputAttachmentDescription? depth = null;
-			uint32 arraySliceCount = 1u;
+			uint32 arraySliceCount = 1;
 			if (frameBuffer.DepthStencilTarget.HasValue)
 			{
 				FrameBufferAttachment value = frameBuffer.DepthStencilTarget.Value;
@@ -75,20 +71,20 @@ namespace Sedulous.Graphics
 				depth = OutputAttachmentDescription(description.Format, value.ResolvedTexture != null);
 				sampleCount = description.SampleCount;
 			}
-			OutputAttachmentDescription[] array = null;
+			colorAttachments = null;
 			if (frameBuffer.ColorTargets != null)
 			{
-				array = new OutputAttachmentDescription[frameBuffer.ColorTargets.Count];
-				for (int32 i = 0; i < array.Count; i++)
+				colorAttachments = new OutputAttachmentDescription[frameBuffer.ColorTargets.Count];
+				for (int32 i = 0; i < colorAttachments.Count; i++)
 				{
 					ref FrameBufferAttachment reference = ref frameBuffer.ColorTargets[i];
 					TextureDescription description2 = reference.AttachmentTexture.Description;
-					array[i] = OutputAttachmentDescription(description2.Format, reference.ResolvedTexture != null);
+					colorAttachments[i] = OutputAttachmentDescription(description2.Format, reference.ResolvedTexture != null);
 					sampleCount = description2.SampleCount;
 					arraySliceCount = reference.SliceCount;
 				}
 			}
-			return OutputDescription(depth, array, sampleCount, arraySliceCount);
+			return OutputDescription(depth, colorAttachments, sampleCount, arraySliceCount);
 		}
 
 		/// <summary>

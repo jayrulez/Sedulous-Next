@@ -33,7 +33,7 @@ namespace Sedulous.RHI.Helpers
 			Deallocate!(m_Device.GetDeviceAllocator(), m_WaitIdleHelper);
 		}
 
-		public Result ChangeStates(in TransitionBarrierDesc transitionBarriers)
+		public Result ChangeStates(TransitionBarrierDesc transitionBarriers)
 		{
 			var transitionBarriers;
 			if (m_CommandBuffer == null)

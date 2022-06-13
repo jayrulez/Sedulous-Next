@@ -61,7 +61,7 @@ namespace Sedulous.Graphics.Vulkan
 			DataEnd = DataBegin + size;
 		}
 
-		public override  void DisposeNativeResources()
+		public  override void Dispose()
 		{
 			VKGraphicsContext obj = (VKGraphicsContext)context;
 			VulkanNative.vkUnmapMemory(obj.VkDevice, BufferMemory);

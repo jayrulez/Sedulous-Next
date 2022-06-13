@@ -80,7 +80,7 @@ namespace Sedulous.Graphics.Vulkan
 			};
 			uint8* pCode = description.ShaderBytes.Ptr;
 			{
-				vkShaderModuleCreateInfo.codeSize = (uint)description.ShaderBytes.Count;
+				vkShaderModuleCreateInfo.codeSize = (uint)description.ShaderBytes.Length;
 				vkShaderModuleCreateInfo.pCode = (uint32*)pCode;
 				VkShaderModule shaderModule = default(VkShaderModule);
 				VulkanNative.vkCreateShaderModule(vkDevice, &vkShaderModuleCreateInfo, null, &shaderModule);
@@ -88,11 +88,14 @@ namespace Sedulous.Graphics.Vulkan
 			}
 		}
 
-		public ~this()
+		/// <inheritdoc />
+		public  override void Dispose()
 		{
-			OnDestroy();
-
-			VulkanNative.vkDestroyShaderModule(vkContext.VkDevice, ShaderModule, null);
+			if (!disposed)
+			{
+				disposed = true;
+				VulkanNative.vkDestroyShaderModule(vkContext.VkDevice, ShaderModule, null);
+			}
 		}
 	}
 }

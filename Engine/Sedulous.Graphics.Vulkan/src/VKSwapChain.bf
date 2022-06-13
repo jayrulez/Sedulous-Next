@@ -16,15 +16,15 @@ namespace Sedulous.Graphics.Vulkan
 	/// </summary>
 	public class VKSwapChain : SwapChain
 	{
-		internal VkSwapchainKHR vkSwapChain = .Null;
+		internal VkSwapchainKHR vkSwapChain;
 
-		internal VkSurfaceKHR vkSurface = .Null;
+		internal VkSurfaceKHR vkSurface;
 
-		internal VkSurfaceFormatKHR vkSurfaceFormat = .();
+		internal VkSurfaceFormatKHR vkSurfaceFormat;
 
-		internal VkSwapchainCreateInfoKHR swapchainInfo = .();
+		internal VkSwapchainCreateInfoKHR swapchainInfo;
 
-		private VkQueue vkPresentQueue = .Null;
+		private VkQueue vkPresentQueue;
 
 		private int32 currentBackBufferIndex;
 
@@ -110,17 +110,15 @@ namespace Sedulous.Graphics.Vulkan
 			AcquireNextImage();
 		}
 
-		private void CreateSurface()
+		private  void CreateSurface()
 		{
 			if (vkSurface != VkSurfaceKHR.Null)
 			{
 				VulkanNative.vkDestroySurfaceKHR(vkContext.VkInstance, vkSurface, null);
 				vkSurface = VkSurfaceKHR.Null;
 			}
-
 			VKHelpers.OS currentPlatfom = VKHelpers.GetCurrentPlatfom();
 			VkSurfaceKHR @null = VkSurfaceKHR.Null;
-			VkResult result = .VK_SUCCESS;
 			switch (currentPlatfom)
 			{
 			case VKHelpers.OS.Windows:
@@ -128,8 +126,8 @@ namespace Sedulous.Graphics.Vulkan
 					VkWin32SurfaceCreateInfoKHR vkWin32SurfaceCreateInfoKHR = default(VkWin32SurfaceCreateInfoKHR);
 					vkWin32SurfaceCreateInfoKHR.sType = VkStructureType.VK_STRUCTURE_TYPE_WIN32_SURFACE_CREATE_INFO_KHR;
 					vkWin32SurfaceCreateInfoKHR.hwnd = base.SwapChainDescription.SurfaceInfo.Handles[0];
-					vkWin32SurfaceCreateInfoKHR.hinstance = (void*)(int)System.Windows.GetModuleHandleA(null); //.GetCurrentProcess().Handle;
-					result = VulkanNative.vkCreateWin32SurfaceKHR(vkContext.VkInstance, &vkWin32SurfaceCreateInfoKHR, null, &@null);
+					vkWin32SurfaceCreateInfoKHR.hinstance = (void*)(int)System.Windows.GetModuleHandleA(null); //Environment.ModuleHandle;//Process.GetCurrentProcess().Handle;
+					VulkanNative.vkCreateWin32SurfaceKHR(vkContext.VkInstance, &vkWin32SurfaceCreateInfoKHR, null, &@null);
 					break;
 				}
 			case VKHelpers.OS.Linux:
@@ -139,7 +137,7 @@ namespace Sedulous.Graphics.Vulkan
 					vkWaylandSurfaceCreateInfoKHR.sType = VkStructureType.VK_STRUCTURE_TYPE_WAYLAND_SURFACE_CREATE_INFO_KHR;
 					vkWaylandSurfaceCreateInfoKHR.display = base.SwapChainDescription.SurfaceInfo.Handles[0];
 					vkWaylandSurfaceCreateInfoKHR.surface = base.SwapChainDescription.SurfaceInfo.Handles[1];
-					result = VulkanNative.vkCreateWaylandSurfaceKHR(vkContext.VkInstance, &vkWaylandSurfaceCreateInfoKHR, null, &@null);
+					VulkanNative.vkCreateWaylandSurfaceKHR(vkContext.VkInstance, &vkWaylandSurfaceCreateInfoKHR, null, &@null);
 				}
 				else
 				{
@@ -147,24 +145,24 @@ namespace Sedulous.Graphics.Vulkan
 					vkXlibSurfaceCreateInfoKHR.sType = VkStructureType.VK_STRUCTURE_TYPE_XLIB_SURFACE_CREATE_INFO_KHR;
 					vkXlibSurfaceCreateInfoKHR.dpy = base.SwapChainDescription.SurfaceInfo.Handles[0];
 					vkXlibSurfaceCreateInfoKHR.window = base.SwapChainDescription.SurfaceInfo.Handles[1];
-					result = VulkanNative.vkCreateXlibSurfaceKHR(vkContext.VkInstance, &vkXlibSurfaceCreateInfoKHR, null, &@null);
+					VulkanNative.vkCreateXlibSurfaceKHR(vkContext.VkInstance, &vkXlibSurfaceCreateInfoKHR, null, &@null);
 				}
 				break;
-			case VKHelpers.OS.Android:
-				{
-					/*void* window = ANativeWindow_fromSurface(base.SwapChainDescription.SurfaceInfo.Handles[0], base.SwapChainDescription.SurfaceInfo.Handles[1]);
-					VkAndroidSurfaceCreateInfoKHR vkAndroidSurfaceCreateInfoKHR = default(VkAndroidSurfaceCreateInfoKHR);
-					vkAndroidSurfaceCreateInfoKHR.sType = VkStructureType.VK_STRUCTURE_TYPE_ANDROID_SURFACE_CREATE_INFO_KHR;
-					vkAndroidSurfaceCreateInfoKHR.window = window;
-					result = VulkanNative.vkCreateAndroidSurfaceKHR(vkContext.VkInstance, &vkAndroidSurfaceCreateInfoKHR, null, &@null);*/
-					break;
-				}
+			/*case VKHelpers.OS.Android:
+			{
+				void* window = ANativeWindow_fromSurface(base.SwapChainDescription.SurfaceInfo.Handles[0], base.SwapChainDescription.SurfaceInfo.Handles[1]);
+				VkAndroidSurfaceCreateInfoKHR vkAndroidSurfaceCreateInfoKHR = default(VkAndroidSurfaceCreateInfoKHR);
+				vkAndroidSurfaceCreateInfoKHR.sType = VkStructureType.VK_STRUCTURE_TYPE_ANDROID_SURFACE_CREATE_INFO_KHR;
+				vkAndroidSurfaceCreateInfoKHR.window = window;
+				VulkanNative.vkCreateAndroidSurfaceKHR(vkContext.VkInstance, &vkAndroidSurfaceCreateInfoKHR, null, &@null);
+				break;
+			}*/
 			case VKHelpers.OS.MacOS:
 				{
 					VkMacOSSurfaceCreateInfoMVK vkMacOSSurfaceCreateInfoMVK = default(VkMacOSSurfaceCreateInfoMVK);
 					vkMacOSSurfaceCreateInfoMVK.sType = VkStructureType.VK_STRUCTURE_TYPE_MACOS_SURFACE_CREATE_INFO_MVK;
 					vkMacOSSurfaceCreateInfoMVK.pView = (void*)base.SwapChainDescription.SurfaceInfo.Handles[0];
-					result = VulkanNative.vkCreateMacOSSurfaceMVK(vkContext.VkInstance, &vkMacOSSurfaceCreateInfoMVK, null, &@null);
+					VulkanNative.vkCreateMacOSSurfaceMVK(vkContext.VkInstance, &vkMacOSSurfaceCreateInfoMVK, null, &@null);
 					break;
 				}
 			case VKHelpers.OS.iOS:
@@ -172,56 +170,45 @@ namespace Sedulous.Graphics.Vulkan
 					VkIOSSurfaceCreateInfoMVK vkIOSSurfaceCreateInfoMVK = default(VkIOSSurfaceCreateInfoMVK);
 					vkIOSSurfaceCreateInfoMVK.sType = VkStructureType.VK_STRUCTURE_TYPE_IOS_SURFACE_CREATE_INFO_MVK;
 					vkIOSSurfaceCreateInfoMVK.pView = (void*)base.SwapChainDescription.SurfaceInfo.Handles[0];
-					result = VulkanNative.vkCreateIOSSurfaceMVK(vkContext.VkInstance, &vkIOSSurfaceCreateInfoMVK, null, &@null);
+					VulkanNative.vkCreateIOSSurfaceMVK(vkContext.VkInstance, &vkIOSSurfaceCreateInfoMVK, null, &@null);
 					break;
 				}
 			default:
-				result = .VK_ERROR_UNKNOWN;
 				GraphicsContext.ValidationLayer?.Notify("Vulkan", "Invalid OperationSystem.");
 				break;
-			}
-			if (result != .VK_SUCCESS)
-			{
-				Runtime.FatalError("Failed to create surface.");
 			}
 			vkSurface = @null;
 		}
 
-		private void CreateSwapChain()
+		private  void CreateSwapChain()
 		{
 			DestroySwapChain();
 			VkSurfaceCapabilitiesKHR capabilities = .();
-			VkResult result = VulkanNative.vkGetPhysicalDeviceSurfaceCapabilitiesKHR(vkContext.VkPhysicalDevice, vkSurface, &capabilities);
-
-			uint32 formatCount = 0;
-			result = VulkanNative.vkGetPhysicalDeviceSurfaceFormatsKHR(vkContext.VkPhysicalDevice, vkSurface, &formatCount, null);
-			VkSurfaceFormatKHR* surfaceFormats = scope VkSurfaceFormatKHR[(int32)formatCount]*;
-			result = VulkanNative.vkGetPhysicalDeviceSurfaceFormatsKHR(vkContext.VkPhysicalDevice, vkSurface, &formatCount, surfaceFormats);
-
-			uint32 presentModeCount = 0;
-			result = VulkanNative.vkGetPhysicalDeviceSurfacePresentModesKHR(vkContext.VkPhysicalDevice, vkSurface, &presentModeCount, null);
-			VkPresentModeKHR* presentModes = scope VkPresentModeKHR[(int32)presentModeCount]*;
-			result = VulkanNative.vkGetPhysicalDeviceSurfacePresentModesKHR(vkContext.VkPhysicalDevice, vkSurface, &presentModeCount, presentModes);
-
-			vkSurfaceFormat = ChooseSwapSurfaceFormat(surfaceFormats, (int32)formatCount);
-			VkPresentModeKHR presentMode = ChooseSwapPresentMode(presentModes, (int32)presentModeCount);
-
+			VulkanNative.vkGetPhysicalDeviceSurfaceCapabilitiesKHR(vkContext.VkPhysicalDevice, vkSurface, &capabilities);
+			uint32 num = 0;
+			VulkanNative.vkGetPhysicalDeviceSurfaceFormatsKHR(vkContext.VkPhysicalDevice, vkSurface, &num, null);
+			VkSurfaceFormatKHR* ptr = scope VkSurfaceFormatKHR[(int32)num]*;
+			VulkanNative.vkGetPhysicalDeviceSurfaceFormatsKHR(vkContext.VkPhysicalDevice, vkSurface, &num, ptr);
+			uint32 num2 = 0;
+			VulkanNative.vkGetPhysicalDeviceSurfacePresentModesKHR(vkContext.VkPhysicalDevice, vkSurface, &num2, null);
+			VkPresentModeKHR* ptr2 = scope VkPresentModeKHR[(int32)num2]*;
+			VulkanNative.vkGetPhysicalDeviceSurfacePresentModesKHR(vkContext.VkPhysicalDevice, vkSurface, &num2, ptr2);
+			vkSurfaceFormat = ChooseSwapSurfaceFormat(ptr, (int32)num);
+			VkPresentModeKHR presentMode = ChooseSwapPresentMode(ptr2, (int32)num2);
 			VkExtent2D imageExtent = ChooseSwapExtent(capabilities, base.SwapChainDescription.Width, base.SwapChainDescription.Height);
-
-			uint32 swapchainImageCount = capabilities.minImageCount + 1;
+			uint32 num3 = capabilities.minImageCount + 1;
 			if (capabilities.maxImageCount != 0)
 			{
-				swapchainImageCount = Math.Min(swapchainImageCount, capabilities.maxImageCount);
+				num3 = Math.Min(num3, capabilities.maxImageCount);
 			}
-
 			VkCompositeAlphaFlagsKHR compositeAlpha = (capabilities.supportedCompositeAlpha.HasFlag(VkCompositeAlphaFlagsKHR.VK_COMPOSITE_ALPHA_OPAQUE_BIT_KHR) ? VkCompositeAlphaFlagsKHR.VK_COMPOSITE_ALPHA_OPAQUE_BIT_KHR : VkCompositeAlphaFlagsKHR.VK_COMPOSITE_ALPHA_INHERIT_BIT_KHR);
-			VkSwapchainCreateInfoKHR vkSwapchainCreateInfoKHR = .();
+			VkSwapchainCreateInfoKHR vkSwapchainCreateInfoKHR = default(VkSwapchainCreateInfoKHR);
 			vkSwapchainCreateInfoKHR.sType = VkStructureType.VK_STRUCTURE_TYPE_SWAPCHAIN_CREATE_INFO_KHR;
-			vkSwapchainCreateInfoKHR.minImageCount = swapchainImageCount;
+			vkSwapchainCreateInfoKHR.minImageCount = num3;
 			vkSwapchainCreateInfoKHR.imageFormat = vkSurfaceFormat.format;
 			vkSwapchainCreateInfoKHR.imageColorSpace = vkSurfaceFormat.colorSpace;
 			vkSwapchainCreateInfoKHR.imageExtent = imageExtent;
-			vkSwapchainCreateInfoKHR.imageArrayLayers = 1;
+			vkSwapchainCreateInfoKHR.imageArrayLayers = 1u;
 			vkSwapchainCreateInfoKHR.imageUsage = VkImageUsageFlags.VK_IMAGE_USAGE_TRANSFER_DST_BIT | VkImageUsageFlags.VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT;
 			vkSwapchainCreateInfoKHR.preTransform = VkSurfaceTransformFlagsKHR.VK_SURFACE_TRANSFORM_IDENTITY_BIT_KHR;
 			vkSwapchainCreateInfoKHR.compositeAlpha = compositeAlpha;
@@ -229,31 +216,23 @@ namespace Sedulous.Graphics.Vulkan
 			vkSwapchainCreateInfoKHR.surface = vkSurface;
 			vkSwapchainCreateInfoKHR.clipped = true;
 			vkContext.QueueIndices = VKQueueFamilyIndices.FindQueueFamilies(vkContext, vkContext.VkPhysicalDevice, vkSurface);
-
 			uint32 graphicsFamily = (uint32)vkContext.QueueIndices.GraphicsFamily;
 			uint32 presentfamily = (uint32)vkContext.QueueIndices.Presentfamily;
-			uint32[?] queueFamilyIndices = .(graphicsFamily, presentfamily);
-
+			uint32* pQueueFamilyIndices = scope uint32[2]* (graphicsFamily, presentfamily);
 			if (graphicsFamily != presentfamily)
 			{
 				vkSwapchainCreateInfoKHR.imageSharingMode = VkSharingMode.VK_SHARING_MODE_CONCURRENT;
-				vkSwapchainCreateInfoKHR.queueFamilyIndexCount = queueFamilyIndices.Count;
-				vkSwapchainCreateInfoKHR.pQueueFamilyIndices = &queueFamilyIndices;
+				vkSwapchainCreateInfoKHR.queueFamilyIndexCount = 2;
+				vkSwapchainCreateInfoKHR.pQueueFamilyIndices = pQueueFamilyIndices;
 			}
 			else
 			{
 				vkSwapchainCreateInfoKHR.imageSharingMode = VkSharingMode.VK_SHARING_MODE_EXCLUSIVE;
 				vkSwapchainCreateInfoKHR.queueFamilyIndexCount = 0;
-				vkSwapchainCreateInfoKHR.pQueueFamilyIndices = null;
 			}
-
 			swapchainInfo = vkSwapchainCreateInfoKHR;
 			VkSwapchainKHR vkSwapchainKHR = default(VkSwapchainKHR);
-			result = VulkanNative.vkCreateSwapchainKHR(vkContext.VkDevice, &vkSwapchainCreateInfoKHR, null, &vkSwapchainKHR);
-			if (result != .VK_SUCCESS)	
-			{	
-				Runtime.FatalError("Failed to create SwapChain.");	
-			}	
+			VulkanNative.vkCreateSwapchainKHR(vkContext.VkDevice, &vkSwapchainCreateInfoKHR, null, &vkSwapchainKHR);
 			vkSwapChain = vkSwapchainKHR;
 			if (vkPresentQueue == VkQueue.Null)
 			{
@@ -269,15 +248,13 @@ namespace Sedulous.Graphics.Vulkan
 			base.FrameBuffer = vKSwapChainFrameBuffer;
 		}
 
-		private void DestroySwapChain()
+		private  void DestroySwapChain()
 		{
 			if (vkSwapChain != VkSwapchainKHR.Null)
 			{
 				VulkanNative.vkDestroySwapchainKHR(vkContext.VkDevice, vkSwapChain, null);
 				vkSwapChain = VkSwapchainKHR.Null;
-				if (base.FrameBuffer != null)
-					delete base.FrameBuffer; // todo sedulous
-				base.FrameBuffer = null; // todo sedulous
+				base.FrameBuffer?.Dispose();
 			}
 		}
 
@@ -320,7 +297,14 @@ namespace Sedulous.Graphics.Vulkan
 			AcquireNextImage();
 		}
 
-		private void AcquireNextImage()
+		/// <inheritdoc />
+		public override void Dispose()
+		{
+			Dispose( /*disposing:*/true);
+			/*GC.SuppressFinalize(this);*/
+		}
+
+		private  void AcquireNextImage()
 		{
 			uint32 num = (uint32)currentBackBufferIndex;
 			VulkanNative.vkAcquireNextImageKHR(vkContext.VkDevice, vkSwapChain, uint64.MaxValue, VkSemaphore.Null, vkContext.vkImageAvailableFence, &num);
@@ -330,7 +314,7 @@ namespace Sedulous.Graphics.Vulkan
 			VulkanNative.vkResetFences(vkContext.VkDevice, 1u, &vkImageAvailableFence);
 		}
 
-		private VkSurfaceFormatKHR ChooseSwapSurfaceFormat(VkSurfaceFormatKHR* formats, int32 length)
+		private  VkSurfaceFormatKHR ChooseSwapSurfaceFormat(VkSurfaceFormatKHR* formats, int32 length)
 		{
 			if (length == 1 && formats.format == VkFormat.VK_FORMAT_UNDEFINED)
 			{
@@ -350,7 +334,7 @@ namespace Sedulous.Graphics.Vulkan
 			return *formats;
 		}
 
-		private VkPresentModeKHR ChooseSwapPresentMode(VkPresentModeKHR* presentModes, int32 length)
+		private  VkPresentModeKHR ChooseSwapPresentMode(VkPresentModeKHR* presentModes, int32 length)
 		{
 			VkPresentModeKHR result = VkPresentModeKHR.VK_PRESENT_MODE_FIFO_KHR;
 			if (VerticalSync)
@@ -371,7 +355,7 @@ namespace Sedulous.Graphics.Vulkan
 			return result;
 		}
 
-		private bool Contains(VkPresentModeKHR* allPresents, int32 length, VkPresentModeKHR presentMode)
+		private  bool Contains(VkPresentModeKHR* allPresents, int32 length, VkPresentModeKHR presentMode)
 		{
 			for (int32 i = 0; i < length; i++)
 			{
@@ -415,14 +399,24 @@ namespace Sedulous.Graphics.Vulkan
 			return value;
 		}
 
-		public ~this()
+		/// <summary>
+		/// Releases unmanaged and - optionally - managed resources.
+		/// </summary>
+		/// <param name="disposing"><c>true</c> to release both managed and unmanaged resources; <c>false</c> to release only unmanaged resources.</param>
+		private  void Dispose(bool disposing)
 		{
-			OnDestroy();
-
-			if (base.FrameBuffer != null)
-				delete base.FrameBuffer;
-			VulkanNative.vkDestroySwapchainKHR(vkContext.VkDevice, vkSwapChain, null);
-			VulkanNative.vkDestroySurfaceKHR(vkContext.VkInstance, vkSurface, null);
+			if (!disposed)
+			{
+				if (disposing)
+				{
+					base.FrameBuffer?.Dispose();
+					if(base.FrameBuffer != null)
+						delete base.FrameBuffer;
+					VulkanNative.vkDestroySwapchainKHR(vkContext.VkDevice, vkSwapChain, null);
+					VulkanNative.vkDestroySurfaceKHR(vkContext.VkInstance, vkSurface, null);
+				}
+				disposed = true;
+			}
 		}
 	}
 }

@@ -30,11 +30,5 @@ namespace Sedulous.Graphics
 		/// <returns>Return true if all queries to read are available and false if not.</returns>
 		/// <remarks>If the result is false, the results will conttains the latest available results.</remarks>
 		public abstract bool ReadData(uint32 startIndex, uint32 count, uint64[] results);
-
-		
-
-		protected override void OnDestroy(){
-
-		}
 	}
 }

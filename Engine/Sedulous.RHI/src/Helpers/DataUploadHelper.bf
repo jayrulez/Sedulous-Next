@@ -80,7 +80,7 @@ namespace Sedulous.RHI.Helpers
 			m_Device.FreeMemory(ref m_UploadBufferMemory);
 		}
 
-		private Result UploadTextures(in TextureUploadDesc* textureUploadDescs, uint32 textureDataDescNum)
+		private Result UploadTextures(TextureUploadDesc* textureUploadDescs, uint32 textureDataDescNum)
 		{
 			Result result = DoTransition(true, textureUploadDescs, textureDataDescNum);
 			if (result != Result.SUCCESS)
@@ -114,7 +114,7 @@ namespace Sedulous.RHI.Helpers
 			return DoTransition(false, textureUploadDescs, textureDataDescNum);
 		}
 
-		private Result UploadBuffers(in BufferUploadDesc* bufferUploadDescs, uint32 bufferUploadDescNum)
+		private Result UploadBuffers(BufferUploadDesc* bufferUploadDescs, uint32 bufferUploadDescNum)
 		{
 			Result result = DoTransition(true, bufferUploadDescs, bufferUploadDescNum);
 			if (result != Result.SUCCESS)
@@ -230,7 +230,7 @@ namespace Sedulous.RHI.Helpers
 			return true;
 		}
 
-		private void CopyTextureSubresourceContent(in TextureSubresourceUploadDesc subresource, uint64 alignedRowPitch, uint64 alignedSlicePitch)
+		private void CopyTextureSubresourceContent(TextureSubresourceUploadDesc subresource, uint64 alignedRowPitch, uint64 alignedSlicePitch)
 		{
 			readonly uint32 sliceRowNum = subresource.slicePitch / subresource.rowPitch;
 
@@ -251,7 +251,7 @@ namespace Sedulous.RHI.Helpers
 			m_UploadBuffer.Unmap();
 		}
 
-		private bool CopyBufferContent(in BufferUploadDesc bufferUploadDesc, ref uint64 bufferContentOffset)
+		private bool CopyBufferContent(BufferUploadDesc bufferUploadDesc, ref uint64 bufferContentOffset)
 		{
 			if (bufferUploadDesc.dataSize == 0)
 				return true;
@@ -281,7 +281,7 @@ namespace Sedulous.RHI.Helpers
 			return true;
 		}
 
-		private Result DoTransition<T>(T isInitialTransition, in TextureUploadDesc* textureUploadDescs, uint32 textureDataDescNum) where T : const bool
+		private Result DoTransition<T>(T isInitialTransition, TextureUploadDesc* textureUploadDescs, uint32 textureDataDescNum) where T : const bool
 		{
 			readonly Result result = BeginCommandBuffers();
 			if (result != Result.SUCCESS)
@@ -332,7 +332,7 @@ namespace Sedulous.RHI.Helpers
 			return EndCommandBuffersAndSubmit();
 		}
 
-		private Result DoTransition<T>(T isInitialTransition, in BufferUploadDesc* bufferUploadDescs, uint32 bufferUploadDescNum) where T : const bool
+		private Result DoTransition<T>(T isInitialTransition, BufferUploadDesc* bufferUploadDescs, uint32 bufferUploadDescNum) where T : const bool
 		{
 			readonly Result result = BeginCommandBuffers();
 			if (result != Result.SUCCESS)
@@ -396,7 +396,7 @@ namespace Sedulous.RHI.Helpers
 			Deallocate!(m_Allocator, m_CommandAllocators);
 		}
 
-		public Result UploadData(in TextureUploadDesc* textureUploadDescs, uint32 textureUploadDescNum, in BufferUploadDesc* bufferUploadDescs, uint32 bufferUploadDescNum)
+		public Result UploadData(TextureUploadDesc* textureUploadDescs, uint32 textureUploadDescNum, BufferUploadDesc* bufferUploadDescs, uint32 bufferUploadDescNum)
 		{
 			readonly ref DeviceDesc deviceDesc = ref m_Device.GetDesc();
 

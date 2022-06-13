@@ -172,8 +172,8 @@ namespace Sedulous.Graphics.Vulkan
 		/// <inheritdoc />
 		public override void Dispose()
 		{
-			/*Dispose(disposing: true);
-			GC.SuppressFinalize(this);*/
+			Dispose(/*disposing:*/ true);
+			/*GC.SuppressFinalize(this);*/
 		}
 
 		/// <summary>

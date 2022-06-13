@@ -5,9 +5,12 @@ namespace Sedulous.Graphics
 	/// <summary>
 	/// This class represent which color texture and depth texture are rendered to present.
 	/// </summary>
-	public abstract class FrameBuffer
+	public abstract class FrameBuffer : IDisposable
 	{
-		private bool destroyed = false;
+		/// <summary>
+		/// Holds if the instance has been disposed.
+		/// </summary>
+		protected bool disposed;
 
 		/// <summary>
 		/// A value indicating whether we need to dispose attachment textures when this framebuffer is disposed.
@@ -66,6 +69,8 @@ namespace Sedulous.Graphics
 		/// </summary>
 		public bool IntermediateBufferAssociated { get; set; }
 
+		private OutputAttachmentDescription[] mReferencesDescriptions = null;
+
 		/// <summary>
 		/// Initializes a new instance of the <see cref="T:Sedulous.Graphics.FrameBuffer" /> class.
 		/// </summary>
@@ -97,7 +102,7 @@ namespace Sedulous.Graphics
 					SampleCount = textureDescription.Value.SampleCount;
 				}
 			}
-			OutputDescription = /*OutputDescription*/ .CreateFromFrameBuffer(this);
+			OutputDescription = /*OutputDescription*/ .CreateFromFrameBuffer(this, out mReferencesDescriptions);
 		}
 
 		/// <summary>
@@ -107,39 +112,88 @@ namespace Sedulous.Graphics
 		{
 		}
 
-		protected virtual void OnDestroy()
+		/// <summary>
+		/// Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
+		/// </summary>
+		public void Dispose()
 		{
-			if(destroyed)
-				return;
-
-			if (disposeAttachments)
-			{
-				if (ColorTargets != null)
-				{
-					FrameBufferAttachment[] colorTargets = ColorTargets;
-					for (int32 i = 0; i < colorTargets.Count; i++)
-					{
-						FrameBufferAttachment frameBufferAttachment = colorTargets[i];
-						if (frameBufferAttachment.AttachmentTexture != null)
-							delete frameBufferAttachment.AttachmentTexture;
-						if (frameBufferAttachment.ResolvedTexture != null)
-							delete frameBufferAttachment.ResolvedTexture;
-					}
-				}
-				/*if (DepthStencilTarget?.AttachmentTexture != null)
-					delete DepthStencilTarget?.AttachmentTexture;
-				DepthStencilTarget?.AttachmentTexture = null;
-
-				if (DepthStencilTarget?.ResolvedTexture != null)
-					delete DepthStencilTarget?.ResolvedTexture;
-				DepthStencilTarget?.ResolvedTexture = null;*/
-			}
-			destroyed = true;
+			Dispose( /*disposing:*/true);
+			//GC.SuppressFinalize(this);
 		}
 
-		/// <inheritdoc />
-		public void ReleaseUnusedMemory()
+		/// <summary>
+		/// Releases unmanaged and - optionally - managed resources.
+		/// </summary>
+		/// <param name="disposing"><c>true</c> to release both managed and unmanaged resources; <c>false</c> to release only unmanaged resources.</param>
+		protected virtual void Dispose(bool disposing)
 		{
+			if (disposed)
+			{
+				return;
+			}
+			if (disposing)
+			{
+				if (disposeAttachments)
+				{
+					if (ColorTargets != null)
+					{
+						FrameBufferAttachment[] colorTargets = ColorTargets;
+						for (int32 i = 0; i < colorTargets.Count; i++)
+						{
+							FrameBufferAttachment frameBufferAttachment = colorTargets[i];
+
+							frameBufferAttachment.AttachmentTexture.Dispose();
+							if (frameBufferAttachment.AttachmentTexture != null)
+								delete frameBufferAttachment.AttachmentTexture;
+
+							frameBufferAttachment.ResolvedTexture?.Dispose();
+							if (frameBufferAttachment.ResolvedTexture != null)
+								delete frameBufferAttachment.ResolvedTexture;
+						}
+					}
+
+					if (DepthStencilTarget.HasValue)
+					{
+						/*ref FrameBufferAttachment depthStencilTarget = ref DepthStencilTarget.ValueRef;
+
+						depthStencilTarget.AttachmentTexture?.Dispose();
+						depthStencilTarget.ResolvedTexture?.Dispose();
+
+						if (depthStencilTarget.AttachmentTexture != null)
+						{
+							if (depthStencilTarget.AttachmentTexture == depthStencilTarget.ResolvedTexture)
+							{
+								delete depthStencilTarget.AttachmentTexture;
+							} else
+							{
+								delete depthStencilTarget.AttachmentTexture;
+								if (depthStencilTarget.ResolvedTexture != null)
+									delete depthStencilTarget.ResolvedTexture;
+							}
+						}
+
+						depthStencilTarget.AttachmentTexture = null;
+						depthStencilTarget.ResolvedTexture = null;*/
+
+						/*DepthStencilTarget?.AttachmentTexture?.Dispose();
+						if (DepthStencilTarget?.AttachmentTexture != null)
+						{
+							delete DepthStencilTarget.Value.AttachmentTexture;
+							DepthStencilTarget?.AttachmentTexture = null;
+						}
+
+						DepthStencilTarget?.ResolvedTexture?.Dispose();
+						if (DepthStencilTarget?.ResolvedTexture != null)
+							delete DepthStencilTarget.Value.ResolvedTexture;*/
+					}
+
+					defer:: delete ColorTargets;
+				}
+
+				if (mReferencesDescriptions != null)
+					delete mReferencesDescriptions;
+			}
+			disposed = true;
 		}
 	}
 }

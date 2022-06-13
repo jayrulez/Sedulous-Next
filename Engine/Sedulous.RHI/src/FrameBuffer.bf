@@ -3,6 +3,6 @@ namespace Sedulous.RHI
 {
 	abstract class FrameBuffer
 	{
-		public abstract void SetDebugName(in StringView name);
+		public abstract void SetDebugName(StringView name);
 	}
 }

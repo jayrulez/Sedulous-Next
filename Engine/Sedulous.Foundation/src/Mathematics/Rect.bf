@@ -1,5 +1,8 @@
+using System;
 namespace Sedulous.Foundation.Mathematics;
 
+
+[CRepr]
 struct TRect<T>
 	where T : operator T + T
 {
@@ -22,4 +25,5 @@ struct TRect<T>
 }
 
 typealias Rect = TRect<int>;
+
 typealias FloatRect = TRect<float>;

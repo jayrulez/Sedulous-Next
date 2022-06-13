@@ -709,7 +709,7 @@ namespace Sedulous.Graphics.Vulkan
 		/// <inheritdoc />
 		public override void Dispose()
 		{
-			//Dispose(disposing: true);
+			Dispose(/*disposing:*/ true);
 			//GC.SuppressFinalize(this);
 		}
 
@@ -727,6 +727,15 @@ namespace Sedulous.Graphics.Vulkan
 				{
 					VulkanNative.vkDestroyCommandPool(context.VkDevice, commandPool, null);
 				}
+
+				delete rawRectangles;
+
+				delete rawViewports;
+
+				delete vertexBuffers;
+
+				delete vertexOffsets;
+
 				disposed = true;
 			}
 		}

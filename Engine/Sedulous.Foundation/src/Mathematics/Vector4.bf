@@ -2,6 +2,7 @@ using System;
 using Sedulous.Foundation.Utilities;
 namespace Sedulous.Foundation.Mathematics;
 
+[CRepr]
 struct TVector4<T> : IHashable
 	where int : operator explicit T
 {
@@ -48,4 +49,5 @@ struct TVector4<T> : IHashable
 }
 
 typealias Vector4ui = TVector4<uint32>;
+
 typealias Vector4 = TVector4<float>;

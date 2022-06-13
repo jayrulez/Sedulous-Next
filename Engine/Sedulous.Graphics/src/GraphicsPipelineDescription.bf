@@ -15,17 +15,17 @@ namespace Sedulous.Graphics
 		/// <summary>
 		/// The shader state description.
 		/// </summary>
-		public GraphicsShaderStateDescription Shaders;
+		public GraphicsShaderStateDescription Shaders = null;
 
 		/// <summary>
 		/// Describes the input vertex buffer data.
 		/// </summary>
-		public InputLayouts InputLayouts;
+		public InputLayouts InputLayouts = null;
 
 		/// <summary>
 		/// Describes the resource layouts input array.
 		/// </summary>
-		public ResourceLayout[] ResourceLayouts;
+		public ResourceLayout[] ResourceLayouts = null;
 
 		/// <summary>
 		/// Define how vertices are interpreted and rendered by the pipeline.
@@ -36,6 +36,16 @@ namespace Sedulous.Graphics
 		/// A description of the output attachments used by the <see cref="T:Sedulous.Graphics.GraphicsPipelineState" />.
 		/// </summary>
 		public OutputDescription Outputs;
+
+		public this()
+		{
+			PrimitiveTopology = default;
+			InputLayouts = default;
+			ResourceLayouts = default;
+			Shaders = default;
+			RenderStates = default;
+			Outputs = default;
+		}
 
 		/// <summary>
 		/// Initializes a new instance of the <see cref="T:Sedulous.Graphics.GraphicsPipelineDescription" /> struct.

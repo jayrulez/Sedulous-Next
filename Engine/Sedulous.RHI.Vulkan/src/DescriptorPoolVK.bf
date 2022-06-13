@@ -118,7 +118,7 @@ namespace Sedulous.RHI.Vulkan
 			Deallocate!(m_Device.GetDeviceAllocator(), m_AllocatedSets);
 		}
 
-		public override void SetDebugName(in StringView name)
+		public override void SetDebugName(StringView name)
 		{
 			m_Device.SetDebugNameToTrivialObject(.VK_OBJECT_TYPE_DESCRIPTOR_POOL, (uint64)m_Handle.Handle, name);
 		}

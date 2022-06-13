@@ -24,9 +24,9 @@ namespace Sedulous.Graphics
 		/// <param name="clearValue">That contains clear values for each attachment.</param>
 		public this(FrameBuffer frameBuffer, ClearValue clearValue)
 		{
-			if (frameBuffer.ColorTargets != null && clearValue.ColorValues != null && frameBuffer.ColorTargets.Count != clearValue.ColorValues.Count)
+			if (frameBuffer.ColorTargets != null && clearValue.ColorValues != null && frameBuffer.ColorTargets.Count != clearValue.ColorValues.Length)
 			{
-				Runtime.FatalError(scope $"The number of framebuffer color targets {frameBuffer.ColorTargets.Count} must be equal the number of clear color values {clearValue.ColorValues.Count}");
+				Runtime.FatalError(scope $"The number of framebuffer color targets {frameBuffer.ColorTargets.Count} must be equal the number of clear color values {clearValue.ColorValues.Length}");
 			}
 			FrameBuffer = frameBuffer;
 			ClearValue = clearValue;

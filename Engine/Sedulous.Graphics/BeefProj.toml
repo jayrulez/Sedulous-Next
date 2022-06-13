@@ -5,3 +5,4 @@ Dependencies = {corlib = "*", "Sedulous.Foundation" = "*", "Sedulous.Platform" =
 Name = "Sedulous.Graphics"
 TargetType = "BeefLib"
 StartupObject = "Sedulous.Graphics.Program"
+ProcessorMacros = ["VALIDATE_USAGE"]

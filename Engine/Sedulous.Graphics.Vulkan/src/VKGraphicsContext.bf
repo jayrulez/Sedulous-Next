@@ -8,7 +8,6 @@ namespace Sedulous.Graphics.Vulkan
 {
 	using internal Sedulous.Graphics;
 	using internal Sedulous.Graphics.Vulkan;
-	using Sedulous.Foundation.Utilities;
 
 	using static Sedulous.Graphics.Vulkan.VKExtensionsMethods;
 
@@ -180,14 +179,12 @@ namespace Sedulous.Graphics.Vulkan
 		{
 			VulkanNative.Initialize();
 			VulkanNative.SetLoadFunctionErrorCallBack(new (functionName) =>
-			{
-				//GetLogger().LogError(scope $"Failed to load function: '{functionName}'.");
-				Console.WriteLine(scope $"Failed to load function: '{functionName}'.");
-			} );
-			
+				{
+					//GetLogger().LogError(scope $"Failed to load function: '{functionName}'.");
+					Console.WriteLine(scope $"Failed to load function: '{functionName}'.");
+				});
 			VulkanNative.LoadPreInstanceFunctions();
 			CreateInstance();
-			//VulkanNative.LoadPostInstanceFunctions();
 			CreatePhysicalDevice();
 			CreateLogicalDevice();
 			CreateResourcesForCopyQueue();
@@ -308,10 +305,10 @@ namespace Sedulous.Graphics.Vulkan
 		private  void CreateInstance()
 		{
 			String[] availableInstanceLayers = VKHelpers.EnumerateInstanceLayers(this, .. ?);
-			defer {DeleteContainerAndItems!(availableInstanceLayers);}
+			defer { DeleteContainerAndItems!(availableInstanceLayers); }
 
 			String[] availableInstanceExtensions = VKHelpers.EnumerateInstanceExtensions(this, .. ?);
-			defer {DeleteContainerAndItems!(availableInstanceExtensions);}
+			defer { DeleteContainerAndItems!(availableInstanceExtensions); }
 
 			List<char8*> instanceExtensionEnabled = scope List<char8*>();
 			List<char8*> instanceLayersEnabled = scope List<char8*>();
@@ -376,7 +373,7 @@ namespace Sedulous.Graphics.Vulkan
 						instanceLayersEnabled.Add("VK_LAYER_LUNARG_parameter_validation");
 					}
 					break;
-				default:break;
+				default: break;
 				}
 			}
 			VkApplicationInfo vkApplicationInfo = default(VkApplicationInfo);
@@ -395,8 +392,8 @@ namespace Sedulous.Graphics.Vulkan
 			vkInstanceCreateInfo.ppEnabledLayerNames = instanceLayersEnabled.Ptr;
 			vkInstanceCreateInfo.enabledExtensionCount = (uint32)instanceExtensionEnabled.Count;
 			vkInstanceCreateInfo.ppEnabledExtensionNames = instanceExtensionEnabled.Ptr;
-			VkDebugUtilsMessengerCreateInfoEXT vkDebugUtilsMessengerCreateInfoEXT = .();
-			VkDebugReportCallbackCreateInfoEXT vkDebugReportCallbackCreateInfoEXT = .();
+			VkDebugUtilsMessengerCreateInfoEXT vkDebugUtilsMessengerCreateInfoEXT = default(VkDebugUtilsMessengerCreateInfoEXT);
+			VkDebugReportCallbackCreateInfoEXT vkDebugReportCallbackCreateInfoEXT = default(VkDebugReportCallbackCreateInfoEXT);
 			if (base.IsValidationLayerEnabled)
 			{
 				if (DebugUtilsEnabled)
@@ -415,19 +412,15 @@ namespace Sedulous.Graphics.Vulkan
 					vkDebugReportCallbackCreateInfoEXT.flags = VkDebugReportFlagsEXT.VK_DEBUG_REPORT_WARNING_BIT_EXT | VkDebugReportFlagsEXT.VK_DEBUG_REPORT_ERROR_BIT_EXT;
 					debugCallbackFunc = => DebugCallback;
 					vkDebugReportCallbackCreateInfoEXT.pfnCallback = debugCallbackFunc;
-					vkDebugReportCallbackCreateInfoEXT.pUserData = Internal.UnsafeCastToPtr(this);
 					vkInstanceCreateInfo.pNext = &vkDebugReportCallbackCreateInfoEXT;
+					vkDebugReportCallbackCreateInfoEXT.pUserData = Internal.UnsafeCastToPtr(this);
 				}
 			}
 			VkInstance vkInstance = default(VkInstance);
-			VkResult result = VulkanNative.vkCreateInstance(&vkInstanceCreateInfo, null, &vkInstance);
-			if(result != .VK_SUCCESS){
-				Runtime.FatalError("Failed to create instance.");
-			}
+			VulkanNative.vkCreateInstance(&vkInstanceCreateInfo, null, &vkInstance);
 			VkInstance = vkInstance;
 
 			VulkanNative.LoadInstanceFunctions(vkInstance);
-
 			VulkanNative.LoadPostInstanceFunctions();
 
 			if (base.IsValidationLayerEnabled)
@@ -449,9 +442,11 @@ namespace Sedulous.Graphics.Vulkan
 
 		private void CheckExtension(String[] availableinstanceExtensions, List<char8*> extensionsToEnable, String @extension)
 		{
-			if(availableinstanceExtensions.Contains(@extension)){
+			if (availableinstanceExtensions.Contains(@extension))
+			{
 				extensionsToEnable.Add(@extension);
-			}else{
+			} else
+			{
 				base.ValidationLayer?.Notify("Vulkan", scope $"The required instance extensions was not available: {@extension}");
 			}
 		}
@@ -493,7 +488,7 @@ namespace Sedulous.Graphics.Vulkan
 			vkPhysicalDeviceProperties.sType = VkStructureType.VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PROPERTIES_2;
 			if (num != 0)
 			{
-				VkPhysicalDevice @null = /*VkPhysicalDevice*/.Null;
+				VkPhysicalDevice @null = /*VkPhysicalDevice*/ .Null;
 				for (uint32 num2 = 0u; num2 < num; num2++)
 				{
 					@null = ptr[num2];
@@ -504,12 +499,12 @@ namespace Sedulous.Graphics.Vulkan
 						break;
 					}
 				}
-				if (VkPhysicalDevice == /*VkPhysicalDevice*/.Null)
+				if (VkPhysicalDevice == /*VkPhysicalDevice*/ .Null)
 				{
 					VkPhysicalDevice = *ptr;
 				}
 			}
-			if (VkPhysicalDevice == /*VkPhysicalDevice*/.Null)
+			if (VkPhysicalDevice == /*VkPhysicalDevice*/ .Null)
 			{
 				base.ValidationLayer?.Notify("Vulkan", "Failed to find a suitable GPU");
 			}
@@ -562,20 +557,13 @@ namespace Sedulous.Graphics.Vulkan
 				queueCreateInfos[1] = vkDeviceQueueCreateInfo2;
 			}
 			uint32 deviceExtensionCount = 0u;
-			VkResult result = VulkanNative.vkEnumerateDeviceExtensionProperties(VkPhysicalDevice, null, &deviceExtensionCount, null);
-			//ReturnOnFailure!();
-			if(result != .VK_SUCCESS){
-				Runtime.FatalError("Failed to enumerate device extensions");
-			}
+			VulkanNative.vkEnumerateDeviceExtensionProperties(VkPhysicalDevice, null, &deviceExtensionCount, null);
 			VkExtensionProperties* deviceExtensions = scope VkExtensionProperties[(int32)deviceExtensionCount]*;
-			result = VulkanNative.vkEnumerateDeviceExtensionProperties(VkPhysicalDevice, null, &deviceExtensionCount, deviceExtensions);
-			if(result != .VK_SUCCESS){
-				Runtime.FatalError("Failed to enumerate device extensions");
-			}
+			VulkanNative.vkEnumerateDeviceExtensionProperties(VkPhysicalDevice, null, &deviceExtensionCount, deviceExtensions);
 			List<char8*> enabledExtensions = scope List<char8*>();
 			for (int i = 0; i < deviceExtensionCount; i++)
 			{
-				String availableExtension = scope :: String(&deviceExtensions[i].extensionName);
+				String availableExtension = scope:: String(&deviceExtensions[i].extensionName);
 				switch (availableExtension)
 				{
 				case "VK_KHR_swapchain": fallthrough;
@@ -607,7 +595,8 @@ namespace Sedulous.Graphics.Vulkan
 				}
 			}
 
-			for(String deviceExtensionToEnable in DeviceExtensionsToEnable){
+			for (String deviceExtensionToEnable in DeviceExtensionsToEnable)
+			{
 				enabledExtensions.Add(deviceExtensionToEnable);
 			}
 
@@ -665,13 +654,10 @@ namespace Sedulous.Graphics.Vulkan
 			vkDeviceCreateInfo.pEnabledFeatures = null;
 			vkDeviceCreateInfo.pNext = &vkPhysicalDeviceFeatures;
 			VkDevice vkDevice = default(VkDevice);
-			result = VulkanNative.vkCreateDevice(VkPhysicalDevice, &vkDeviceCreateInfo, null, &vkDevice);
-			if(result != .VK_SUCCESS){
-				Runtime.FatalError("Failed to create device.");
-			}
+			VulkanNative.vkCreateDevice(VkPhysicalDevice, &vkDeviceCreateInfo, null, &vkDevice);
 			VkDevice = vkDevice;
 			VkQueue vkQueue = default(VkQueue);
-			VulkanNative.vkGetDeviceQueue(VkDevice, (uint32)QueueIndices.GraphicsFamily, 0, &vkQueue);
+			VulkanNative.vkGetDeviceQueue(VkDevice, (uint32)QueueIndices.GraphicsFamily, 0u, &vkQueue);
 			vkGraphicsQueue = vkQueue;
 		}
 
@@ -728,61 +714,39 @@ namespace Sedulous.Graphics.Vulkan
 			}
 		}
 
-		public ~this(){
-
-			OnDestroy();
-
-			if(BufferUploader!= null)
-			delete BufferUploader;
-			
-			if(TextureUploader!= null)
-			delete TextureUploader;
-
-			if(capabilities != null)
-				delete capabilities;
-
-			if(DescriptorPool != null){
-			DescriptorPool.DestroyAll();
-				delete DescriptorPool;
-			}
-			
-			delete Factory;
-			
-			VulkanNative.vkDestroyFence(VkDevice, vkCopyFence, null);
-			VulkanNative.vkDestroyCommandPool(VkDevice, copyCommandPool, null);
-			VulkanNative.vkDestroyFence(VkDevice, vkImageAvailableFence, null);
-			VulkanNative.vkDestroyDevice(VkDevice, null);
-
-			if (debugCallbackFunc != null)
-			{
-				debugCallbackFunc = null;
-				VulkanNative.vkDestroyDebugReportCallbackEXTFunction destroyFunction = => VulkanNative.vkDestroyDebugReportCallbackEXT;//(.)VulkanNative.vkGetInstanceProcAddr(VkInstance, "vkDestroyDebugReportCallbackEXT");
-				destroyFunction(VkInstance, debugCallbackHandle, null);
-			}
-			VulkanNative.vkDestroyInstance(VkInstance, null);
-		}
-
 		/// <inheritdoc />
-		/*protected  override void Dispose(bool disposing)
+		protected  override void Dispose(bool disposing)
 		{
 			if (!disposed)
 			{
+				BufferUploader?.Dispose();
+				TextureUploader?.Dispose();
+				VulkanNative.vkDestroyFence(VkDevice, vkCopyFence, null);
+				DescriptorPool.DestroyAll();
+				VulkanNative.vkDestroyCommandPool(VkDevice, copyCommandPool, null);
+				VulkanNative.vkDestroyFence(VkDevice, vkImageAvailableFence, null);
+				VulkanNative.vkDestroyDevice(VkDevice, null);
+
+				defer ::
+				{
+					delete capabilities;
+					delete DescriptorPool;
+					delete BufferUploader;
+					delete TextureUploader;
+
+					delete base.Factory;
+				}
+
 				if (debugCallbackFunc != null)
 				{
-					//BufferUploader?.Dispose();
-					//TextureUploader?.Dispose();
-					//VulkanNative.vkDestroyFence(VkDevice, vkCopyFence, null);
-					//DescriptorPool.DestroyAll();
-					//VulkanNative.vkDestroyCommandPool(VkDevice, copyCommandPool, null);
-					//VulkanNative.vkDestroyFence(VkDevice, vkImageAvailableFence, null);
-					//VulkanNative.vkDestroyDevice(VkDevice, null);
-					//debugCallbackFunc = null;
-					//VulkanNative.vkDestroyDebugReportCallbackEXTFunction destroyFunction = (.)VulkanNative.vkGetInstanceProcAddr(VkInstance, "vkDestroyDebugReportCallbackEXT");
-					//destroyFunction(VkInstance, debugCallbackHandle, null);
-					//VulkanNative.vkDestroyInstance(VkInstance, null);
+					debugCallbackFunc = null;
+					VulkanNative.vkDestroyDebugReportCallbackEXTFunction destroyFunction = (.)VulkanNative.vkGetInstanceProcAddr(VkInstance, "vkDestroyDebugReportCallbackEXT");
+					destroyFunction(VkInstance, debugCallbackHandle, null);
+					VulkanNative.vkDestroyInstance(VkInstance, null);
 				}
+
 				disposed = true;
 			}
-		}*/
+		}
 	}
 }

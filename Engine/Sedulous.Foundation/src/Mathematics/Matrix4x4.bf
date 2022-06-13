@@ -1,5 +1,8 @@
+using System;
 namespace Sedulous.Foundation.Mathematics;
 
+
+[CRepr]
 struct TMatrix4x4<T>
 	where T : operator - T
 	where T : operator implicit int

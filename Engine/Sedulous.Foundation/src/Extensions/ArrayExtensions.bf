@@ -72,11 +72,27 @@ public extension Array1<T>
 
 public extension Array1<T> where T : String
 {
-	public bool Contains(in StringView other, bool ignoreCase = false)
+	public bool Contains(StringView item, bool ignoreCase = false)
 	{
 		for (int i = 0; i < Count; i++)
 		{
-			if (other.Equals(this[i], ignoreCase))
+			if (item.Equals(this[i], ignoreCase))
+			{
+				return true;
+			}
+		}
+
+		return false;
+	}
+}
+
+public extension Array1<T> where T : struct
+{
+	public bool Contains(T item)
+	{
+		for (int i = 0; i < Count; i++)
+		{
+			if (this[i] == item)
 			{
 				return true;
 			}

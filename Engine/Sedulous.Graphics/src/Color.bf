@@ -1539,7 +1539,7 @@ namespace Sedulous.Graphics
 			chartreuse =  Color(4278255487u);
 			chocolate =  Color(4280183250u);
 			coral =  Color(4283465727u);
-			cornflowerBlue =  Color(4293760356u);
+			cornflowerBlue =  Color(4293760356);
 			cornsilk =  Color(4292671743u);
 			crimson =  Color(4282127580u);
 			cyan =  Color(4294967040u);

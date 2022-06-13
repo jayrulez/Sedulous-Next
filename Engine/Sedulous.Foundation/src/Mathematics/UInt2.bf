@@ -1,6 +1,8 @@
 using System;
 namespace Sedulous.Foundation.Mathematics
 {
+	
+	[CRepr]
 	struct UInt2 : IEquatable<UInt2>
 	{
 		public uint32 X;

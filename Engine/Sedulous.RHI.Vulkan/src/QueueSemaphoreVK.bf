@@ -60,7 +60,7 @@ namespace Sedulous.RHI.Vulkan
 				vkDestroySemaphore(m_Device, m_Handle, m_Device.GetAllocationCallbacks());
 		}
 
-		public override void SetDebugName(in StringView name)
+		public override void SetDebugName(StringView name)
 		{
 			m_Device.SetDebugNameToTrivialObject(.VK_OBJECT_TYPE_SEMAPHORE, (uint64)m_Handle.Handle, name);
 		}

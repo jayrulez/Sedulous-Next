@@ -76,7 +76,7 @@ namespace Sedulous.RHI.Vulkan
 			bindingOffsets[(uint32)DescriptorType.ACCELERATION_STRUCTURE] = spirvBindingOffsets.textureOffset;
 		}
 
-		private void ReserveStaticSamplers(in PipelineLayoutDesc pipelineLayoutDesc)
+		private void ReserveStaticSamplers(PipelineLayoutDesc pipelineLayoutDesc)
 		{
 			uint32 staticSamplerNum = 0;
 			for (uint32 i = 0; i < pipelineLayoutDesc.descriptorSetNum; i++)
@@ -85,7 +85,7 @@ namespace Sedulous.RHI.Vulkan
 			m_StaticSamplers.Reserve(staticSamplerNum);
 		}
 
-		private void CreateSetLayout(in DescriptorSetDesc descriptorSetDesc, in uint32* bindingOffsets)
+		private void CreateSetLayout(DescriptorSetDesc descriptorSetDesc, uint32* bindingOffsets)
 		{
 			uint32 bindingMaxNum = descriptorSetDesc.dynamicConstantBufferNum + descriptorSetDesc.staticSamplerNum;
 
@@ -137,7 +137,7 @@ namespace Sedulous.RHI.Vulkan
 		}
 
 
-		private void FillDescriptorBindings(in DescriptorSetDesc descriptorSetDesc, in uint32* bindingOffsets,
+		private void FillDescriptorBindings(DescriptorSetDesc descriptorSetDesc, uint32* bindingOffsets,
 			ref VkDescriptorSetLayoutBinding* bindings, ref VkDescriptorBindingFlags* bindingFlags)
 		{
 			const VkDescriptorBindingFlags variableSizedArrayFlags = .VK_DESCRIPTOR_BINDING_PARTIALLY_BOUND_BIT |
@@ -177,7 +177,7 @@ namespace Sedulous.RHI.Vulkan
 			}
 		}
 
-		private void FillDynamicConstantBufferBindings(in DescriptorSetDesc descriptorSetDesc, in uint32* bindingOffsets,
+		private void FillDynamicConstantBufferBindings(DescriptorSetDesc descriptorSetDesc, uint32* bindingOffsets,
 			ref VkDescriptorSetLayoutBinding* bindings, ref VkDescriptorBindingFlags* bindingFlags)
 		{
 			for (uint32 i = 0; i < descriptorSetDesc.dynamicConstantBufferNum; i++)
@@ -195,7 +195,7 @@ namespace Sedulous.RHI.Vulkan
 			}
 		}
 
-		private void CreateStaticSamplersAndFillSamplerBindings(in DescriptorSetDesc descriptorSetDesc, in uint32* bindingOffsets,
+		private void CreateStaticSamplersAndFillSamplerBindings(DescriptorSetDesc descriptorSetDesc, uint32* bindingOffsets,
 			ref VkDescriptorSetLayoutBinding* bindings, ref VkDescriptorBindingFlags* bindingFlags)
 		{
 			for (uint32 i = 0; i < descriptorSetDesc.staticSamplerNum; i++)
@@ -203,9 +203,9 @@ namespace Sedulous.RHI.Vulkan
 				readonly ref StaticSamplerDesc sampler = ref descriptorSetDesc.staticSamplers[i];
 
 				m_StaticSamplers.Add(Allocate!<DescriptorVK>(m_Device.GetDeviceAllocator(), m_Device));
-				ref DescriptorVK descirptor = ref m_StaticSamplers.Back;
+				ref DescriptorVK descriptor = ref m_StaticSamplers.Back;
 
-				descirptor.Create(sampler.samplerDesc);
+				descriptor.Create(sampler.samplerDesc);
 
 				*(bindingFlags++) = 0;
 
@@ -215,12 +215,12 @@ namespace Sedulous.RHI.Vulkan
 				descriptorBinding.descriptorType = .VK_DESCRIPTOR_TYPE_SAMPLER;
 				descriptorBinding.descriptorCount = 1;
 				descriptorBinding.stageFlags = GetShaderStageFlags(sampler.visibility);
-				descriptorBinding.pImmutableSamplers = &descirptor.GetSampler();
+				descriptorBinding.pImmutableSamplers = &descriptor.GetSampler();
 			}
 		}
 
 
-		private void FillPushConstantRanges(in PipelineLayoutDesc pipelineLayoutDesc, VkPushConstantRange* pushConstantRanges)
+		private void FillPushConstantRanges(PipelineLayoutDesc pipelineLayoutDesc, VkPushConstantRange* pushConstantRanges)
 		{
 			uint32 offset = 0;
 
@@ -238,7 +238,7 @@ namespace Sedulous.RHI.Vulkan
 			}
 		}
 
-		private void FillRuntimeBindingInfo(in PipelineLayoutDesc pipelineLayoutDesc, in uint32* bindingOffsets)
+		private void FillRuntimeBindingInfo(PipelineLayoutDesc pipelineLayoutDesc, uint32* bindingOffsets)
 		{
 			ref RuntimeBindingInfo destination = ref m_RuntimeBindingInfo;
 			readonly ref PipelineLayoutDesc source = ref pipelineLayoutDesc;
@@ -312,7 +312,7 @@ namespace Sedulous.RHI.Vulkan
 
 		public readonly ref DeviceVK GetDevice() => ref m_Device;
 
-		public Result Create(in PipelineLayoutDesc pipelineLayoutDesc)
+		public Result Create(PipelineLayoutDesc pipelineLayoutDesc)
 		{
 			if (pipelineLayoutDesc.stageMask.HasFlag(PipelineLayoutShaderStageBits.ALL_GRAPHICS))
 				m_PipelineBindPoint = .VK_PIPELINE_BIND_POINT_GRAPHICS;
@@ -386,7 +386,7 @@ namespace Sedulous.RHI.Vulkan
 			m_RuntimeBindingInfo.Dispose();
 		}
 
-		public override void SetDebugName(in StringView name)
+		public override void SetDebugName(StringView name)
 		{
 			m_Device.SetDebugNameToTrivialObject(.VK_OBJECT_TYPE_PIPELINE_LAYOUT, (uint64)m_Handle.Handle, name);
 		}

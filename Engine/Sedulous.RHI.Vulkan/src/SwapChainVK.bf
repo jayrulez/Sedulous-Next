@@ -228,7 +228,7 @@ namespace Sedulous.RHI.Vulkan
 			Deallocate!(m_Device.GetDeviceAllocator(), m_Textures);
 		}
 
-		public override void SetDebugName(in StringView name)
+		public override void SetDebugName(StringView name)
 		{
     m_Device.SetDebugNameToTrivialObject(.VK_OBJECT_TYPE_SURFACE_KHR, (uint64)m_Surface.Handle, name);
     m_Device.SetDebugNameToTrivialObject(.VK_OBJECT_TYPE_SWAPCHAIN_KHR, (uint64)m_Handle.Handle, name);
@@ -277,7 +277,7 @@ namespace Sedulous.RHI.Vulkan
 			return Result.SUCCESS;
 		}
 
-		public override Result SetHdrMetadata(in HdrMetadata hdrMetadata){
+		public override Result SetHdrMetadata(HdrMetadata hdrMetadata){
 			if ([Friend]vkSetHdrMetadataEXT_ptr == null)
 			    return Result.UNSUPPORTED;
 

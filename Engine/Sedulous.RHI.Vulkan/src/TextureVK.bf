@@ -197,7 +197,7 @@ namespace Sedulous.RHI.Vulkan
 			}
 		}
 
-		public override void SetDebugName(in StringView name)
+		public override void SetDebugName(StringView name)
 		{
 			uint64[PHYSICAL_DEVICE_GROUP_MAX_SIZE] handles = .();
 			for (int i = 0; i < handles.Count; i++)

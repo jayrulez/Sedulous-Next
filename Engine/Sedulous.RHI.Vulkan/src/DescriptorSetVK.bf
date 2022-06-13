@@ -32,7 +32,7 @@ namespace Sedulous.RHI.Vulkan
 		}
 	}
 
-	typealias WriteDescriptorsFunc = function bool(uint32 physicalDeviceIndex, in DescriptorRangeDesc rangeDesc, in DescriptorRangeUpdateDesc update,
+	typealias WriteDescriptorsFunc = function bool(uint32 physicalDeviceIndex, DescriptorRangeDesc rangeDesc, DescriptorRangeUpdateDesc update,
 		ref uint32 descriptorOffset, ref VkWriteDescriptorSet write, ref SlabAllocator slab);
 
 	public static
@@ -49,7 +49,7 @@ namespace Sedulous.RHI.Vulkan
 			=>WriteAccelerationStructures,     // ACCELERATION_STRUCTURE
 			);
 
-		public static bool WriteTextures(uint32 physicalDeviceIndex, in DescriptorRangeDesc rangeDesc, in DescriptorRangeUpdateDesc update,
+		public static bool WriteTextures(uint32 physicalDeviceIndex, DescriptorRangeDesc rangeDesc, DescriptorRangeUpdateDesc update,
 		ref uint32 descriptorOffset, ref VkWriteDescriptorSet write, ref SlabAllocator slab)
 		{
 		    readonly uint32 totalItemNum = update.descriptorNum - descriptorOffset;
@@ -74,7 +74,7 @@ namespace Sedulous.RHI.Vulkan
 		}
 
 		[Inline]
-		public static bool WriteTypedBuffers(uint32 physicalDeviceIndex, in DescriptorRangeDesc rangeDesc, in DescriptorRangeUpdateDesc update,
+		public static bool WriteTypedBuffers(uint32 physicalDeviceIndex, DescriptorRangeDesc rangeDesc, DescriptorRangeUpdateDesc update,
 		ref uint32 descriptorOffset, ref VkWriteDescriptorSet write, ref SlabAllocator slab)
 		{
 		    readonly uint32 totalItemNum = update.descriptorNum - descriptorOffset;
@@ -96,7 +96,7 @@ namespace Sedulous.RHI.Vulkan
 		}
 
 		[Inline]
-		public static bool WriteBuffers(uint32 physicalDeviceIndex, in DescriptorRangeDesc rangeDesc, in DescriptorRangeUpdateDesc update,
+		public static bool WriteBuffers(uint32 physicalDeviceIndex, DescriptorRangeDesc rangeDesc, DescriptorRangeUpdateDesc update,
 		ref uint32 descriptorOffset, ref VkWriteDescriptorSet write, ref SlabAllocator slab)
 		{
 		    readonly uint32 totalItemNum = update.descriptorNum - descriptorOffset;
@@ -118,7 +118,7 @@ namespace Sedulous.RHI.Vulkan
 		}
 
 		[Inline]
-		public static bool WriteSamplers(uint32 physicalDeviceIndex, in DescriptorRangeDesc rangeDesc, in DescriptorRangeUpdateDesc update,
+		public static bool WriteSamplers(uint32 physicalDeviceIndex, DescriptorRangeDesc rangeDesc, DescriptorRangeUpdateDesc update,
 		ref uint32 descriptorOffset, ref VkWriteDescriptorSet write, ref SlabAllocator slab)
 		{
 		    //MaybeUnused(rangeDesc);
@@ -145,7 +145,7 @@ namespace Sedulous.RHI.Vulkan
 		}
 
 		[Inline]
-		public static bool WriteAccelerationStructures(uint32 physicalDeviceIndex, in DescriptorRangeDesc rangeDesc, in DescriptorRangeUpdateDesc update,
+		public static bool WriteAccelerationStructures(uint32 physicalDeviceIndex, DescriptorRangeDesc rangeDesc, DescriptorRangeUpdateDesc update,
 		ref uint32 descriptorOffset, ref VkWriteDescriptorSet write, ref SlabAllocator slab)
 		{
 		    //MaybeUnused(rangeDesc);
@@ -201,7 +201,6 @@ namespace Sedulous.RHI.Vulkan
 
 		public void Create(in VkDescriptorSet* handles, uint32 physicalDeviceMask, in DescriptorSetDesc setDesc)
 		{
-			var setDesc;
 			m_SetDesc = &setDesc;
 			m_DynamicConstantBufferNum = setDesc.dynamicConstantBufferNum;
 
@@ -224,7 +223,7 @@ namespace Sedulous.RHI.Vulkan
 		{
 		}
 
-		public override void SetDebugName(in StringView name)
+		public override void SetDebugName(StringView name)
 		{
 			uint64[PHYSICAL_DEVICE_GROUP_MAX_SIZE] handles = .();
 			for (int i = 0; i < handles.Count; i++)
@@ -233,7 +232,7 @@ namespace Sedulous.RHI.Vulkan
 			m_Device.SetDebugNameToDeviceGroupObject(.VK_OBJECT_TYPE_DESCRIPTOR_SET, &handles, name);
 		}
 
-		public override void UpdateDescriptorRanges(uint32 physicalDeviceMask, uint32 rangeOffset, uint32 rangeNum, in DescriptorRangeUpdateDesc* rangeUpdateDescs)
+		public override void UpdateDescriptorRanges(uint32 physicalDeviceMask, uint32 rangeOffset, uint32 rangeNum, DescriptorRangeUpdateDesc* rangeUpdateDescs)
 		{
 			var physicalDeviceMask;
 
@@ -331,7 +330,7 @@ namespace Sedulous.RHI.Vulkan
 			vkUpdateDescriptorSets(m_Device, writeNum, writes, 0, null);
 		}
 
-		public override void Copy(in DescriptorSetCopyDesc descriptorSetCopyDesc)
+		public override void Copy(DescriptorSetCopyDesc descriptorSetCopyDesc)
 		{
 			readonly uint32 descriptorRangeNum = descriptorSetCopyDesc.rangeNum + descriptorSetCopyDesc.dynamicConstantBufferNum;
 			readonly uint32 copyMaxNum = descriptorRangeNum * m_Device.GetPhyiscalDeviceGroupSize();

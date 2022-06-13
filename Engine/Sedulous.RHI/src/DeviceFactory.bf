@@ -7,7 +7,7 @@ namespace Sedulous.RHI
 			return .SUCCESS;
 		}
 
-		public static Result CreateDevice(in DeviceCreationDesc deviceCreationDesc, DeviceAllocator allocator, out Device device)
+		public static Result CreateDevice(DeviceCreationDesc deviceCreationDesc, DeviceAllocator allocator, out Device device)
 		{
 			device = ?;
 			return .SUCCESS;

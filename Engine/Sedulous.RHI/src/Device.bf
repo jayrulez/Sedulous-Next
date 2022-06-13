@@ -18,29 +18,29 @@ abstract class Device
 
 	public DeviceAllocator GetDeviceAllocator() => m_Allocator;
 
-	public abstract void SetDebugName(in StringView name);
+	public abstract void SetDebugName(StringView name);
 	public abstract readonly ref DeviceDesc GetDesc();
 	public abstract Result GetCommandQueue(CommandQueueType commandQueueType, out CommandQueue commandQueue);
 
 	public abstract Result CreateCommandAllocator(in CommandQueue commandQueue, uint32 physicalDeviceMask, out CommandAllocator commandAllocator);
-	public abstract Result CreateDescriptorPool(in DescriptorPoolDesc descriptorPoolDesc, out DescriptorPool descriptorPool);
-	public abstract Result CreateBuffer(in BufferDesc bufferDesc, out Buffer buffer);
-	public abstract Result CreateTexture(in TextureDesc textureDesc, out Texture texture);
-	public abstract Result CreateBufferView(in BufferViewDesc bufferViewDesc, out Descriptor bufferView);
-	public abstract Result CreateTexture1DView(in Texture1DViewDesc textureViewDesc, out Descriptor textureView);
-	public abstract Result CreateTexture2DView(in Texture2DViewDesc textureViewDesc, out Descriptor textureView);
-	public abstract Result CreateTexture3DView(in Texture3DViewDesc textureViewDesc, out Descriptor textureView);
-	public abstract Result CreateSampler(in SamplerDesc samplerDesc, out Descriptor sampler);
-	public abstract Result CreatePipelineLayout(in PipelineLayoutDesc pipelineLayoutDesc, out PipelineLayout pipelineLayout);
-	public abstract Result CreateGraphicsPipeline(in GraphicsPipelineDesc graphicsPipelineDesc, out Pipeline pipeline);
-	public abstract Result CreateComputePipeline(in ComputePipelineDesc computePipelineDesc, out Pipeline pipeline);
-	public abstract Result CreateFrameBuffer(in FrameBufferDesc frameBufferDesc, out FrameBuffer frameBuffer);
-	public abstract Result CreateQueryPool(in QueryPoolDesc queryPoolDesc, out QueryPool queryPool);
+	public abstract Result CreateDescriptorPool(DescriptorPoolDesc descriptorPoolDesc, out DescriptorPool descriptorPool);
+	public abstract Result CreateBuffer(BufferDesc bufferDesc, out Buffer buffer);
+	public abstract Result CreateTexture(TextureDesc textureDesc, out Texture texture);
+	public abstract Result CreateBufferView(BufferViewDesc bufferViewDesc, out Descriptor bufferView);
+	public abstract Result CreateTexture1DView(Texture1DViewDesc textureViewDesc, out Descriptor textureView);
+	public abstract Result CreateTexture2DView(Texture2DViewDesc textureViewDesc, out Descriptor textureView);
+	public abstract Result CreateTexture3DView(Texture3DViewDesc textureViewDesc, out Descriptor textureView);
+	public abstract Result CreateSampler(SamplerDesc samplerDesc, out Descriptor sampler);
+	public abstract Result CreatePipelineLayout(PipelineLayoutDesc pipelineLayoutDesc, out PipelineLayout pipelineLayout);
+	public abstract Result CreateGraphicsPipeline(GraphicsPipelineDesc graphicsPipelineDesc, out Pipeline pipeline);
+	public abstract Result CreateComputePipeline(ComputePipelineDesc computePipelineDesc, out Pipeline pipeline);
+	public abstract Result CreateFrameBuffer(FrameBufferDesc frameBufferDesc, out FrameBuffer frameBuffer);
+	public abstract Result CreateQueryPool(QueryPoolDesc queryPoolDesc, out QueryPool queryPool);
 	public abstract Result CreateQueueSemaphore(out QueueSemaphore queueSemaphore);
 	public abstract Result CreateDeviceSemaphore(bool signaled, out DeviceSemaphore deviceSemaphore);
-	public abstract Result CreateSwapChain(in SwapChainDesc swapChainDesc, out SwapChain swapChain);
-	public abstract Result CreateRayTracingPipeline(in RayTracingPipelineDesc rayTracingPipelineDesc, out Pipeline pipeline);
-	public abstract Result CreateAccelerationStructure(in AccelerationStructureDesc accelerationStructureDesc, out AccelerationStructure accelerationStructure);
+	public abstract Result CreateSwapChain(SwapChainDesc swapChainDesc, out SwapChain swapChain);
+	public abstract Result CreateRayTracingPipeline(RayTracingPipelineDesc rayTracingPipelineDesc, out Pipeline pipeline);
+	public abstract Result CreateAccelerationStructure(AccelerationStructureDesc accelerationStructureDesc, out AccelerationStructure accelerationStructure);
 
 	public abstract void DestroyCommandAllocator(ref CommandAllocator commandAllocator);
 	public abstract void DestroyDescriptorPool(ref DescriptorPool descriptorPool);
@@ -61,15 +61,15 @@ abstract class Device
 	public abstract Result GetDisplaySize(ref Display display, ref uint16 width, ref uint16 height);
 
 	public abstract Result AllocateMemory(uint32 physicalDeviceMask, MemoryType memoryType, uint64 size, out Memory memory);
-	public abstract Result BindBufferMemory(in BufferMemoryBindingDesc* memoryBindingDescs, uint32 memoryBindingDescNum);
-	public abstract Result BindTextureMemory(in TextureMemoryBindingDesc* memoryBindingDescs, uint32 memoryBindingDescNum);
-	public abstract Result BindAccelerationStructureMemory(in AccelerationStructureMemoryBindingDesc* memoryBindingDescs, uint32 memoryBindingDescNum);
+	public abstract Result BindBufferMemory(BufferMemoryBindingDesc* memoryBindingDescs, uint32 memoryBindingDescNum);
+	public abstract Result BindTextureMemory(TextureMemoryBindingDesc* memoryBindingDescs, uint32 memoryBindingDescNum);
+	public abstract Result BindAccelerationStructureMemory(AccelerationStructureMemoryBindingDesc* memoryBindingDescs, uint32 memoryBindingDescNum);
 	public abstract void FreeMemory(ref Memory memory);
 
 	public abstract FormatSupportBits GetFormatSupport(Format format);
 
-	public abstract uint32 CalculateAllocationNumber(in ResourceGroupDesc resourceGroupDesc);
-	public abstract Result AllocateAndBindMemory(in ResourceGroupDesc resourceGroupDesc, Memory* allocations);
+	public abstract uint32 CalculateAllocationNumber(ResourceGroupDesc resourceGroupDesc);
+	public abstract Result AllocateAndBindMemory(ResourceGroupDesc resourceGroupDesc, Memory* allocations);
 
-	public abstract void SetSPIRVBindingOffsets(in SPIRVBindingOffsets spirvBindingOffsets);
+	public abstract void SetSPIRVBindingOffsets(SPIRVBindingOffsets spirvBindingOffsets);
 }

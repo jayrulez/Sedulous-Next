@@ -45,7 +45,7 @@ namespace Sedulous.RHI.Helpers
 
 		//////////////////////////////Private Methods//////////////////////////////
 
-		private Result TryToAllocateAndBindMemory(in ResourceGroupDesc resourceGroupDesc, Memory* allocations, ref int allocationNum)
+		private Result TryToAllocateAndBindMemory(ResourceGroupDesc resourceGroupDesc, Memory* allocations, ref int allocationNum)
 		{
 			GroupByMemoryType(resourceGroupDesc.memoryLocation, resourceGroupDesc.buffers, resourceGroupDesc.bufferNum);
 			GroupByMemoryType(resourceGroupDesc.memoryLocation, resourceGroupDesc.textures, resourceGroupDesc.textureNum);
@@ -185,7 +185,7 @@ namespace Sedulous.RHI.Helpers
 			}
 		}
 
-		private void FillMemoryBindingDescs(Buffer* buffers, in uint64* bufferOffsets, uint32 bufferNum, Memory memory)
+		private void FillMemoryBindingDescs(Buffer* buffers, uint64* bufferOffsets, uint32 bufferNum, Memory memory)
 		{
 			for (uint32 i = 0; i < bufferNum; i++)
 			{
@@ -199,7 +199,7 @@ namespace Sedulous.RHI.Helpers
 			}
 		}
 
-		private void FillMemoryBindingDescs(Texture* textures, in uint64* textureOffsets, uint32 textureNum, Memory memory)
+		private void FillMemoryBindingDescs(Texture* textures, uint64* textureOffsets, uint32 textureNum, Memory memory)
 		{
 			for (uint32 i = 0; i < textureNum; i++)
 			{
@@ -241,7 +241,7 @@ namespace Sedulous.RHI.Helpers
 			Deallocate!(m_Allocator, m_Map);
 		}
 
-		public uint32 CalculateAllocationNumber(in ResourceGroupDesc resourceGroupDesc)
+		public uint32 CalculateAllocationNumber(ResourceGroupDesc resourceGroupDesc)
 		{
 			for (var entry in ref m_Map)
 			{
@@ -257,7 +257,7 @@ namespace Sedulous.RHI.Helpers
 			return uint32(m_Map.Count) + uint32(m_DedicatedBuffers.Count) + uint32(m_DedicatedTextures.Count);
 		}
 
-		public Result AllocateAndBindMemory(in ResourceGroupDesc resourceGroupDesc, Memory* allocations)
+		public Result AllocateAndBindMemory(ResourceGroupDesc resourceGroupDesc, Memory* allocations)
 		{
 			for (var entry in ref m_Map)
 			{

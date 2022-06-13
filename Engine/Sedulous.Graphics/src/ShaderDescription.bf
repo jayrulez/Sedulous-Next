@@ -15,7 +15,7 @@ namespace Sedulous.Graphics
 		/// <summary>
 		/// Gets the raw shader code.
 		/// </summary>
-		public readonly uint8[] ShaderBytes;
+		public readonly Span<uint8> ShaderBytes;
 
 		/// <summary>
 		/// Gets the shader stage.
@@ -33,13 +33,13 @@ namespace Sedulous.Graphics
 		/// <param name="stage">The shader stage.</param>
 		/// <param name="entryPoint">The entry point function.</param>
 		/// <param name="shaderBytes">The shader code in bytes.</param>
-		public this(ShaderStages stage, String entryPoint, uint8[] shaderBytes)
+		public this(ShaderStages stage, String entryPoint, Span<uint8> shaderBytes)
 		{
 			Stage = stage;
 			EntryPoint = entryPoint;
 			ShaderBytes = shaderBytes;
 			shaderArrayHashCode = 17;
-			for (int32 i = 0; i < ShaderBytes.Count; i++)
+			for (int32 i = 0; i < ShaderBytes.Length; i++)
 			{
 				shaderArrayHashCode = (shaderArrayHashCode * 397) ^ ShaderBytes[i];
 			}

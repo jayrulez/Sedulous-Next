@@ -205,7 +205,7 @@ namespace Sedulous.RHI.Vulkan
 			vkFreeCommandBuffers(m_Device, m_CommandPool, 1, &m_Handle);
 		}
 
-		public override void SetDebugName(in StringView name)
+		public override void SetDebugName(StringView name)
 		{
 			m_Device.SetDebugNameToTrivialObject(.VK_OBJECT_TYPE_COMMAND_BUFFER, (uint64)m_Handle.Handle, name);
 		}
@@ -284,7 +284,7 @@ namespace Sedulous.RHI.Vulkan
 			m_CurrentPipelineBindPoint = pipelineLayoutVK.GetPipelineBindPoint();
 		}
 
-		public override void SetDescriptorSets(uint32 baseIndex, uint32 setNum, in DescriptorSet* descriptorSets, in uint32* offsets)
+		public override void SetDescriptorSets(uint32 baseIndex, uint32 setNum, in DescriptorSet* descriptorSets, uint32* offsets)
 		{
 			VkDescriptorSet* sets = STACK_ALLOC!<VkDescriptorSet>(setNum);
 			uint32 dynamicOffsetNum = 0;
@@ -308,7 +308,7 @@ namespace Sedulous.RHI.Vulkan
 				offsets);
 		}
 
-		public override void SetConstants(uint32 pushConstantIndex, in void* data, uint32 size)
+		public override void SetConstants(uint32 pushConstantIndex, void* data, uint32 size)
 		{
 			readonly ref RuntimeBindingInfo bindingInfo = ref m_CurrentPipelineLayout.GetRuntimeBindingInfo();
 			readonly ref PushConstantRangeBindingDesc desc = ref bindingInfo.pushConstantBindings[pushConstantIndex];
@@ -321,7 +321,7 @@ namespace Sedulous.RHI.Vulkan
 			//MaybeUnused(descriptorPool);
 		}
 
-		public override void PipelineBarrier(in TransitionBarrierDesc* transitionBarriers, AliasingBarrierDesc* aliasingBarriers, BarrierDependency dependency)
+		public override void PipelineBarrier(TransitionBarrierDesc* transitionBarriers, AliasingBarrierDesc* aliasingBarriers, BarrierDependency dependency)
 		{
 	//MaybeUnused(dependency); // TODO: use it or remove, because it's needed only for VK
 
@@ -392,7 +392,7 @@ namespace Sedulous.RHI.Vulkan
 			vkCmdEndRenderPass(m_Handle);
 		}
 
-		public override void SetViewports(in Viewport* viewports, uint32 viewportNum)
+		public override void SetViewports(Viewport* viewports, uint32 viewportNum)
 		{
 			VkViewport* flippedViewports = STACK_ALLOC!<VkViewport>(viewportNum);
 
@@ -408,7 +408,7 @@ namespace Sedulous.RHI.Vulkan
 			vkCmdSetViewport(m_Handle, 0, viewportNum, flippedViewports);
 		}
 
-		public override void SetScissors(in Rect* rects, uint32 rectNum)
+		public override void SetScissors(Rect* rects, uint32 rectNum)
 		{
 			vkCmdSetScissor(m_Handle, 0, rectNum, (VkRect2D*)rects);
 		}
@@ -423,7 +423,7 @@ namespace Sedulous.RHI.Vulkan
 			vkCmdSetStencilReference(m_Handle, .VK_STENCIL_FRONT_AND_BACK, reference);
 		}
 
-		public override void SetSamplePositions(in SamplePosition* positions, uint32 positionNum)
+		public override void SetSamplePositions(SamplePosition* positions, uint32 positionNum)
 		{
 			// TODO: not implemented
 			//MaybeUnused(positions);
@@ -433,7 +433,7 @@ namespace Sedulous.RHI.Vulkan
 				"CommandBufferVK::SetSamplePositions() is not implemented.");
 		}
 
-		public override void ClearAttachments(in ClearDesc* clearDescs, uint32 clearDescNum, in Rect* rects, uint32 rectNum)
+		public override void ClearAttachments(ClearDesc* clearDescs, uint32 clearDescNum, Rect* rects, uint32 rectNum)
 		{
 			var rectNum;
 			VkClearAttachment* attachments = STACK_ALLOC!<VkClearAttachment>(clearDescNum);
@@ -505,7 +505,7 @@ namespace Sedulous.RHI.Vulkan
 			vkCmdBindIndexBuffer(m_Handle, bufferHandle, offset, GetIndexType(indexType));
 		}
 
-		public override void SetVertexBuffers(uint32 baseSlot, uint32 bufferNum, in Buffer* buffers, in uint64* offsets)
+		public override void SetVertexBuffers(uint32 baseSlot, uint32 bufferNum, in Buffer* buffers, uint64* offsets)
 		{
 			VkBuffer* bufferHandles = STACK_ALLOC!<VkBuffer>(bufferNum);
 
@@ -567,7 +567,7 @@ namespace Sedulous.RHI.Vulkan
 			vkCmdEndQuery(m_Handle, queryPoolImpl.GetHandle(m_PhysicalDeviceIndex), offset);
 		}
 
-		public override void BeginAnnotation(in StringView name)
+		public override void BeginAnnotation(StringView name)
 		{
 			if ([Friend]vkCmdBeginDebugUtilsLabelEXT_ptr == null)
 				return;
@@ -586,13 +586,13 @@ namespace Sedulous.RHI.Vulkan
 			vkCmdEndDebugUtilsLabelEXT(m_Handle);
 		}
 
-		public override void ClearStorageBuffer(in ClearStorageBufferDesc clearDesc)
+		public override void ClearStorageBuffer(ClearStorageBufferDesc clearDesc)
 		{
 			readonly DescriptorVK descriptor = (DescriptorVK)clearDesc.storageBuffer;
 			vkCmdFillBuffer(m_Handle, descriptor.GetBuffer(m_PhysicalDeviceIndex), 0, VK_WHOLE_SIZE, clearDesc.value);
 		}
 
-		public override void ClearStorageTexture(in ClearStorageTextureDesc clearDesc)
+		public override void ClearStorageTexture(ClearStorageTextureDesc clearDesc)
 		{
 			var clearDesc;
 			readonly DescriptorVK descriptor = (DescriptorVK)clearDesc.storageTexture;
@@ -619,7 +619,7 @@ namespace Sedulous.RHI.Vulkan
 			vkCmdCopyBuffer(m_Handle, srcBufferImpl.GetHandle(srcPhysicalDeviceIndex), dstBufferImpl.GetHandle(dstPhysicalDeviceIndex), 1, &region);
 		}
 
-		public override void CopyTexture(ref Texture dstTexture, uint32 dstPhysicalDeviceIndex, in TextureRegionDesc* dstRegionDesc, in Texture srcTexture, uint32 srcPhysicalDeviceIndex, in TextureRegionDesc* srcRegionDesc)
+		public override void CopyTexture(ref Texture dstTexture, uint32 dstPhysicalDeviceIndex, TextureRegionDesc* dstRegionDesc, in Texture srcTexture, uint32 srcPhysicalDeviceIndex, TextureRegionDesc* srcRegionDesc)
 		{
 			readonly TextureVK srcTextureImpl = (TextureVK)srcTexture;
 			readonly TextureVK dstTextureImpl = (TextureVK)dstTexture;
@@ -704,7 +704,7 @@ namespace Sedulous.RHI.Vulkan
 				dstTextureImpl.GetHandle(srcPhysicalDeviceIndex), .VK_IMAGE_LAYOUT_GENERAL, 1, &region);
 		}
 
-		public override void UploadBufferToTexture(Texture dstTexture, in TextureRegionDesc dstRegionDesc, in Buffer srcBuffer, in TextureDataLayoutDesc srcDataLayoutDesc)
+		public override void UploadBufferToTexture(Texture dstTexture, TextureRegionDesc dstRegionDesc, in Buffer srcBuffer, TextureDataLayoutDesc srcDataLayoutDesc)
 		{
 			readonly BufferVK srcBufferImpl = (BufferVK)srcBuffer;
 			readonly TextureVK dstTextureImpl = (TextureVK)dstTexture;
@@ -744,7 +744,7 @@ namespace Sedulous.RHI.Vulkan
 			vkCmdCopyBufferToImage(m_Handle, srcBufferImpl.GetHandle(0), dstTextureImpl.GetHandle(m_PhysicalDeviceIndex), .VK_IMAGE_LAYOUT_GENERAL, 1, &region);
 		}
 
-		public override void ReadbackTextureToBuffer(ref Buffer dstBuffer, ref TextureDataLayoutDesc dstDataLayoutDesc, in Texture srcTexture, in TextureRegionDesc srcRegionDesc)
+		public override void ReadbackTextureToBuffer(ref Buffer dstBuffer, ref TextureDataLayoutDesc dstDataLayoutDesc, in Texture srcTexture, TextureRegionDesc srcRegionDesc)
 		{
 			readonly TextureVK srcTextureImpl = (TextureVK)srcTexture;
 			readonly BufferVK dstBufferImpl = (BufferVK)dstBuffer;
@@ -836,7 +836,7 @@ namespace Sedulous.RHI.Vulkan
 			vkCmdBuildAccelerationStructuresKHR(m_Handle, 1, &buildGeometryInfo, &rangeArrays);
 		}
 
-		public override void BuildBottomLevelAccelerationStructure(uint32 geometryObjectNum, in GeometryObject* geometryObjects, AccelerationStructureBuildBits flags, ref AccelerationStructure dst, ref Buffer scratch, uint64 scratchOffset)
+		public override void BuildBottomLevelAccelerationStructure(uint32 geometryObjectNum, GeometryObject* geometryObjects, AccelerationStructureBuildBits flags, ref AccelerationStructure dst, ref Buffer scratch, uint64 scratchOffset)
 		{
 			readonly VkAccelerationStructureKHR dstASHandle = ((AccelerationStructureVK)dst).GetHandle(m_PhysicalDeviceIndex);
 			readonly VkDeviceAddress scratchAddress = ((BufferVK)scratch).GetDeviceAddress(m_PhysicalDeviceIndex) + scratchOffset;
@@ -898,7 +898,7 @@ namespace Sedulous.RHI.Vulkan
 			vkCmdBuildAccelerationStructuresKHR(m_Handle, 1, &buildGeometryInfo, &rangeArrays);
 		}
 
-		public override void UpdateBottomLevelAccelerationStructure(uint32 geometryObjectNum, in GeometryObject* geometryObjects, AccelerationStructureBuildBits flags, ref AccelerationStructure dst, in AccelerationStructure src, ref Buffer scratch, uint64 scratchOffset)
+		public override void UpdateBottomLevelAccelerationStructure(uint32 geometryObjectNum, GeometryObject* geometryObjects, AccelerationStructureBuildBits flags, ref AccelerationStructure dst, in AccelerationStructure src, ref Buffer scratch, uint64 scratchOffset)
 		{
 			readonly VkAccelerationStructureKHR srcASHandle = ((AccelerationStructureVK)src).GetHandle(m_PhysicalDeviceIndex);
 			readonly VkAccelerationStructureKHR dstASHandle = ((AccelerationStructureVK)dst).GetHandle(m_PhysicalDeviceIndex);
@@ -957,7 +957,7 @@ namespace Sedulous.RHI.Vulkan
 			FREE_SCRATCH!(m_Device, ASes, accelerationStructureNum);
 		}
 
-		public override void DispatchRays(in DispatchRaysDesc dispatchRaysDesc)
+		public override void DispatchRays(DispatchRaysDesc dispatchRaysDesc)
 		{
 			VkStridedDeviceAddressRegionKHR raygen = .() { };
 			raygen.deviceAddress = GetBufferDeviceAddress(dispatchRaysDesc.raygenShader.buffer, m_PhysicalDeviceIndex) + dispatchRaysDesc.raygenShader.offset;

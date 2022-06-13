@@ -1,5 +1,7 @@
+using System;
 namespace Sedulous.Foundation.Mathematics;
 
+[CRepr]
 struct TVector2<T>
 {
 	public T X;
