@@ -4,22 +4,16 @@ using System;
 using System.Collections;
 namespace Sedulous.Framework;
 
-class ApplicationSettings : EngineSettings
-{
-}
-
 abstract class Application
 {
 	private bool mIsRunning = false;
 	protected readonly Engine mEngine = null ~ delete _;
-	protected readonly ApplicationSettings mSettings;
 
 	public ILogger Logger => mEngine.Logger;
 
-	public this(ApplicationSettings settings)
+	public this(ILogger logger)
 	{
-		mSettings = settings;
-		mEngine = new Engine(mSettings);
+		mEngine = new Engine(logger, null);
 	}
 
 	protected virtual Result<void> OnStartup() => .Ok;

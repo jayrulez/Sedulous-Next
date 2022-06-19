@@ -21,7 +21,7 @@ namespace Sedulous.RHI.Vulkan
 
 		public readonly ref DeviceVK GetDevice() => ref m_Device;
 
-		public Result Create(in CommandQueueVulkanDesc commandQueueDesc)
+		public Result Create(CommandQueueVulkanDesc commandQueueDesc)
 		{
 			m_Handle = (VkQueue)commandQueueDesc.vkQueue;
 			m_FamilyIndex = commandQueueDesc.familyIndex;
@@ -127,7 +127,7 @@ namespace Sedulous.RHI.Vulkan
 				"Can't submit work to a command queue: vkQueueSubmit returned {0}.", (int32)result);
 		}
 
-		public override void Wait(ref DeviceSemaphore deviceSemaphore)
+		public override void Wait(DeviceSemaphore deviceSemaphore)
 		{
 			/*readonly*/ VkFence fence = (DeviceSemaphoreVK)deviceSemaphore;
 

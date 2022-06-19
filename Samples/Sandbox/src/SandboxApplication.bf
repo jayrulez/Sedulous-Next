@@ -1,4 +1,3 @@
-using Sedulous.Framework.SDL;
 using Sedulous.Framework;
 using Sedulous.Foundation.Logging.Abstractions;
 using System;
@@ -8,6 +7,8 @@ using Sedulous.GAL;
 using Sedulous.Foundation.Mathematics;
 using System.Text;
 using System.Collections;
+using Sedulous.SDL;
+using Sedulous.GAL.Vulkan;
 
 namespace Sandbox;
 
@@ -28,6 +29,14 @@ class SandboxApplication : SDLApplication
 {
 	private readonly ILogger mLogger = null ~ delete _;
 
+	
+	private GraphicsDevice mGraphicsDevice = null;
+	private SwapchainSource mSwapchainSource = null;
+	private Swapchain mSwapchain = null;
+	private bool _colorSrgb = true;
+
+	protected GraphicsDevice GraphicsDevice => mGraphicsDevice;
+
 	private CommandList _commandList;
 	private DeviceBuffer _vertexBuffer;
 	private DeviceBuffer _indexBuffer;
@@ -35,7 +44,7 @@ class SandboxApplication : SDLApplication
 	private Shader _fragmentShader;
 	private Pipeline _pipeline;
 
-	public this(in StringView windowTitle, uint32 windowWidth, uint32 windowHeight)
+	public this(String windowTitle, uint32 windowWidth, uint32 windowHeight)
 		: base(mLogger = new DebugLogger(), windowTitle, windowWidth, windowHeight)
 	{
 	}
@@ -101,6 +110,38 @@ fsout_Color = fsin_Color;
 	{
 		if (base.OnInitialize() case .Err)
 			return .Err;
+
+		mSwapchainSource = SwapchainSource.CreateWin32(Window.SurfaceInfo.Handles[0], Environment.ModuleHandle);
+
+		/*DeviceCreationDesc deviceDesc = .()
+			{
+				enableAPIValidation = true,
+				enableNRIValidation = true
+			};
+
+		Result result = CreateDeviceVK(deviceDesc, mDeviceAllocator, Logger, out mDevice);
+		if (result != .SUCCESS)
+		{
+			Logger.LogError("Failed to create Device");
+			return .Err;
+		}*/
+
+		//mApplicationSettings.Plugins.Add(mRendererPlugin = new RendererPlugin(mEngine, mDevice));
+		//mApplicationSettings.Plugins.Add(mAudioPlugin = new AudioPlugin(mEngine));
+
+		GraphicsDeviceOptions options = .(true, null, false, ResourceBindingModel.Improved, true, true, _colorSrgb);
+
+		SwapchainDescription scDesc = SwapchainDescription(
+			mSwapchainSource,
+			(.)Window.Width,
+			(.)Window.Height,
+			options.SwapchainDepthFormat,
+			options.SyncToVerticalBlank,
+			_colorSrgb);
+
+		mGraphicsDevice = VKGraphicsDevice.CreateVulkan(options, scDesc);
+
+		mSwapchain = mGraphicsDevice.MainSwapchain;
 
 		if (HLSLShaderCompiler.Initialize() case .Err)
 		{
@@ -262,12 +303,20 @@ fsout_Color = fsin_Color;
 		_indexBuffer.Dispose();
 		delete _indexBuffer;
 
-		base.OnShutdown();
+		if(mSwapchainSource != null){
+			delete mSwapchainSource;
+		}
 
 		if (_commandList != null)
 		{
 			delete _commandList;
 		}
+		
+		if (mGraphicsDevice != null){
+			mGraphicsDevice.Dispose();
+			delete mGraphicsDevice;
+		}
 
+		base.OnShutdown();
 	}
 }

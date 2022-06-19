@@ -1058,7 +1058,7 @@ class DeviceVK : Device
 	}
 
 
-	private void CheckSupportedDeviceExtensions(in List<char8*> extensions)
+	private void CheckSupportedDeviceExtensions(List<char8*> extensions)
 	{
 		m_IsDescriptorIndexingExtSupported = IsExtensionInList(VK_EXT_DESCRIPTOR_INDEXING_EXTENSION_NAME, extensions);
 		m_IsSampleLocationExtSupported = IsExtensionInList(VK_EXT_SAMPLE_LOCATIONS_EXTENSION_NAME, extensions);
@@ -1079,7 +1079,7 @@ class DeviceVK : Device
 	}
 
 
-	private void CheckSupportedInstanceExtensions(in List<char8*> extensions)
+	private void CheckSupportedInstanceExtensions(List<char8*> extensions)
 	{
 		m_IsDebugUtilsSupported = IsExtensionInList(VK_EXT_DEBUG_UTILS_EXTENSION_NAME, extensions);
 	}
@@ -1524,7 +1524,7 @@ class DeviceVK : Device
 		}
 	}
 
-	public override Result CreateCommandAllocator(in CommandQueue commandQueue, uint32 physicalDeviceMask, out CommandAllocator commandAllocator)
+	public override Result CreateCommandAllocator(CommandQueue commandQueue, uint32 physicalDeviceMask, out CommandAllocator commandAllocator)
 	{
 		return CreateImplementation<CommandAllocatorVK...>(commandQueue, physicalDeviceMask, out commandAllocator);
 	}

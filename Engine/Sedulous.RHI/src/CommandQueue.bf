@@ -6,7 +6,7 @@ namespace Sedulous.RHI
 		public abstract void SetDebugName(StringView name);
 
         public abstract void Submit(WorkSubmissionDesc workSubmissionDesc, DeviceSemaphore deviceSemaphore);
-        public abstract void Wait(ref DeviceSemaphore deviceSemaphore);
+        public abstract void Wait(DeviceSemaphore deviceSemaphore);
 
         public abstract Result ChangeResourceStates(TransitionBarrierDesc transitionBarriers);
         public abstract Result UploadData(TextureUploadDesc* textureUploadDescs, uint32 textureUploadDescNum,

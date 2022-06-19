@@ -20,7 +20,7 @@ namespace Sedulous.RHI.Vulkan
 
 		public readonly ref DeviceVK GetDevice() => ref m_Device;
 
-		public Result Create(in CommandQueue commandQueue, uint32 physicalDeviceMask)
+		public Result Create(CommandQueue commandQueue, uint32 physicalDeviceMask)
 		{
 	//MaybeUnused(physicalDeviceMask); // TODO: use it
 
@@ -45,7 +45,7 @@ namespace Sedulous.RHI.Vulkan
 			return Result.SUCCESS;
 		}
 
-		public Result Create(in CommandAllocatorVulkanDesc commandAllocatorDesc)
+		public Result Create(CommandAllocatorVulkanDesc commandAllocatorDesc)
 		{
 			m_OwnsNativeObjects = false;
 			m_Handle = (VkCommandPool)commandAllocatorDesc.vkCommandPool;

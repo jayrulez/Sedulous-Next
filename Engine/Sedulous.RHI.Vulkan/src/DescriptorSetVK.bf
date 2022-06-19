@@ -199,7 +199,7 @@ namespace Sedulous.RHI.Vulkan
 
 		public uint32 GetDynamicConstantBufferNum() => m_DynamicConstantBufferNum;
 
-		public void Create(in VkDescriptorSet* handles, uint32 physicalDeviceMask, in DescriptorSetDesc setDesc)
+		public void Create(VkDescriptorSet* handles, uint32 physicalDeviceMask, ref DescriptorSetDesc setDesc)
 		{
 			m_SetDesc = &setDesc;
 			m_DynamicConstantBufferNum = setDesc.dynamicConstantBufferNum;
@@ -288,7 +288,7 @@ namespace Sedulous.RHI.Vulkan
 			}
 		}
 
-		public override void UpdateDynamicConstantBuffers(uint32 physicalDeviceMask, uint32 bufferOffset, uint32 descriptorNum, in Descriptor* descriptors)
+		public override void UpdateDynamicConstantBuffers(uint32 physicalDeviceMask, uint32 bufferOffset, uint32 descriptorNum, Descriptor* descriptors)
 		{
 			var physicalDeviceMask;
 			readonly uint32 descriptorMaxNum = descriptorNum * m_Device.GetPhyiscalDeviceGroupSize();

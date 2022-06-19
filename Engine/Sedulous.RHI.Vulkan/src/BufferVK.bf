@@ -5,13 +5,14 @@ using static Bulkan.VulkanNative;
 using static Sedulous.RHI.Vulkan.VulkanUtils;
 namespace Sedulous.RHI.Vulkan
 {
-	public static{
-		[Inline]public static VkDeviceAddress GetBufferDeviceAddress(in Buffer buffer, uint32 physicalDeviceIndex)
-    {
-        readonly BufferVK bufferVK = (BufferVK)buffer;
+	public static
+	{
+		[Inline] public static VkDeviceAddress GetBufferDeviceAddress(Buffer buffer, uint32 physicalDeviceIndex)
+		{
+			readonly BufferVK bufferVK = (BufferVK)buffer;
 
-        return bufferVK != null ? bufferVK.GetDeviceAddress(physicalDeviceIndex) : 0;
-    }
+			return bufferVK != null ? bufferVK.GetDeviceAddress(physicalDeviceIndex) : 0;
+		}
 	}
 
 	class BufferVK : Buffer
@@ -36,16 +37,17 @@ namespace Sedulous.RHI.Vulkan
 
 		public uint64 GetSize() => m_Size;
 
-		public Result Create(in BufferDesc bufferDesc){
+		public Result Create(BufferDesc bufferDesc)
+		{
 			m_OwnsNativeObjects = true;
 			m_Size = bufferDesc.size;
 
 			readonly VkSharingMode sharingMode =
-			    m_Device.IsConcurrentSharingModeEnabledForBuffers() ? .VK_SHARING_MODE_CONCURRENT : .VK_SHARING_MODE_EXCLUSIVE;
+				m_Device.IsConcurrentSharingModeEnabledForBuffers() ? .VK_SHARING_MODE_CONCURRENT : .VK_SHARING_MODE_EXCLUSIVE;
 
 			readonly ref List<uint32> queueIndices = ref m_Device.GetConcurrentSharingModeQueueIndices();
 
-			VkBufferCreateInfo info = .(){};
+			VkBufferCreateInfo info = .() { };
 			info.sType = .VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO;
 			info.size = bufferDesc.size;
 			info.usage = GetBufferUsageFlags(bufferDesc.usageMask, bufferDesc.structureStride);
@@ -57,19 +59,20 @@ namespace Sedulous.RHI.Vulkan
 
 			for (uint32 i = 0; i < m_Device.GetPhyiscalDeviceGroupSize(); i++)
 			{
-			    if ((1 << i) & physicalDeviceMask != 0)
-			    {
-			        readonly VkResult result = vkCreateBuffer(m_Device, &info, m_Device.GetAllocationCallbacks(), &m_Handles[i]);
+				if ((1 << i) & physicalDeviceMask != 0)
+				{
+					readonly VkResult result = vkCreateBuffer(m_Device, &info, m_Device.GetAllocationCallbacks(), &m_Handles[i]);
 
-			        RETURN_ON_FAILURE!(m_Device.GetLogger(), result == .VK_SUCCESS, GetReturnCode(result),
-			            "Can't create a buffer: vkCreateBuffer returned {0}.", (int32)result);
-			    }
+					RETURN_ON_FAILURE!(m_Device.GetLogger(), result == .VK_SUCCESS, GetReturnCode(result),
+						"Can't create a buffer: vkCreateBuffer returned {0}.", (int32)result);
+				}
 			}
 
 			return Result.SUCCESS;
 		}
 
-		public Result Create(in BufferVulkanDesc bufferDesc){
+		public Result Create(BufferVulkanDesc bufferDesc)
+		{
 			m_OwnsNativeObjects = false;
 			m_Memory = (MemoryVK)bufferDesc.memory;
 			m_MappedMemoryOffset = bufferDesc.memoryOffset;
@@ -78,100 +81,108 @@ namespace Sedulous.RHI.Vulkan
 			uint32 physicalDeviceMask = GetPhysicalDeviceGroupMask(bufferDesc.physicalDeviceMask);
 
 			if (m_Memory != null)
-			    physicalDeviceMask = 0x1;
+				physicalDeviceMask = 0x1;
 
 			for (uint32 i = 0; i < m_Device.GetPhyiscalDeviceGroupSize(); i++)
 			{
-			    if ((1 << i) & physicalDeviceMask != 0)
-			    {
-			        m_Handles[i] = (VkBuffer)bufferDesc.vkBuffer;
-			        m_DeviceAddresses[i] = (VkDeviceAddress)bufferDesc.deviceAddress;
-			    }
+				if ((1 << i) & physicalDeviceMask != 0)
+				{
+					m_Handles[i] = (VkBuffer)bufferDesc.vkBuffer;
+					m_DeviceAddresses[i] = (VkDeviceAddress)bufferDesc.deviceAddress;
+				}
 			}
 
 			return Result.SUCCESS;
 		}
 
-		public void SetHostMemory(MemoryVK memory, uint64 memoryOffset){
+		public void SetHostMemory(MemoryVK memory, uint64 memoryOffset)
+		{
 			m_Memory = memory;
 			m_MappedMemoryOffset = memoryOffset;
 
 			// No need to keep more than one instance of host buffer
 			for (uint32 i = 1; i < m_Device.GetPhyiscalDeviceGroupSize(); i++)
 			{
-			    if (m_Handles[i] != .Null)
-			        vkDestroyBuffer(m_Device, m_Handles[i], m_Device.GetAllocationCallbacks());
-			    m_Handles[i] = m_Handles[0];
+				if (m_Handles[i] != .Null)
+					vkDestroyBuffer(m_Device, m_Handles[i], m_Device.GetAllocationCallbacks());
+				m_Handles[i] = m_Handles[0];
 			}
 		}
-		public void ReadDeviceAddress(){
-			VkBufferDeviceAddressInfo bufferDeviceAddressInfo = .(){};
+		public void ReadDeviceAddress()
+		{
+			VkBufferDeviceAddressInfo bufferDeviceAddressInfo = .() { };
 			bufferDeviceAddressInfo.sType = .VK_STRUCTURE_TYPE_BUFFER_DEVICE_ADDRESS_INFO;
 
 			if ([Friend]vkGetBufferDeviceAddress_ptr == null)
-			    return;
+				return;
 
 			for (uint32 i = 0; i < m_Device.GetPhyiscalDeviceGroupSize(); i++)
 			{
-			    if (m_Handles[i] != .Null)
-			    {
-			        bufferDeviceAddressInfo.buffer = m_Handles[i];
-			        m_DeviceAddresses[i] = vkGetBufferDeviceAddress(m_Device, &bufferDeviceAddressInfo);
-			    }
+				if (m_Handles[i] != .Null)
+				{
+					bufferDeviceAddressInfo.buffer = m_Handles[i];
+					m_DeviceAddresses[i] = vkGetBufferDeviceAddress(m_Device, &bufferDeviceAddressInfo);
+				}
 			}
 		}
 
 		///////////////////////////////////////////////////////////////////////////
 
-		public this(DeviceVK device){
+		public this(DeviceVK device)
+		{
 			m_Device = device;
 		}
 
-		public ~this(){
-			
+		public ~this()
+		{
 			if (!m_OwnsNativeObjects)
-			    return;
+				return;
 
 			if (m_Memory != null)
-			    vkDestroyBuffer(m_Device, m_Handles[0], m_Device.GetAllocationCallbacks());
+				vkDestroyBuffer(m_Device, m_Handles[0], m_Device.GetAllocationCallbacks());
 			else
 			{
-			    for (uint32 i = 0; i < m_Handles.Count; i++)
-			    {
-			        if (m_Handles[i] != .Null)
-			            vkDestroyBuffer(m_Device, m_Handles[i], m_Device.GetAllocationCallbacks());
-			    }
+				for (uint32 i = 0; i < m_Handles.Count; i++)
+				{
+					if (m_Handles[i] != .Null)
+						vkDestroyBuffer(m_Device, m_Handles[i], m_Device.GetAllocationCallbacks());
+				}
 			}
 		}
 
-		public override void SetDebugName(StringView name){
+		public override void SetDebugName(StringView name)
+		{
 			uint64[PHYSICAL_DEVICE_GROUP_MAX_SIZE] handles = .();
 			for (int i = 0; i < handles.Count; i++)
-			    handles[i] = (uint64)m_Handles[i].Handle;
+				handles[i] = (uint64)m_Handles[i].Handle;
 
 			m_Device.SetDebugNameToDeviceGroupObject(.VK_OBJECT_TYPE_BUFFER, &handles, name);
 		}
 
-		public override void GetMemoryInfo(MemoryLocation memoryLocation, ref MemoryDesc memoryDesc) {
+		public override void GetMemoryInfo(MemoryLocation memoryLocation, ref MemoryDesc memoryDesc)
+		{
 			VkBuffer handle = .Null;
 			for (uint32 i = 0; i < m_Device.GetPhyiscalDeviceGroupSize() && handle == .Null; i++)
-			    handle = m_Handles[i];
+				handle = m_Handles[i];
 
-			VkMemoryDedicatedRequirements dedicatedRequirements = .(){
-			    sType = .VK_STRUCTURE_TYPE_MEMORY_DEDICATED_REQUIREMENTS,
-			    pNext  =null
-			};
+			VkMemoryDedicatedRequirements dedicatedRequirements = .()
+				{
+					sType = .VK_STRUCTURE_TYPE_MEMORY_DEDICATED_REQUIREMENTS,
+					pNext  = null
+				};
 
-			VkMemoryRequirements2 requirements = .(){
-			    sType = .VK_STRUCTURE_TYPE_MEMORY_REQUIREMENTS_2,
-			    pNext = &dedicatedRequirements
-			};
+			VkMemoryRequirements2 requirements = .()
+				{
+					sType = .VK_STRUCTURE_TYPE_MEMORY_REQUIREMENTS_2,
+					pNext = &dedicatedRequirements
+				};
 
-			VkBufferMemoryRequirementsInfo2 info = .(){
-			    sType = .VK_STRUCTURE_TYPE_BUFFER_MEMORY_REQUIREMENTS_INFO_2,
-			    pNext  =null,
-			    buffer = handle
-			};
+			VkBufferMemoryRequirementsInfo2 info = .()
+				{
+					sType = .VK_STRUCTURE_TYPE_BUFFER_MEMORY_REQUIREMENTS_INFO_2,
+					pNext  = null,
+					buffer = handle
+				};
 
 			vkGetBufferMemoryRequirements2(m_Device, &info, &requirements);
 
@@ -179,7 +190,7 @@ namespace Sedulous.RHI.Vulkan
 			memoryDesc.alignment = (uint32)requirements.memoryRequirements.alignment;
 			memoryDesc.size = requirements.memoryRequirements.size;
 
-			MemoryTypeUnpack unpack = .(){};
+			MemoryTypeUnpack unpack = .() { };
 			readonly bool found = m_Device.GetMemoryType(memoryLocation, requirements.memoryRequirements.memoryTypeBits, ref unpack.info);
 			CHECK!(m_Device.GetLogger(), found, "Can't find suitable memory type: {0}", requirements.memoryRequirements.memoryTypeBits);
 
@@ -188,7 +199,8 @@ namespace Sedulous.RHI.Vulkan
 			memoryDesc.type = unpack.type;
 		}
 
-		public override void* Map(uint64 offset, uint64 size){
+		public override void* Map(uint64 offset, uint64 size)
+		{
 			var size;
 			CHECK!(m_Device.GetLogger(), m_Memory != null, "The buffer does not support memory mapping.");
 
@@ -196,12 +208,13 @@ namespace Sedulous.RHI.Vulkan
 			m_MappedRangeSize = size;
 
 			if (size == WHOLE_SIZE)
-			    size = m_Size;
+				size = m_Size;
 
 			return m_Memory.GetMappedMemory(0) + m_MappedMemoryOffset + offset;
 		}
 
-		public override void Unmap(){
+		public override void Unmap()
+		{
 			// TODO: flush the range if the memory is not host coherent
 			// if (m_Memory.IsHostCoherent())
 			//     m_Memory.FlushMemoryRange(m_MappedMemoryOffset + m_MappedRangeOffset, m_MappedRangeSize);

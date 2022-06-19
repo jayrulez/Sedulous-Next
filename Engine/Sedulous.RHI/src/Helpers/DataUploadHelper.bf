@@ -173,7 +173,7 @@ namespace Sedulous.RHI.Helpers
 				workSubmissionDesc.commandBuffers = &m_CommandBuffers[i];
 				workSubmissionDesc.physicalDeviceIndex = i;
 				m_CommandQueue.Submit(workSubmissionDesc, m_DeviceSemaphore);
-				m_CommandQueue.Wait(ref m_DeviceSemaphore);
+				m_CommandQueue.Wait(m_DeviceSemaphore);
 			}
 
 			for (uint32 i = 0; i < m_CommandAllocators.Count; i++)
@@ -379,7 +379,7 @@ namespace Sedulous.RHI.Helpers
 
 		///////////////////////////////////////////////////////////////////////////
 
-		public this(Device device, in DeviceAllocator allocator, CommandQueue commandQueue)
+		public this(Device device, DeviceAllocator allocator, CommandQueue commandQueue)
 		{
 			m_DeviceDesc = device.GetDesc();
 			m_Device = device;

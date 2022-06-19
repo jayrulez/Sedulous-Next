@@ -1,18 +1,14 @@
 using Sedulous.Platform;
 using SDL2;
 using System;
-using Sedulous.Platform;
-namespace Sedulous.Framework.SDL;
+namespace Sedulous.SDL;
 
 class SDLWindow : Window
 {
 	private SDL.Window* SDLNativeWindow;
-	//private WindowHandleInfo mNativeWindowHandleInfo;
 	private String mTitle = new String() ~ delete _;
 
-	//public override readonly ref WindowHandleInfo NativeWindowInfo => ref mNativeWindowHandleInfo;
-
-	public void* NativeWindow { get; protected set; }
+	public void* NativeWindow { get; private set; }
 
 	public override String Title
 	{
@@ -62,17 +58,6 @@ class SDLWindow : Window
 		case SDL.SDL_SYSWM_TYPE.SDL_SYSWM_WINDOWS:
 			NativeWindow = (void*)(int)info.info.win.window;
 			SurfaceInfo = .(scope void*[](NativeWindow, SDLNativeWindow), .SDL);
-			/*mNativeWindowHandleInfo = .()
-				{
-					windowSystemType = .WINDOWS,
-					window = .()
-						{
-							windows = .()
-								{
-									hwnd = (void*)(int)info.info.win.window
-								}
-						}
-				};*/
 			break;
 
 		case SDL.SDL_SYSWM_TYPE.SDL_SYSWM_UNKNOWN: fallthrough;

@@ -1,0 +1,6 @@
+FileVersion = 1
+Dependencies = {corlib = "*", "Sedulous.SDL" = "*", "Sedulous.RHI" = "*", "Sedulous.RHI.Vulkan" = "*"}
+
+[Project]
+Name = "RHITest"
+StartupObject = "RHITest.Program"

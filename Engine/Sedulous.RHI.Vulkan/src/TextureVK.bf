@@ -34,7 +34,7 @@ namespace Sedulous.RHI.Vulkan
 
 		public readonly ref DeviceVK GetDevice() => ref m_Device;
 
-		public void Create(VkImage handle, VkImageAspectFlags aspectFlags, VkImageType imageType, in VkExtent3D extent, Format format)
+		public void Create(VkImage handle, VkImageAspectFlags aspectFlags, VkImageType imageType, VkExtent3D extent, Format format)
 		{
 			m_OwnsNativeObjects = false;
 			m_TextureType = VulkanUtils.GetTextureType(imageType);
@@ -47,7 +47,7 @@ namespace Sedulous.RHI.Vulkan
 			m_SampleCount = .VK_SAMPLE_COUNT_1_BIT;
 		}
 
-		public Result Create(in TextureDesc textureDesc)
+		public Result Create(TextureDesc textureDesc)
 		{
 			m_OwnsNativeObjects = true;
 			m_TextureType = textureDesc.type;
@@ -104,7 +104,7 @@ namespace Sedulous.RHI.Vulkan
 			return Result.SUCCESS;
 		}
 
-		public Result Create(in TextureVulkanDesc textureDesc)
+		public Result Create(TextureVulkanDesc textureDesc)
 		{
 			m_OwnsNativeObjects = false;
 			m_Extent = .() { width = textureDesc.size[0], height = textureDesc.size[1], depth = textureDesc.size[2] };

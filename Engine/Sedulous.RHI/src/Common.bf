@@ -1387,7 +1387,7 @@ struct SwapChainDesc
 {
 	public WindowSystemType windowSystemType;
 	public Window window;
-	public readonly CommandQueue commandQueue;
+	public CommandQueue commandQueue;
 	public uint16 width;
 	public uint16 height;
 	public uint16 textureNum;

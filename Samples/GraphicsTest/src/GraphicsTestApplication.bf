@@ -1,4 +1,4 @@
-using Sedulous.Framework.SDL;
+using Sedulous.SDL;
 using Sedulous.Foundation.Logging.Abstractions;
 using System;
 using Sedulous.Foundation.Logging.Debug;
@@ -6,11 +6,18 @@ using Sedulous.Foundation.Mathematics;
 using Sedulous.Graphics;
 using System.Collections;
 using System.IO;
+using Sedulous.Platform;
+using Sedulous.Graphics.Vulkan;
 namespace GraphicsTest
 {
-	class GraphicsTestApplication : SDLApplication2
+	class GraphicsTestApplication : SDLApplication
 	{
 		private readonly ILogger mLogger = null ~ delete _;
+
+		private ValidationLayer mGraphicsValidationLayer = null;
+		protected FrameBuffer mFrameBuffer => mSwapChain.FrameBuffer;
+		protected GraphicsContext mGraphicsContext = null;
+		protected SwapChain mSwapChain = null;
 
 		private Vector4[] vertexData = new Vector4[]
 			( // TriangleList
@@ -25,7 +32,27 @@ namespace GraphicsTest
 		private GraphicsPipelineState pipelineState;
 		private Buffer[] vertexBuffers;
 
-		public this(in StringView windowTitle, uint32 windowWidth, uint32 windowHeight)
+		
+		protected TextureSampleCount SampleCount = TextureSampleCount.None;
+
+		private SwapChainDescription CreateSwapChainDescription(uint32 width, uint32 height, ref SurfaceInfo surfaceInfo)
+		{
+			return SwapChainDescription()
+				{
+					Width = width,
+					Height = height,
+					SurfaceInfo = surfaceInfo,
+					ColorTargetFormat = PixelFormat.R8G8B8A8_UNorm,
+					ColorTargetFlags = TextureFlags.RenderTarget | TextureFlags.ShaderResource,
+					DepthStencilTargetFormat = PixelFormat.D24_UNorm_S8_UInt,
+					DepthStencilTargetFlags = TextureFlags.DepthStencil,
+					SampleCount = this.SampleCount,
+					IsWindowed = true,
+					RefreshRate = 60
+				};
+		}
+
+		public this(String windowTitle, uint32 windowWidth, uint32 windowHeight)
 			: base(mLogger = new DebugLogger(), windowTitle, windowWidth, windowHeight)
 		{
 		}
@@ -35,7 +62,16 @@ namespace GraphicsTest
 			if (base.OnStartup() case .Err)
 				return .Err;
 
-			//base.OnStartup();
+			mGraphicsValidationLayer = new ValidationLayer(.Trace);
+			mGraphicsContext = new VKGraphicsContext();
+
+			mGraphicsContext.DefaultTextureUploaderSize = 128 * 1024 * 1024;
+			mGraphicsContext.DefaultBufferUploaderSize = 64 * 1024 * 1024;
+
+			mGraphicsContext.CreateDevice(mGraphicsValidationLayer);
+
+			SwapChainDescription swapChainDescription = CreateSwapChainDescription(Window.Width, Window.Height, ref Window.SurfaceInfo);
+			mSwapChain = mGraphicsContext.CreateSwapChain(swapChainDescription);
 
 			return .Ok;
 		}
@@ -88,8 +124,8 @@ namespace GraphicsTest
 			this.commandQueue = mGraphicsContext.Factory.CreateCommandQueue();
 
 			var swapChainDescription = mSwapChain?.SwapChainDescription;
-			var width = swapChainDescription.HasValue ? swapChainDescription.Value.Width : mWindow.Width;
-			var height = swapChainDescription.HasValue ? swapChainDescription.Value.Height : mWindow.Height;
+			var width = swapChainDescription.HasValue ? swapChainDescription.Value.Width : Window.Width;
+			var height = swapChainDescription.HasValue ? swapChainDescription.Value.Height : Window.Height;
 
 			this.viewports = new Viewport[1];
 			this.viewports[0] = Viewport(0, 0, width, height);
@@ -139,6 +175,25 @@ namespace GraphicsTest
 				}
 				delete vertexBuffers;
 			}
+		}
+
+		protected override void OnShutdown(){
+			
+			if (mSwapChain != null){
+				mSwapChain.Dispose();
+				defer :: delete mSwapChain;
+			}
+
+			if (mGraphicsContext != null){
+				mGraphicsContext.Dispose();
+				defer :: delete mGraphicsContext;
+			}
+
+			if (mGraphicsValidationLayer != null){
+				delete mGraphicsValidationLayer;
+			}
+
+			base.OnShutdown();
 		}
 
 		protected override void OnFrameBegin()

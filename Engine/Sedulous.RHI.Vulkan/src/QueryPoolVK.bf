@@ -59,7 +59,7 @@ namespace Sedulous.RHI.Vulkan
 			return Result.SUCCESS;
 		}
 
-		public Result Create(in QueryPoolVulkanDesc queryPoolDesc)
+		public Result Create(QueryPoolVulkanDesc queryPoolDesc)
 		{
 			m_OwnsNativeObjects = false;
 			m_Type = (VkQueryType)queryPoolDesc.vkQueryType;

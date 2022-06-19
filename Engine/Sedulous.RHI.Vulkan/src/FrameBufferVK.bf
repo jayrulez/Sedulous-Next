@@ -17,7 +17,7 @@ namespace Sedulous.RHI.Vulkan
 		private DeviceVK m_Device;
 
 		//////////////////////////////Private Methods//////////////////////////////
-		private void FillDescriptionsAndFormats(in FrameBufferDesc frameBufferDesc, VkAttachmentDescription* descriptions, VkFormat* formats)
+		private void FillDescriptionsAndFormats(FrameBufferDesc frameBufferDesc, VkAttachmentDescription* descriptions, VkFormat* formats)
 		{
 			readonly bool clearColor = frameBufferDesc.colorClearValues != null;
 			readonly bool clearDepth = frameBufferDesc.depthStencilClearValue != null;
@@ -63,7 +63,7 @@ namespace Sedulous.RHI.Vulkan
 			}
 		}
 
-		private Result SaveClearColors(in FrameBufferDesc frameBufferDesc)
+		private Result SaveClearColors(FrameBufferDesc frameBufferDesc)
 		{
 			if (frameBufferDesc.colorClearValues != null)
 				Internal.MemCpy(&m_ClearValues, frameBufferDesc.colorClearValues, frameBufferDesc.colorAttachmentNum * sizeof(ClearValueDesc));
@@ -74,7 +74,7 @@ namespace Sedulous.RHI.Vulkan
 			return Result.SUCCESS;
 		}
 
-		private Result CreateRenderPass(in FrameBufferDesc frameBufferDesc)
+		private Result CreateRenderPass(FrameBufferDesc frameBufferDesc)
 		{
 			VkAttachmentDescription* descriptions = STACK_ALLOC!<VkAttachmentDescription>(m_AttachmentNum);
 			VkFormat* formats = STACK_ALLOC!<VkFormat>(m_AttachmentNum);
@@ -142,7 +142,7 @@ namespace Sedulous.RHI.Vulkan
 		/////////////////////////////Internal Methods//////////////////////////////
 		public readonly ref DeviceVK GetDevice() => ref m_Device;
 
-		public Result Create(in FrameBufferDesc frameBufferDesc)
+		public Result Create(FrameBufferDesc frameBufferDesc)
 		{
 			VkExtent3D extent = .() { };
 			if (frameBufferDesc.colorAttachmentNum > 0)

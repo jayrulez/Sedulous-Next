@@ -257,12 +257,12 @@ namespace Sedulous.RHI.Vulkan
 			return m_Textures.Ptr;
 		}
 
-		public override uint32 AcquireNextTexture(ref QueueSemaphore textureReadyForRender)
+		public override uint32 AcquireNextTexture(QueueSemaphore textureReadyForRender)
 		{
 			const uint64 timeout = 5000000000; // 5 seconds
 			m_TextureIndex = uint32.MaxValue;
 
-			readonly VkResult result = vkAcquireNextImageKHR(m_Device, m_Handle, timeout, *(QueueSemaphoreVK*)&textureReadyForRender,
+			readonly VkResult result = vkAcquireNextImageKHR(m_Device, m_Handle, timeout, (QueueSemaphoreVK)textureReadyForRender,
 				.Null, &m_TextureIndex);
 
 			RETURN_ON_FAILURE!(m_Device.GetLogger(), result == .VK_SUCCESS, m_TextureIndex,
@@ -271,7 +271,7 @@ namespace Sedulous.RHI.Vulkan
 			return m_TextureIndex;
 		}
 
-		public override Result Present(ref QueueSemaphore textureReadyForPresent)
+		public override Result Present(QueueSemaphore textureReadyForPresent)
 		{
 			VkSemaphore semaphore = (QueueSemaphoreVK)textureReadyForPresent;
 

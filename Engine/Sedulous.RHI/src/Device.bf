@@ -22,7 +22,7 @@ abstract class Device
 	public abstract readonly ref DeviceDesc GetDesc();
 	public abstract Result GetCommandQueue(CommandQueueType commandQueueType, out CommandQueue commandQueue);
 
-	public abstract Result CreateCommandAllocator(in CommandQueue commandQueue, uint32 physicalDeviceMask, out CommandAllocator commandAllocator);
+	public abstract Result CreateCommandAllocator(CommandQueue commandQueue, uint32 physicalDeviceMask, out CommandAllocator commandAllocator);
 	public abstract Result CreateDescriptorPool(DescriptorPoolDesc descriptorPoolDesc, out DescriptorPool descriptorPool);
 	public abstract Result CreateBuffer(BufferDesc bufferDesc, out Buffer buffer);
 	public abstract Result CreateTexture(TextureDesc textureDesc, out Texture texture);

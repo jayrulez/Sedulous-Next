@@ -8,7 +8,5 @@ class Program
 	{
 		var app = scope SandboxApplication("Sandbox", 1280, 720);
 		app.Run();
-
-		Console.Read();
 	}
 }

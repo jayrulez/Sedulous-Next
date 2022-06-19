@@ -2,13 +2,8 @@ using Sedulous.Foundation.Logging.Abstractions;
 using System.Collections;
 using System.Threading;
 using Sedulous.Foundation.Utilities;
+using System;
 namespace Sedulous.Core;
-
-class EngineSettings
-{
-	public ILogger Logger { get; set; }
-	public readonly List<Plugin> Plugins = new List<Plugin>() ~ delete _;
-}
 
 class Engine
 {
@@ -16,19 +11,17 @@ class Engine
 	private readonly Monitor mWorldsMonitor = new .() ~ delete _;
 	private List<World> mWorlds = new .() ~ delete _;
 	private List<Plugin> mPlugins = new List<Plugin>() ~ delete _;
-	private readonly EngineSettings mSettings = null;
 
-	public ILogger Logger => mSettings.Logger;
+	public ILogger Logger { get; private set; }
 
-	public this(EngineSettings settings)
+	public this(ILogger logger, Span<Plugin> plugins)
 	{
-		mSettings = settings;
+		Logger = logger;
+		mPlugins.AddRange(plugins);
 	}
 
 	public void Startup()
 	{
-		mPlugins.AddRange(mSettings.Plugins);
-
 		for (var plugin in mPlugins)
 		{
 			plugin.OnStartup();
