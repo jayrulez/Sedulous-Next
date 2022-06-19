@@ -54,11 +54,6 @@ class RHITestApplication : SDLApplication
 
 	private uint32 mSwapInterval = 0;
 
-	private DescriptorPool mDescriptorPool = null;
-	private DescriptorSet mDescriptorSet = null;
-	private Pipeline mPipeline = null;
-	private PipelineLayout mPipelineLayout = null;
-
 	private uint32 mFrameNum = uint32.MaxValue;
 
 	public this(String windowTitle, uint32 windowWidth, uint32 windowHeight)
@@ -155,8 +150,6 @@ class RHITestApplication : SDLApplication
 
 		return .Ok;
 	}
-
-
 
 	protected override void OnFinalize()
 	{
