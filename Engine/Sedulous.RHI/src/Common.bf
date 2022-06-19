@@ -1348,6 +1348,7 @@ enum WindowSystemType : uint8
 	WINDOWS,
 	X11,
 	WAYLAND,
+	METAL,
 	MAX_NUM
 }
 
@@ -1368,11 +1369,17 @@ struct WaylandWindow
 	public void* surface; // wl_surface*
 }
 
+struct MetalWindow
+{
+    public void* caMetalLayer;
+}
+
 [Union] struct Window
 {
 	public WindowsWindow windows;
 	public X11Window x11;
 	public WaylandWindow wayland;
+	public MetalWindow metal;
 }
 
 // SwapChain buffers will be created as "color attachment" resources

@@ -330,10 +330,15 @@ class DeviceVK : Device
 		#if true
 		extensions.Add(VK_KHR_WIN32_SURFACE_EXTENSION_NAME);
 		#endif
+		#if VK_USE_PLATFORM_METAL_EXT
+		    extensions.Add(VK_EXT_METAL_SURFACE_EXTENSION_NAME);
+		#endif
 		#if VK_USE_PLATFORM_XLIB_KHR
 			extensions.Add(VK_KHR_XLIB_SURFACE_EXTENSION_NAME);
 		#endif
-
+		#if VK_USE_PLATFORM_WAYLAND_KHR
+		    extensions.Add(VK_KHR_WAYLAND_SURFACE_EXTENSION_NAME);
+		#endif
 		extensions.Add(VK_KHR_SURFACE_EXTENSION_NAME);
 		//extensions.Add(VK_KHR_DISPLAY_EXTENSION_NAME); //VK_KHR_display
 
