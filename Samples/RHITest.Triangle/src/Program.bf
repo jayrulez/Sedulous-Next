@@ -1,4 +1,4 @@
-namespace RHITest
+namespace RHITest.Triangle
 {
 	class Program
 	{

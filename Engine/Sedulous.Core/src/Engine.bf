@@ -9,8 +9,11 @@ class Engine
 {
 	private readonly Clock mEngineClock = new .() ~ delete _;
 	private readonly Monitor mWorldsMonitor = new .() ~ delete _;
-	private List<World> mWorlds = new .() ~ delete _;
-	private List<Plugin> mPlugins = new List<Plugin>() ~ delete _;
+	private readonly List<World> mWorlds = new .() ~ delete _;
+	private readonly List<Plugin> mPlugins = new List<Plugin>() ~ delete _;
+	private readonly JobSystem mJobSystem = null;
+
+	public JobSystem JobSytem => mJobSystem;
 
 	public ILogger Logger { get; private set; }
 
@@ -18,10 +21,18 @@ class Engine
 	{
 		Logger = logger;
 		mPlugins.AddRange(plugins);
+		mJobSystem = new .(this, 2);
+	}
+
+	public ~this()
+	{
+		delete mJobSystem;
 	}
 
 	public void Startup()
 	{
+		mJobSystem.[Friend]Startup();
+
 		for (var plugin in mPlugins)
 		{
 			plugin.OnStartup();
@@ -42,7 +53,34 @@ class Engine
 		{
 			mPlugins[i].OnShutdown();
 		}
+
+		mJobSystem.Wait();
+		mJobSystem.[Friend]Shutdown();
 	}
 
-	public void Tick() { }
+	public void Tick()
+	{
+		mJobSystem.[Friend]Update();
+		for (World world in mWorlds)
+		{
+			mJobSystem.RunJob(new => world.Update, "World Update");
+		}
+	}
+
+	public World CreateWorld()
+	{
+		using (mWorldsMonitor.Enter())
+		{
+			World world = new World();
+
+			mWorlds.Add(world);
+
+			return world;
+		}
+	}
+
+	public void DestroyWorld(World world)
+	{
+		delete world;
+	}
 }

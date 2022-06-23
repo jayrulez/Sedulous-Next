@@ -1,0 +1,6 @@
+FileVersion = 1
+Dependencies = {corlib = "*", "Sedulous.SDL" = "*"}
+
+[Project]
+Name = "CoreTest.Engine"
+StartupObject = "CoreTest.Engine.Program"

@@ -5,7 +5,7 @@ using Sedulous.Foundation.Logging.Debug;
 using Sedulous.RHI;
 using Sedulous.RHI.Vulkan;
 using System.Collections;
-namespace RHITest;
+namespace RHITest.Triangle;
 
 internal static
 {
