@@ -3,6 +3,7 @@ using System.Collections;
 using System.Threading;
 using Sedulous.Foundation.Utilities;
 using System;
+using Sedulous.Core.Jobs;
 namespace Sedulous.Core;
 
 class Engine
@@ -31,7 +32,7 @@ class Engine
 
 	public void Startup()
 	{
-		mJobSystem.[Friend]Startup();
+		mJobSystem.Startup();
 
 		for (var plugin in mPlugins)
 		{
@@ -54,13 +55,12 @@ class Engine
 			mPlugins[i].OnShutdown();
 		}
 
-		mJobSystem.Wait();
-		mJobSystem.[Friend]Shutdown();
+		mJobSystem.Shutdown();
 	}
 
 	public void Tick()
 	{
-		mJobSystem.[Friend]Update();
+		mJobSystem.Update();
 		for (World world in mWorlds)
 		{
 			mJobSystem.RunJob(new => world.Update, "World Update");

@@ -17,8 +17,13 @@ class EventAccessor<T> where T : System.Delegate
 		mEvent.Add(handler);
 	}
 
-	public void Unsubscribe(T handler)
+	public Result<void> Unsubscribe(T handler)
 	{
-		mEvent.Remove(handler, true);
+		return mEvent.Remove(handler, true);
+	}
+
+	public bool HasHandler(T handler)
+	{
+		return false;
 	}
 }

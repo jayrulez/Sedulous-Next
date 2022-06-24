@@ -5,6 +5,7 @@ using Sedulous.Foundation.Logging.Debug;
 using Sedulous.Core;
 using System.Collections;
 using System.Threading;
+using Sedulous.Core.Jobs;
 namespace CoreTest.Engine
 {
 	class PrintJob : Job
@@ -15,7 +16,7 @@ namespace CoreTest.Engine
 			mText.Set(text);
 		}
 
-		public override void Execute()
+		protected override void Execute()
 		{
 			var Random = scope Random();
 			int32 sleepFor = Random.Next(2000);
@@ -45,8 +46,6 @@ namespace CoreTest.Engine
 			for (int i = 0; i < 20; i++)
 			{
 				JobFlags flags = .None;
-				if (i % 2 == 0)
-					flags = .RunOnMainThread;
 
 				mEngine.JobSytem.RunJob(mJobs.Add(.. new PrintJob("Hello", scope $"PrintJob{i+1}", flags)));
 			}
