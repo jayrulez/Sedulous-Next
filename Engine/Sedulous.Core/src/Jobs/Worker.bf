@@ -116,7 +116,9 @@ class Worker
 				mJobSystem.Logger.LogInformation("Worker: {} - Running job: {}.", mName, job.Name);
 				job?.[Friend]Run();
 			}
+
 			mState = .Idle;
+
 			if (!mIsRunning)
 			{
 				mState = .Dead;
