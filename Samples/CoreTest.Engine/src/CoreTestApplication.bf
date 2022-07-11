@@ -29,7 +29,7 @@ namespace CoreTest.Engine
 	{
 		private readonly ILogger mLogger = null ~ delete _;
 
-		private List<Job> mJobs = new .() ~ DeleteContainerAndItems!(_);
+		private List<Job> mJobs = new .() ~ delete _;
 
 		private World mWorld = null;
 
@@ -45,7 +45,7 @@ namespace CoreTest.Engine
 
 			for (int i = 0; i < 20; i++)
 			{
-				JobFlags flags = .None;
+				JobFlags flags = .AutoRelease;
 
 				mEngine.JobSytem.AddJob(mJobs.Add(.. new PrintJob("Hello", scope $"PrintJob{i+1}", flags)));
 			}
