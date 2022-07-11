@@ -10,7 +10,8 @@ enum WorldUpdatePhase
 	PreUpdate,
 	Update,
 	PostUpdate,
-	FixedUpdate
+	FixedUpdate,
+	Transform
 }
 struct Entity : IEquatable<Entity>,  IHashable
 {

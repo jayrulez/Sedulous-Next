@@ -94,28 +94,40 @@ namespace Sedulous.RHI.Vulkan
 		[Union]
 		struct Resource
 		{
-			public VkBufferView[PHYSICAL_DEVICE_GROUP_MAX_SIZE] BufferViews;
-			public VkImageView[PHYSICAL_DEVICE_GROUP_MAX_SIZE] ImageViews;
-			public VkAccelerationStructureKHR[PHYSICAL_DEVICE_GROUP_MAX_SIZE] AccelerationStructures;
-			public VkSampler Sampler;
+			public VkBufferView[PHYSICAL_DEVICE_GROUP_MAX_SIZE] m_BufferViews;
+			public VkImageView[PHYSICAL_DEVICE_GROUP_MAX_SIZE] m_ImageViews;
+			public VkAccelerationStructureKHR[PHYSICAL_DEVICE_GROUP_MAX_SIZE] m_AccelerationStructures;
+			public VkSampler m_Sampler;
 		};
-		private Resource m_Resource;
 
-		private ref VkBufferView[PHYSICAL_DEVICE_GROUP_MAX_SIZE] m_BufferViews => ref m_Resource.BufferViews;
-		private ref VkImageView[PHYSICAL_DEVICE_GROUP_MAX_SIZE] m_ImageViews => ref m_Resource.ImageViews;
-		private ref VkAccelerationStructureKHR[PHYSICAL_DEVICE_GROUP_MAX_SIZE] m_AccelerationStructures => ref m_Resource.AccelerationStructures;
-		private ref VkSampler m_Sampler => ref m_Resource.Sampler;
+		private using private Resource m_Resource;
+
+		/*[Union]
+		public struct Resource
+		{
+			public VkBufferView[PHYSICAL_DEVICE_GROUP_MAX_SIZE] m_BufferViews;
+			public VkImageView[PHYSICAL_DEVICE_GROUP_MAX_SIZE] m_ImageViews;
+			public VkAccelerationStructureKHR[PHYSICAL_DEVICE_GROUP_MAX_SIZE] m_AccelerationStructures;
+			public VkSampler m_Sampler;
+		};*/
+
+		//private using public m_Resource;
+
+		//private ref VkBufferView[PHYSICAL_DEVICE_GROUP_MAX_SIZE] m_BufferViews => ref m_Resource.BufferViews;
+		//private ref VkImageView[PHYSICAL_DEVICE_GROUP_MAX_SIZE] m_ImageViews => ref m_Resource.ImageViews;
+		//private ref VkAccelerationStructureKHR[PHYSICAL_DEVICE_GROUP_MAX_SIZE] m_AccelerationStructures => ref m_Resource.AccelerationStructures;
+		//private ref VkSampler m_Sampler => ref m_Resource.Sampler;
 
 		[Union]
-		struct Description
+		public struct Description
 		{
-			public DescriptorBufferDesc BufferDesc;
-			public DescriptorTextureDesc TextureDesc;
+			public DescriptorBufferDesc m_BufferDesc;
+			public DescriptorTextureDesc m_TextureDesc;
 		}
-		private Description m_Desc;
+		public using private Description m_Desc;
 
-		private ref DescriptorBufferDesc m_BufferDesc => ref m_Desc.BufferDesc;
-		private ref DescriptorTextureDesc m_TextureDesc => ref m_Desc.TextureDesc;
+		//private ref DescriptorBufferDesc m_BufferDesc => ref m_Desc.BufferDesc;
+		//private ref DescriptorTextureDesc m_TextureDesc => ref m_Desc.TextureDesc;
 		private DescriptorTypeVK m_Type = DescriptorTypeVK.NONE;
 		private VkFormat m_Format = .VK_FORMAT_UNDEFINED;
 		private VkExtent3D m_Extent = .();

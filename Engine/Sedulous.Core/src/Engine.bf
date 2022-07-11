@@ -22,7 +22,7 @@ class Engine
 	{
 		Logger = logger;
 		mPlugins.AddRange(plugins);
-		mJobSystem = new .(this, 2);
+		mJobSystem = new .(this, 16);
 	}
 
 	public ~this()
@@ -63,7 +63,8 @@ class Engine
 		mJobSystem.Update();
 		for (World world in mWorlds)
 		{
-			mJobSystem.RunJob(new => world.Update, "World Update");
+			//mJobSystem.RunJob(new => world.Update, "World Update");
+			world.Update();
 		}
 	}
 

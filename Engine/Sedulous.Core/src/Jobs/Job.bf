@@ -12,7 +12,7 @@ enum JobPriority
 enum JobFlags
 {
 	None,
-	AutoDelete
+	AutoRelease
 }
 
 enum JobState
@@ -23,7 +23,7 @@ enum JobState
 	Canceled
 }
 
-abstract class Job
+abstract class Job : RefCounted
 {
 	private readonly String mName = new .() ~ delete _;
 	private readonly JobFlags mFlags = .None;
@@ -32,46 +32,25 @@ abstract class Job
 	private List<Job> mDependencies = new .() ~ delete _;
 	private List<Job> mDependents = new .() ~ delete _;
 
+	public bool HasDependents => mDependents.Count > 0;
+
 	public String Name => mName;
 	public JobFlags Flags => mFlags;
 	public JobState State => mState;
 
-	public EventAccessor<delegate void(Job job)> OnCompleted = new .() ~ delete _;
-	public EventAccessor<delegate void(Job job)> OnCancelled = new .() ~ delete _;
-
-	public this(StringView name, JobFlags flags = .None)
+	public this(StringView? name, JobFlags flags = .None)
 	{
-		mName.Set(name);
+		if (name != null)
+			mName.Set(name.Value);
 		mFlags = flags;
 	}
 
-	public bool IsReady()
+	public ~this()
 	{
 		for (Job dependency in mDependencies)
 		{
-			if (dependency.mState != .Completed)
-				return false;
+			dependency.ReleaseRef();
 		}
-
-		return mState == .Pending;
-	}
-
-	protected abstract void Execute();
-
-	private void Run()
-	{
-		if (!IsReady())
-			return;
-
-		mState = .Running;
-
-		Execute();
-
-		if (mState == .Canceled)
-			return;
-
-		mState = .Completed;
-		OnCompleted.[Friend]mEvent(this);
 	}
 
 	public void AddDependency(Job dependency)
@@ -83,20 +62,58 @@ abstract class Job
 			Runtime.FatalError("The dependency already depends on the current job.");
 
 		mDependencies.Add(dependency);
+		dependency.AddRef();
+
 		dependency.mDependents.Add(this);
 	}
+
+	public bool IsPending()
+	{
+		return mState == .Pending;
+	}
+
+	public bool IsReady()
+	{
+		for (Job dependency in mDependencies)
+		{
+			if (dependency.mState != .Completed)
+				return false;
+		}
+
+		return IsPending();
+	}
+
+	protected abstract void Execute();
 
 	public virtual void Cancel()
 	{
 		if (mState != .Completed && mState != .Canceled)
 		{
 			mState = .Canceled;
-			OnCancelled.[Friend]mEvent(this);
 
 			for (Job dependent in mDependents)
 			{
 				dependent.Cancel();
 			}
 		}
+	}
+
+	private void Run()
+	{
+		if (!IsReady())
+		{
+			// todo: maybe return a state so the caller can requeue if necessary
+			return;
+		}
+
+		mState = .Running;
+
+		Execute();
+
+		// Job could have been canceled in execute method.
+		if (mState == .Canceled)
+			return;
+
+		mState = .Completed;
 	}
 }

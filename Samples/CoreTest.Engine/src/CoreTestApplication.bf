@@ -47,7 +47,7 @@ namespace CoreTest.Engine
 			{
 				JobFlags flags = .None;
 
-				mEngine.JobSytem.RunJob(mJobs.Add(.. new PrintJob("Hello", scope $"PrintJob{i+1}", flags)));
+				mEngine.JobSytem.AddJob(mJobs.Add(.. new PrintJob("Hello", scope $"PrintJob{i+1}", flags)));
 			}
 
 			mWorld = mEngine.CreateWorld();

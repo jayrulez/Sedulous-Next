@@ -5,21 +5,25 @@ using System;
 using static System.Platform;
 namespace Sedulous.Core.Jobs;
 
+using internal Sedulous.Core.Jobs;
+
 class JobSystem
 {
 	private readonly Engine mEngine = null;
 	private readonly List<Worker> mWorkers = new .() ~ delete _;
 
-	public int WorkerCount => mWorkers?.Count ?? 0;
-
-	private readonly Monitor mPendingJobsMonitor = new .() ~ delete _;
-	private readonly Queue<Job> mPendingJobs = new .() ~ delete _;
+	private readonly Monitor mJobsToRunMonitor = new .() ~ delete _;
+	private readonly Queue<Job> mJobsToRun = new .() ~ delete _;
 
 	private readonly Monitor mCompletedJobsMonitor = new .() ~ delete _;
 	private readonly List<Job> mCompletedJobs = new .() ~ delete _;
 
 	private readonly Monitor mCancelledJobsMonitor = new .() ~ delete _;
 	private readonly List<Job> mCancelledJobs = new .() ~ delete _;
+	
+	private bool mIsRunning = false;
+
+	public int WorkerCount => mWorkers?.Count ?? 0;
 
 	public ILogger Logger => mEngine.Logger;
 
@@ -40,7 +44,7 @@ class JobSystem
 
 		for (int i = 0; i < workerCount; i++)
 		{
-			Worker worker = new Worker(this, scope $"Worker {i}");
+			Worker worker = new Worker(this, scope $"Worker {i}", new => OnJobCompleted, new => OnJobCancelled);
 
 			mWorkers.Add(worker);
 		}
@@ -54,7 +58,25 @@ class JobSystem
 		}
 	}
 
-	public void Wait()
+	private void OnJobCompleted(Job job, Worker worker)
+	{
+		using (mCompletedJobsMonitor.Enter())
+		{
+			job.AddRef();
+			mCompletedJobs.Add(job);
+		}
+	}
+
+	private void OnJobCancelled(Job job, Worker worker)
+	{
+		using (mCancelledJobsMonitor.Enter())
+		{
+			job.AddRef();
+			mCancelledJobs.Add(job);
+		}
+	}
+
+	/*public void Wait()
 	{
 		bool working = true;
 
@@ -70,141 +92,201 @@ class JobSystem
 				}
 			}
 		}
-	}
+	}*/
 
 	public void Startup()
 	{
+		if (mIsRunning)
+		{
+			Logger.LogError("Startup called on JobSystem that is already running.");
+			return;
+		}
+
 		for (Worker worker in mWorkers)
 		{
 			worker.Start();
 		}
+
+		mIsRunning = true;
 	}
 
 	public void Shutdown()
 	{
-		Wait();
+		if (!mIsRunning)
+		{
+			Logger.LogError("Shutdown called on JobSystem that is not running.");
+			return;
+		}
 
-		for (var worker in mWorkers)
+		for (Worker worker in mWorkers)
 		{
 			worker.Stop();
 		}
 
-		ClearPendingJobs();
-		ClearCompletedJobs();
-		ClearCancelledJobs();
-	}
-
-	private void OnJobCompleted(Job job)
-	{
-		using (mCompletedJobsMonitor.Enter())
+		while (mJobsToRun.Count > 0)
 		{
-			mCompletedJobs.Add(job);
-		}
-	}
-
-	private void OnJobCancelled(Job job)
-	{
-		using (mCancelledJobsMonitor.Enter())
-		{
-			mCancelledJobs.Add(job);
-		}
-	}
-
-	public void RunJob(Job job)
-	{
-		using (mPendingJobsMonitor.Enter())
-		{
-			// Remove handles in case the job is being re-queued
-			// clean this up later, add a way to check of the handler exist
-			job.OnCompleted.Unsubscribe(scope => OnJobCancelled).IgnoreError();
-			job.OnCancelled.Unsubscribe(scope => OnJobCancelled).IgnoreError();
-
-			job.OnCompleted.Subscribe(new => OnJobCancelled);
-			job.OnCancelled.Subscribe(new => OnJobCancelled);
-
-			mPendingJobs.Add(job);
-		}
-	}
-
-	public void RunJob(delegate void() job, StringView name)
-	{
-		RunJob(new DelegateJob(job, name, .AutoDelete));
-	}
-
-	private bool GetNextIdleWorker(out Worker nextWorker)
-	{
-		for (Worker worker in mWorkers)
-		{
-			if (worker.State == .Idle)
-			{
-				nextWorker = worker;
-				return true;
-			}
+			Job job = mJobsToRun.PopFront();
+			defer job.ReleaseRef();
+			job.Cancel();
+			OnJobCancelled(job, null);
 		}
 
-		nextWorker = null;
-
-		return false;
-	}
-
-	private void ClearPendingJobs()
-	{
-		using (mPendingJobsMonitor.Enter())
-		{
-			for (Job job in mPendingJobs)
-			{
-				job.Cancel();
-				if (job.Flags.HasFlag(.AutoDelete))
-					delete job;
-			}
-
-			mPendingJobs.Clear();
-		}
-	}
-
-
-	private void ClearCompletedJobs()
-	{
 		using (mCompletedJobsMonitor.Enter())
 		{
 			for (Job job in mCompletedJobs)
 			{
-				if (job.Flags.HasFlag(.AutoDelete))
-					delete job;
+				if (job.Flags.HasFlag(.AutoRelease))
+				{
+					job.ReleaseRef();
+				}
+				job.ReleaseRef();
 			}
-
 			mCompletedJobs.Clear();
 		}
-	}
 
-	private void ClearCancelledJobs()
-	{
 		using (mCancelledJobsMonitor.Enter())
 		{
 			for (Job job in mCancelledJobs)
 			{
-				if (job.Flags.HasFlag(.AutoDelete))
-					delete job;
+				if (job.Flags.HasFlag(.AutoRelease))
+				{
+					job.ReleaseRef();
+				}
+				job.ReleaseRef();
 			}
-
 			mCancelledJobs.Clear();
 		}
 	}
 
-	public void Update()
+	private bool GetAvailableWorker(out Worker worker)
 	{
-		while (GetNextIdleWorker(var worker) && mPendingJobs.Count > 0)
+		for (int i = 0; i < mWorkers.Count; i++)
 		{
-			using (mPendingJobsMonitor.Enter())
+			if (mWorkers[i].State == .Idle || mWorkers[i].State == .Paused)
 			{
-				Job job = mPendingJobs.PopFront();
-				Logger.LogInformation("Worker: {} - Job: {}", worker.Name, job.Name);
-				worker.QueueJob(job);
+				worker = mWorkers[i];
+				return true;
 			}
 		}
 
-		ClearCompletedJobs();
+		worker = null;
+		return false;
+	}
 
-		ClearCancelledJobs();
+	public void Update()
+	{
+		if (!mIsRunning)
+		{
+			Logger.LogError("Update called on JobSystem that is not running.");
+			return;
+		}
+
+		/*while (mJobsToRun.Count > 0)
+		{
+			for (Worker worker in mWorkers)
+			{
+				Job job = mJobsToRun.PopFront();
+				if (job.State == .Completed)
+				{
+					OnJobCompleted(job, null);
+					break;
+				}
+				if (job.State == .Cancelled)
+				{
+					OnJobCancelled(job, null);
+					break;
+				}
+				worker.QueueJob(job);
+			}
+		}*/
+
+		// todo: if there are no jobs for x frames then pause works to save CPU
+
+		while (GetAvailableWorker(var worker) && mJobsToRun.Count > 0)
+		{
+			using (mJobsToRunMonitor.Enter())
+			{
+				Job job = mJobsToRun.PopFront();
+				defer job.ReleaseRef();
+
+				switch (job.State) {
+				case .Canceled:
+					OnJobCancelled(job, null);
+					break;
+				case .Completed:
+					OnJobCompleted(job, null);
+					break;
+				default:
+					worker.QueueJob(job);
+					break;
+				}
+			}
+		}
+
+		// Todo: If there are no idle workers and job can be run on main thread
+		// then run it
+
+		// todo: change HasDependents to HasPendingOrRunningDependents() which will only return true if the dependents are pending
+		// so that the job can be deleted if there are no pending or running dependents
+		// Currently, any jobs with dependents do not get cleaned up until Shutdown
+
+		using (mCompletedJobsMonitor.Enter())
+		{
+			for (int i = 0; i < mCompletedJobs.Count; i++)
+			{
+				Job job = mCompletedJobs[i];
+				if (job.Flags.HasFlag(.AutoRelease) /* && !job.HasDependents*/)
+				{
+					// job.RemoveFromDependencyDependents();
+					job.ReleaseRef();
+					//mCompletedJobs.RemoveAt(i--);
+				}
+				job.ReleaseRef();
+				mCompletedJobs.RemoveAt(i--);
+			}
+		}
+
+		using (mCancelledJobsMonitor.Enter())
+		{
+			for (int i = 0; i < mCancelledJobs.Count; i++)
+			{
+				Job job = mCancelledJobs[i];
+				if (job.Flags.HasFlag(.AutoRelease) /* && !job.HasDependents*/)
+				{
+					// job.RemoveFromDependencyDependents();
+					job.ReleaseRef();
+					//mCancelledJobs.RemoveAt(i--);
+				}
+				job.ReleaseRef();
+				mCancelledJobs.RemoveAt(i--);
+			}
+		}
+	}
+
+	public void AddJob(Job job)
+	{
+		using (mJobsToRunMonitor.Enter())
+		{
+			job.AddRef();
+			mJobsToRun.Add(job);
+		}
+	}
+
+	public void AddJobs(Span<Job> jobs)
+	{
+		using (mJobsToRunMonitor.Enter())
+		{
+			for (Job job in jobs)
+			{
+				job.AddRef();
+				mJobsToRun.Add(job);
+			}
+		}
+	}
+
+	public void AddJob(delegate void() jobDelegate, StringView/*?*/ jobName = null)
+	{
+		Job job = new DelegateJob(jobDelegate, jobName, .AutoRelease);
+		AddJob(job);
 	}
 }

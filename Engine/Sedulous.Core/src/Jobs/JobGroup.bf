@@ -16,6 +16,12 @@ class JobGroup : Job
 
 	public override void Cancel()
 	{
+		if (State == .Running)
+		{
+			// Do not cancel a job that is already running
+			return;
+		}
+
 		for (Job job in mJobs)
 		{
 			job.Cancel();
