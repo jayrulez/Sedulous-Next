@@ -3,4 +3,4 @@ Projects = {"Sedulous.Audio" = {Path = "Engine/Sedulous.Audio"}, "Sedulous.Core"
 WorkspaceFolders = {Engine = ["Sedulous.Audio", "Sedulous.Core", "Sedulous.Foundation", "Sedulous.Renderer", "Sedulous.RHI", "Sedulous.RHI.Vulkan", "Sedulous.Framework", "Sedulous.Platform", "Sedulous.HLSLShaderCompiler", "Sedulous.SDL"], Samples = ["RHITest.Clear", "RHITest.Triangle", "CoreTest.Engine"], Dependencies = ["corlib", "SDL2", "Bulkan", "SPIRV-Cross", "Dxc-Beef"], Tools = []}
 
 [Workspace]
-StartupProject = "CoreTest.Engine"
+StartupProject = "RHITest.Clear"

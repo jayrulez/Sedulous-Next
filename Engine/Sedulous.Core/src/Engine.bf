@@ -4,6 +4,7 @@ using System.Threading;
 using Sedulous.Foundation.Utilities;
 using System;
 using Sedulous.Core.Jobs;
+using Sedulous.Core.Resources;
 namespace Sedulous.Core;
 
 class Engine
@@ -13,8 +14,10 @@ class Engine
 	private readonly List<World> mWorlds = new .() ~ delete _;
 	private readonly List<Plugin> mPlugins = new List<Plugin>() ~ delete _;
 	private readonly JobSystem mJobSystem = null;
+	private readonly ResourceSystem mResourceSystem = null;
 
 	public JobSystem JobSytem => mJobSystem;
+	public ResourceSystem ResourceSytem => mResourceSystem;
 
 	public ILogger Logger { get; private set; }
 
@@ -23,16 +26,19 @@ class Engine
 		Logger = logger;
 		mPlugins.AddRange(plugins);
 		mJobSystem = new .(this, 16);
+		mResourceSystem = new .(this);
 	}
 
 	public ~this()
 	{
+		delete mResourceSystem;
 		delete mJobSystem;
 	}
 
 	public void Startup()
 	{
 		mJobSystem.Startup();
+		mResourceSystem.Startup();
 
 		for (var plugin in mPlugins)
 		{
@@ -55,12 +61,15 @@ class Engine
 			mPlugins[i].OnShutdown();
 		}
 
+		mResourceSystem.Shutdown();
 		mJobSystem.Shutdown();
 	}
 
 	public void Tick()
 	{
 		mJobSystem.Update();
+		mResourceSystem.Update();
+
 		for (World world in mWorlds)
 		{
 			//mJobSystem.RunJob(new => world.Update, "World Update");

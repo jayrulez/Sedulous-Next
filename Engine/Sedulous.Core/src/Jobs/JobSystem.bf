@@ -116,6 +116,8 @@ class JobSystem
 		ClearCompletedJobs();
 
 		ClearCancelledJobs();
+
+		mIsRunning = false;
 	}
 
 	private bool GetAvailableWorker(out Worker worker)
