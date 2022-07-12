@@ -5,7 +5,7 @@ namespace Sedulous.Core.Jobs
 	{
 		private delegate void() mJob = null ~ delete _;
 
-		public this(delegate void() job, StringView name/*?*/, JobFlags flags) : base(name, flags)
+		public this(delegate void() job, StringView name /*?*/, JobFlags flags) : base(name, flags)
 		{
 			mJob = job;
 		}

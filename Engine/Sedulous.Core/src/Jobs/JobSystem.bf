@@ -20,7 +20,7 @@ class JobSystem
 
 	private readonly Monitor mCancelledJobsMonitor = new .() ~ delete _;
 	private readonly List<Job> mCancelledJobs = new .() ~ delete _;
-	
+
 	private bool mIsRunning = false;
 
 	public int WorkerCount => mWorkers?.Count ?? 0;
@@ -76,24 +76,6 @@ class JobSystem
 		}
 	}
 
-	/*public void Wait()
-	{
-		bool working = true;
-
-		while (working)
-		{
-			working = false;
-
-			for (Worker worker in mWorkers)
-			{
-				if (worker.State != .Idle)
-				{
-					working = true;
-				}
-			}
-		}
-	}*/
-
 	public void Startup()
 	{
 		if (mIsRunning)
@@ -131,31 +113,9 @@ class JobSystem
 			OnJobCancelled(job, null);
 		}
 
-		using (mCompletedJobsMonitor.Enter())
-		{
-			for (Job job in mCompletedJobs)
-			{
-				if (job.Flags.HasFlag(.AutoRelease))
-				{
-					job.ReleaseRef();
-				}
-				job.ReleaseRef();
-			}
-			mCompletedJobs.Clear();
-		}
+		ClearCompletedJobs();
 
-		using (mCancelledJobsMonitor.Enter())
-		{
-			for (Job job in mCancelledJobs)
-			{
-				if (job.Flags.HasFlag(.AutoRelease))
-				{
-					job.ReleaseRef();
-				}
-				job.ReleaseRef();
-			}
-			mCancelledJobs.Clear();
-		}
+		ClearCancelledJobs();
 	}
 
 	private bool GetAvailableWorker(out Worker worker)
@@ -173,6 +133,38 @@ class JobSystem
 		return false;
 	}
 
+	private void ClearCancelledJobs()
+	{
+		using (mCancelledJobsMonitor.Enter())
+		{
+			for (Job job in mCancelledJobs)
+			{
+				if (job.Flags.HasFlag(.AutoRelease))
+				{
+					job.ReleaseRef();
+				}
+				job.ReleaseRef();
+			}
+			mCancelledJobs.Clear();
+		}
+	}
+
+	private void ClearCompletedJobs()
+	{
+		using (mCompletedJobsMonitor.Enter())
+		{
+			for (Job job in mCompletedJobs)
+			{
+				if (job.Flags.HasFlag(.AutoRelease))
+				{
+					job.ReleaseRef();
+				}
+				job.ReleaseRef();
+			}
+			mCompletedJobs.Clear();
+		}
+	}
+
 	public void Update()
 	{
 		if (!mIsRunning)
@@ -181,32 +173,23 @@ class JobSystem
 			return;
 		}
 
-		/*while (mJobsToRun.Count > 0)
-		{
-			for (Worker worker in mWorkers)
-			{
-				Job job = mJobsToRun.PopFront();
-				if (job.State == .Completed)
-				{
-					OnJobCompleted(job, null);
-					break;
-				}
-				if (job.State == .Cancelled)
-				{
-					OnJobCancelled(job, null);
-					break;
-				}
-				worker.QueueJob(job);
-			}
-		}*/
-
 		// todo: if there are no jobs for x frames then pause works to save CPU
 
-		while (GetAvailableWorker(var worker) && mJobsToRun.Count > 0)
+		using (mJobsToRunMonitor.Enter())
 		{
-			using (mJobsToRunMonitor.Enter())
+			int numJobsToRun = mJobsToRun.Count;
+
+			while (GetAvailableWorker(var worker) && numJobsToRun-- > 0)
 			{
 				Job job = mJobsToRun.PopFront();
+
+				if (!job.IsReady())
+				{
+					// move job to the back of the queue
+					mJobsToRun.Add(job);
+					continue;
+				}
+
 				defer job.ReleaseRef();
 
 				switch (job.State) {
@@ -223,44 +206,9 @@ class JobSystem
 			}
 		}
 
-		// Todo: If there are no idle workers and job can be run on main thread
-		// then run it
+		ClearCompletedJobs();
 
-		// todo: change HasDependents to HasPendingOrRunningDependents() which will only return true if the dependents are pending
-		// so that the job can be deleted if there are no pending or running dependents
-		// Currently, any jobs with dependents do not get cleaned up until Shutdown
-
-		using (mCompletedJobsMonitor.Enter())
-		{
-			for (int i = 0; i < mCompletedJobs.Count; i++)
-			{
-				Job job = mCompletedJobs[i];
-				if (job.Flags.HasFlag(.AutoRelease) /* && !job.HasDependents*/)
-				{
-					// job.RemoveFromDependencyDependents();
-					job.ReleaseRef();
-					//mCompletedJobs.RemoveAt(i--);
-				}
-				job.ReleaseRef();
-				mCompletedJobs.RemoveAt(i--);
-			}
-		}
-
-		using (mCancelledJobsMonitor.Enter())
-		{
-			for (int i = 0; i < mCancelledJobs.Count; i++)
-			{
-				Job job = mCancelledJobs[i];
-				if (job.Flags.HasFlag(.AutoRelease) /* && !job.HasDependents*/)
-				{
-					// job.RemoveFromDependencyDependents();
-					job.ReleaseRef();
-					//mCancelledJobs.RemoveAt(i--);
-				}
-				job.ReleaseRef();
-				mCancelledJobs.RemoveAt(i--);
-			}
-		}
+		ClearCancelledJobs();
 	}
 
 	public void AddJob(Job job)
@@ -284,7 +232,7 @@ class JobSystem
 		}
 	}
 
-	public void AddJob(delegate void() jobDelegate, StringView/*?*/ jobName = null)
+	public void AddJob(delegate void() jobDelegate, StringView /*?*/ jobName = null)
 	{
 		Job job = new DelegateJob(jobDelegate, jobName, .AutoRelease);
 		AddJob(job);

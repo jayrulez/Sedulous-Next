@@ -25,7 +25,7 @@ internal class Worker
 
 	public String Name => mName;
 	public WorkerState State => mState;
-	
+
 	public delegate void(Job job, Worker worker) OnJobCompleted = null;
 	public delegate void(Job job, Worker worker) OnJobCancelled = null;
 
@@ -155,7 +155,6 @@ internal class Worker
 				break;
 			}
 
-			List<Job> requeuedJobs = scope .();
 			while (mJobs.Count > 0)
 			{
 				if (!mIsRunning)
@@ -165,44 +164,29 @@ internal class Worker
 
 				mState = .Busy;
 
+				Job job = null;
 				using (mJobsMonitor.Enter())
+					job = mJobs.PopFront();
+				defer job.ReleaseRef();
+
+				if (!job.IsReady())
 				{
-					Job job = mJobs.PopFront();
-					defer job.ReleaseRef();
+					// if the job is not ready to run,
+					// re-queue with the job system to free up this worker ASAP
+					//QueueJob(job); // don't want to always queue on this worker, possibly lead to deadlock, we're already inside the monitor and QueueJob will request to enter the Monitor
+					//mJobs.Add(job); // not desirable to always requeue on same worker
 
-					if (!job.IsReady())
-					{
-						// if the job is not ready to run,
-						// re-queue with the job system to free up this worker ASAP
-						//mJobSystem.AddJob(job); // could lead to deadlock
-						//QueueJob(job); // don't want to always queue on this worker, possibly lead to deadlock, we're already inside the monitor and QueueJob will request to enter the Monitor
-						//mJobs.Add(job); // not desirable to always requeue on same worker
-
-						// Add another ref here to keep the job alive until it is re-queued
-						// remove the ref after the job has been re-queued
-						job.AddRef();
-						requeuedJobs.Add(job);
-						continue;
-					}
-
-					mJobSystem.Logger.LogInformation("Worker: {} - Running job: {}.", mName, job.Name);
-					job.[Friend]Run();
-
-					if (job.State == .Completed)
-						OnJobCompleted(job, this);
-					else if (job.State == .Canceled)
-						OnJobCancelled(job, this);
+					mJobSystem.AddJob(job);
+					continue;
 				}
-			}
 
-			if (requeuedJobs.Count > 0)
-			{
-				//mJobSystem.AddJobs(requeuedJobs);
-				for (Job requeuedJob in requeuedJobs)
-				{
-					mJobSystem.AddJob(requeuedJob);
-					requeuedJob.ReleaseRef();
-				}
+				mJobSystem.Logger.LogInformation("Worker: {} - Running job: {}.", mName, job.Name);
+				job.[Friend]Run();
+
+				if (job.State == .Completed)
+					OnJobCompleted(job, this);
+				else if (job.State == .Canceled)
+					OnJobCancelled(job, this);
 			}
 
 			mState = .Idle;
