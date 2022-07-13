@@ -8,12 +8,13 @@ abstract class Application
 {
 	private bool mIsRunning = false;
 	protected readonly Engine mEngine = null ~ delete _;
+	protected readonly List<Plugin> mPlugins = new .() ~ delete _;
 
 	public ILogger Logger => mEngine.Logger;
 
 	public this(ILogger logger)
 	{
-		mEngine = new Engine(logger, null);
+		mEngine = new Engine(logger);
 	}
 
 	protected virtual Result<void> OnStartup() => .Ok;
@@ -33,7 +34,7 @@ abstract class Application
 		if (OnStartup() case .Err)
 			return .Err;
 
-		mEngine.Startup();
+		mEngine.Startup(mPlugins);
 
 		return .Ok;
 	}
@@ -68,7 +69,8 @@ abstract class Application
 			return;
 		}
 
-		if (Startup() case .Err){
+		if (Startup() case .Err)
+		{
 			OnShutdown();
 			return;
 		}

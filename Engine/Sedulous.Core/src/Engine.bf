@@ -5,6 +5,7 @@ using Sedulous.Foundation.Utilities;
 using System;
 using Sedulous.Core.Jobs;
 using Sedulous.Core.Resources;
+using System.IO;
 namespace Sedulous.Core;
 
 class Engine
@@ -21,12 +22,11 @@ class Engine
 
 	public ILogger Logger { get; private set; }
 
-	public this(ILogger logger, Span<Plugin> plugins)
+	public this(ILogger logger)
 	{
 		Logger = logger;
-		mPlugins.AddRange(plugins);
 		mJobSystem = new .(this, 16);
-		mResourceSystem = new .(this);
+		mResourceSystem = new .(this, Path.InternalCombine(.. scope .(), Directory.GetCurrentDirectory(.. scope .()), "Resources"));
 	}
 
 	public ~this()
@@ -35,8 +35,10 @@ class Engine
 		delete mJobSystem;
 	}
 
-	public void Startup()
+	public void Startup(Span<Plugin> plugins)
 	{
+		mPlugins.AddRange(plugins);
+
 		mJobSystem.Startup();
 		mResourceSystem.Startup();
 

@@ -1,3 +1,4 @@
+using System;
 namespace Sedulous.Core;
 
 abstract class Plugin

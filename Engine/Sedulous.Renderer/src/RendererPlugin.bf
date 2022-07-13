@@ -1,5 +1,6 @@
 using Sedulous.Core;
 using Sedulous.RHI;
+using Sedulous.Renderer.Resources;
 namespace Sedulous.Renderer;
 
 class RendererPlugin : Plugin
@@ -19,6 +20,15 @@ class RendererPlugin : Plugin
 	public override void OnInitialize()
 	{
 		Engine.Logger.LogInformation("RendererPlugin:OnInitialize");
+
+		Texture2DResourceManager texture2DResourceManager = new .();
+		defer texture2DResourceManager.ReleaseRef();
+		
+		MaterialResourceManager materialResourceManager = new .();
+		defer materialResourceManager.ReleaseRef();
+
+		Engine.ResourceSytem.AddResourceManager<Texture2DResource...>(texture2DResourceManager);
+		Engine.ResourceSytem.AddResourceManager<MaterialResource...>(materialResourceManager);
 	}
 
 	public override void OnShutdown()

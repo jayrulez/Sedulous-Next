@@ -5,6 +5,7 @@ using Sedulous.Foundation.Logging.Debug;
 using Sedulous.RHI;
 using Sedulous.RHI.Vulkan;
 using System.Collections;
+using Sedulous.Renderer;
 namespace RHITest.Triangle;
 
 internal static
@@ -14,6 +15,11 @@ internal static
 	public const uint32 DEFAULT_MEMORY_ALIGNMENT = 16;
 	public const uint32 BUFFERED_FRAME_MAX_NUM = 2;
 	public const uint32 SWAP_CHAIN_TEXTURE_NUM = BUFFERED_FRAME_MAX_NUM;
+
+	public static Color<float> COLOR_0 = .() { r = 1.0f, g = 1.0f, b = 0.0f, a = 1.0f };
+	public static Color<float> COLOR_1 = .() { r = 0.46f, g = 0.72f, b = 0.0f, a = 1.0f };
+
+	public static uint16[?] g_IndexData = .(0, 1, 2);
 }
 
 struct BackBuffer
@@ -28,6 +34,23 @@ struct Frame
 	public DeviceSemaphore deviceSemaphore;
 	public CommandAllocator commandAllocator;
 	public CommandBuffer commandBuffer;
+	public Descriptor constantBufferView;
+	public DescriptorSet constantBufferDescriptorSet;
+	public uint64 constantBufferViewOffset;
+}
+
+[CRepr]
+struct ConstantBufferLayout
+{
+	public float[3] color;
+	public float scale;
+}
+
+[CRepr]
+struct Vertex
+{
+	public float[2] position;
+	public float[2] uv;
 }
 
 class RHITestApplication : SDLApplication
@@ -42,12 +65,30 @@ class RHITestApplication : SDLApplication
 	private QueueSemaphore mAcquireSemaphore = null;
 	private QueueSemaphore mReleaseSemaphore = null;
 
+	private DescriptorPool m_DescriptorPool = null;
+	private PipelineLayout m_PipelineLayout = null;
+	private Pipeline m_Pipeline = null;
+	private DescriptorSet m_TextureDescriptorSet = null;
+	private Descriptor m_TextureShaderResource = null;
+	private Descriptor m_Sampler = null;
+	private Buffer m_ConstantBuffer = null;
+	private Buffer m_GeometryBuffer = null;
+	private Texture m_Texture = null;
+
 	private Frame[BUFFERED_FRAME_MAX_NUM] mFrames = .();
 	private List<BackBuffer> mSwapChainBuffers = new .() ~ delete _;
+
+	private List<Memory> m_MemoryAllocations;
+
+	private uint64 m_GeometryOffset = 0;
+	private float m_Transparency = 1.0f;
+	private float m_Scale = 1.0f;
 
 	private uint32 mSwapInterval = 0;
 
 	private uint32 mFrameNum = uint32.MaxValue;
+
+	private RendererPlugin mRendererPlugin = null ~ delete _;
 
 	public this(String windowTitle, uint32 windowWidth, uint32 windowHeight)
 		: base(mLogger = new DebugLogger(), windowTitle, windowWidth, windowHeight)
@@ -73,6 +114,10 @@ class RHITestApplication : SDLApplication
 			return .Err;
 		}
 
+		mRendererPlugin = new .(mEngine, mDevice);
+
+		mPlugins.Add(mRendererPlugin);
+
 		return .Ok;
 	}
 
@@ -84,6 +129,42 @@ class RHITestApplication : SDLApplication
 		var result = mDevice.GetCommandQueue(.GRAPHICS, out mCommandQueue);
 		if (result != .SUCCESS)
 			return .Err;
+
+		ShaderCompiler compiler = scope .();
+
+		List<uint8> fragmentShaderByteCode = scope .();
+
+		Result<void> compileResult = compiler.CompileShader(.()
+			{
+				shaderPath = "shaders/Triangle.fs.hlsl",
+				shaderStage = .FRAGMENT,
+				shaderModel = "6_5",
+				entryPoint = "main",
+				outputType = .SPIRV,
+				spirvBindingOffsets = SPIRV_BINDING_OFFSETS
+			}, fragmentShaderByteCode);
+
+		if (compileResult case .Err)
+		{
+			return .Err;
+		}
+
+		List<uint8> vertexShaderByteCode = scope .();
+
+		compileResult = compiler.CompileShader(.()
+			{
+				shaderPath = "shaders/Triangle.vs.hlsl",
+				shaderStage = .VERTEX,
+				shaderModel = "6_5",
+				entryPoint = "main",
+				outputType = .SPIRV,
+				spirvBindingOffsets = SPIRV_BINDING_OFFSETS
+			}, vertexShaderByteCode);
+
+		if (compileResult case .Err)
+		{
+			return .Err;
+		}
 
 		// Swap chain
 		Format swapChainFormat = default;
@@ -117,10 +198,14 @@ class RHITestApplication : SDLApplication
 				Descriptor colorAttachment = null;
 				result = mDevice.CreateTexture2DView(textureViewDesc, out colorAttachment);
 
+				ClearValueDesc clearColor = .();
+				clearColor.rgba32f = COLOR_0;
+
 				FrameBufferDesc frameBufferDesc = .()
 					{
 						colorAttachmentNum = 1,
-						colorAttachments = &colorAttachment
+						colorAttachments = &colorAttachment,
+						colorClearValues = &clearColor
 					};
 				FrameBuffer frameBuffer = null;
 				result = mDevice.CreateFrameBuffer(frameBufferDesc, out frameBuffer);
@@ -141,6 +226,35 @@ class RHITestApplication : SDLApplication
 			result = frame.commandAllocator.CreateCommandBuffer(out frame.commandBuffer);
 		}
 
+		// Pipeline
+		{
+		}
+
+		// Descriptor pool
+		{
+		}
+
+		// Load texture
+		{
+		}
+
+		// Resources
+		{
+		}
+
+		// Descriptors
+		{
+		}
+
+		// Descriptor sets
+		{
+		}
+
+		// Upload data
+		{
+		}
+
+
 		return .Ok;
 	}
 
@@ -153,6 +267,7 @@ class RHITestApplication : SDLApplication
 			mDevice.DestroyCommandBuffer(ref frame.commandBuffer);
 			mDevice.DestroyCommandAllocator(ref frame.commandAllocator);
 			mDevice.DestroyDeviceSemaphore(ref frame.deviceSemaphore);
+			mDevice.DestroyDescriptor(ref frame.constantBufferView);
 		}
 
 		for (ref BackBuffer backBuffer in ref mSwapChainBuffers)
@@ -160,10 +275,20 @@ class RHITestApplication : SDLApplication
 			mDevice.DestroyFrameBuffer(ref backBuffer.frameBuffer);
 			mDevice.DestroyDescriptor(ref backBuffer.colorAttachment);
 		}
-
+		mDevice.DestroyPipeline(ref m_Pipeline);
+		mDevice.DestroyPipelineLayout(ref m_PipelineLayout);
+		mDevice.DestroyDescriptor(ref m_TextureShaderResource);
+		mDevice.DestroyDescriptor(ref m_Sampler);
+		mDevice.DestroyBuffer(ref m_ConstantBuffer);
+		mDevice.DestroyBuffer(ref m_GeometryBuffer);
+		mDevice.DestroyTexture(ref m_Texture);
+		mDevice.DestroyDescriptorPool(ref m_DescriptorPool);
 		mDevice.DestroyQueueSemaphore(ref mAcquireSemaphore);
 		mDevice.DestroyQueueSemaphore(ref mReleaseSemaphore);
 		mDevice.DestroySwapChain(ref mSwapChain);
+
+		for (Memory memory in m_MemoryAllocations)
+			mDevice.FreeMemory(ref memory);
 
 		base.OnFinalize();
 	}
@@ -257,6 +382,9 @@ class RHITestApplication : SDLApplication
 
 	protected override void OnShutdown()
 	{
+		if (mRendererPlugin != null)
+			delete mRendererPlugin;
+
 		if (mDevice != null)
 			delete mDevice;
 
