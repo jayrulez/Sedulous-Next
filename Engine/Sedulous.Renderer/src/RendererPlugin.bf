@@ -21,14 +21,14 @@ class RendererPlugin : Plugin
 	{
 		Engine.Logger.LogInformation("RendererPlugin:OnInitialize");
 
-		Texture2DResourceManager texture2DResourceManager = new .();
-		defer texture2DResourceManager.ReleaseRef();
+		Texture2DManager texture2DManager = new .();
+		defer texture2DManager.ReleaseRef();
 		
-		MaterialResourceManager materialResourceManager = new .();
-		defer materialResourceManager.ReleaseRef();
+		MaterialManager materialManager = new .();
+		defer materialManager.ReleaseRef();
 
-		Engine.ResourceSytem.AddResourceManager<Texture2DResource...>(texture2DResourceManager);
-		Engine.ResourceSytem.AddResourceManager<MaterialResource...>(materialResourceManager);
+		Engine.ResourceSytem.AddResourceManager<Texture2DResource...>(texture2DManager);
+		Engine.ResourceSytem.AddResourceManager<MaterialResource...>(materialManager);
 	}
 
 	public override void OnShutdown()

@@ -2,7 +2,7 @@ using Sedulous.Core.Resources;
 using System;
 namespace Sedulous.Renderer.Resources;
 
-class MaterialResourceManager : ResourceManager<MaterialResource>
+class MaterialManager : ResourceManager<MaterialResource>
 {
 	public override MaterialResource Load(StringView path)
 	{
