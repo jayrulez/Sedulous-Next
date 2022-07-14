@@ -117,7 +117,7 @@ class RHITestApplication : SDLApplication
 
 		mRendererPlugin = new .(mDevice);
 
-		mPlugins.Add(mRendererPlugin);
+		config.Plugins.Add(mRendererPlugin);
 
 		return .Ok;
 	}

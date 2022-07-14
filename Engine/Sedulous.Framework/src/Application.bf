@@ -8,7 +8,6 @@ abstract class Application
 {
 	private bool mIsRunning = false;
 	protected readonly Engine mEngine = null ~ delete _;
-	protected readonly List<Plugin> mPlugins = new .() ~ delete _;
 
 	public readonly ILogger Logger {get; private set;}
 
