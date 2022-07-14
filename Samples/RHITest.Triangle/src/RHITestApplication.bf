@@ -78,7 +78,7 @@ class RHITestApplication : SDLApplication
 	private Frame[BUFFERED_FRAME_MAX_NUM] mFrames = .();
 	private List<BackBuffer> mSwapChainBuffers = new .() ~ delete _;
 
-	private List<Memory> m_MemoryAllocations;
+	private List<Memory> m_MemoryAllocations = new .() ~ delete _;
 
 	private uint64 m_GeometryOffset = 0;
 	private float m_Transparency = 1.0f;
@@ -88,7 +88,7 @@ class RHITestApplication : SDLApplication
 
 	private uint32 mFrameNum = uint32.MaxValue;
 
-	private RendererPlugin mRendererPlugin = null ~ delete _;
+	private RendererPlugin mRendererPlugin = null;
 
 	public this(String windowTitle, uint32 windowWidth, uint32 windowHeight)
 		: base(mLogger = new DebugLogger(), windowTitle, windowWidth, windowHeight)
@@ -119,6 +119,20 @@ class RHITestApplication : SDLApplication
 		mPlugins.Add(mRendererPlugin);
 
 		return .Ok;
+	}
+
+	protected override void OnShutdown()
+	{
+		if (mRendererPlugin != null)
+			delete mRendererPlugin;
+
+		if (mDevice != null)
+			delete mDevice;
+
+		if (mDeviceAllocator != null)
+			delete mDeviceAllocator;
+
+		base.OnShutdown();
 	}
 
 	protected override Result<void> OnInitialize()
@@ -378,19 +392,5 @@ class RHITestApplication : SDLApplication
 		PrepareFrame(mFrameNum);
 		RenderFrame(mFrameNum);
 		mFrameNum++;
-	}
-
-	protected override void OnShutdown()
-	{
-		if (mRendererPlugin != null)
-			delete mRendererPlugin;
-
-		if (mDevice != null)
-			delete mDevice;
-
-		if (mDeviceAllocator != null)
-			delete mDeviceAllocator;
-
-		base.OnShutdown();
 	}
 }

@@ -4,6 +4,13 @@ namespace Sedulous.Foundation.Mathematics;
 
 [CRepr]
 struct TQuaternion<T>
+	where T : operator - T
+	where T : operator T + T
+	where T : operator T - T
+	where T : operator T * T
+	where T : operator T / T
+	where T : operator explicit int
+	where T : operator implicit float
 {
 	public T X;
 	public T Y;

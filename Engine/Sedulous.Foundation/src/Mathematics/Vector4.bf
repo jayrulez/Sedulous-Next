@@ -5,6 +5,13 @@ namespace Sedulous.Foundation.Mathematics;
 [CRepr]
 struct TVector4<T> : IHashable
 	where int : operator explicit T
+	where T : operator - T
+	where T : operator T + T
+	where T : operator T - T
+	where T : operator T * T
+	where T : operator T / T
+	where T : operator explicit int
+	where T : operator implicit float
 {
 	public T X;
 	public T Y;

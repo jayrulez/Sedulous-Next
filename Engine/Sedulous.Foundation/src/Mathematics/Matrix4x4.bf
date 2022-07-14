@@ -6,6 +6,11 @@ namespace Sedulous.Foundation.Mathematics;
 struct TMatrix4x4<T>
 	where T : operator - T
 	where T : operator implicit int
+	where T : operator T + T
+	where T : operator T - T
+	where T : operator T * T
+	where T : operator T / T
+	where T : operator implicit float
 {
 	public T M11;
 	public T M12;
