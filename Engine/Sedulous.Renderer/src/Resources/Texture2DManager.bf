@@ -8,4 +8,9 @@ class Texture2DManager : ResourceManager<Texture2DResource>
 	{
 		return default;
 	}
+
+	public this(ResourceSystem resourceSystem) : base(resourceSystem)
+	{
+
+	}
 }

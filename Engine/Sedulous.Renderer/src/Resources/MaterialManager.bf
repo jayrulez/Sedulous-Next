@@ -8,4 +8,9 @@ class MaterialManager : ResourceManager<MaterialResource>
 	{
 		return default;
 	}
+
+	public this(ResourceSystem resourceSystem) : base(resourceSystem)
+	{
+
+	}
 }

@@ -8,6 +8,18 @@ using Sedulous.Core.Resources;
 using System.IO;
 namespace Sedulous.Core;
 
+class EngineConfig
+{
+	public readonly List<Plugin> Plugins = new List<Plugin>() ~ delete _;
+
+	public String ResourceDirectory { get; private set; } = new .() ~ delete _;
+
+	public void SetResourceDirectory(StringView resourceDirectory)
+	{
+		ResourceDirectory.Set(resourceDirectory);
+	}
+}
+
 class Engine
 {
 	private readonly Clock mEngineClock = new .() ~ delete _;
@@ -16,6 +28,7 @@ class Engine
 	private readonly List<Plugin> mPlugins = new List<Plugin>() ~ delete _;
 	private readonly JobSystem mJobSystem = null;
 	private readonly ResourceSystem mResourceSystem = null;
+	private readonly String mResourcesDirectory = new .() ~ delete _;
 
 	public JobSystem JobSytem => mJobSystem;
 	public ResourceSystem ResourceSytem => mResourceSystem;
@@ -26,7 +39,7 @@ class Engine
 	{
 		Logger = logger;
 		mJobSystem = new .(this, 16);
-		mResourceSystem = new .(this, Path.InternalCombine(.. scope .(), Directory.GetCurrentDirectory(.. scope .()), "Resources"));
+		mResourceSystem = new .(this);
 	}
 
 	public ~this()
@@ -35,28 +48,24 @@ class Engine
 		delete mJobSystem;
 	}
 
-	public void Startup(Span<Plugin> plugins)
+	private void Configure(EngineConfig config)
 	{
-		mPlugins.AddRange(plugins);
+		mPlugins.AddRange(config.Plugins);
+		mResourcesDirectory.Set(config.ResourceDirectory);
+	}
 
+	private void Startup()
+	{
 		mJobSystem.Startup();
 		mResourceSystem.Startup();
 
 		for (var plugin in mPlugins)
 		{
-			plugin.OnStartup();
+			plugin.OnStartup(this);
 		}
 	}
 
-	public void Initialize()
-	{
-		for (var plugin in mPlugins)
-		{
-			plugin.OnInitialize();
-		}
-	}
-
-	public void Shutdown()
+	private void Shutdown()
 	{
 		for (int i = mPlugins.Count - 1; i >= 0; i--)
 		{
@@ -67,10 +76,10 @@ class Engine
 		mJobSystem.Shutdown();
 	}
 
-	public void Tick()
+	private void Tick()
 	{
-		mJobSystem.Update();
-		mResourceSystem.Update();
+		mJobSystem?.Update();
+		mResourceSystem?.Update();
 
 		for (World world in mWorlds)
 		{

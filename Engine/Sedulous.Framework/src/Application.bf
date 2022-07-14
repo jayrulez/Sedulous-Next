@@ -10,14 +10,14 @@ abstract class Application
 	protected readonly Engine mEngine = null ~ delete _;
 	protected readonly List<Plugin> mPlugins = new .() ~ delete _;
 
-	public ILogger Logger => mEngine.Logger;
+	public readonly ILogger Logger {get; private set;}
 
 	public this(ILogger logger)
 	{
-		mEngine = new Engine(logger);
+		mEngine = new Engine(Logger = logger);
 	}
 
-	protected virtual Result<void> OnStartup() => .Ok;
+	protected virtual Result<void> OnStartup(EngineConfig config) => .Ok;
 
 	protected virtual Result<void> OnInitialize() => .Ok;
 
@@ -31,10 +31,13 @@ abstract class Application
 
 	private Result<void> Startup()
 	{
-		if (OnStartup() case .Err)
+			EngineConfig config = scope .();
+
+		if (OnStartup(config) case .Err)
 			return .Err;
 
-		mEngine.Startup(mPlugins);
+		mEngine.[Friend]Configure(config);
+		mEngine.[Friend]Startup();
 
 		return .Ok;
 	}
@@ -44,21 +47,19 @@ abstract class Application
 		if (OnInitialize() case .Err)
 			return .Err;
 
-		mEngine.Initialize();
-
 		return .Ok;
 	}
 
 	private void Shutdown()
 	{
-		mEngine.Shutdown();
+		mEngine.[Friend]Shutdown();
 		OnShutdown();
 	}
 
 	private void RunFrame()
 	{
 		OnFrameBegin();
-		mEngine.Tick();
+		mEngine.[Friend]Tick();
 		OnFrameEnd();
 	}
 

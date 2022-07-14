@@ -6,6 +6,7 @@ using Sedulous.RHI;
 using Sedulous.RHI.Vulkan;
 using System.Collections;
 using Sedulous.Renderer;
+using Sedulous.Core;
 namespace RHITest.Triangle;
 
 internal static
@@ -95,9 +96,9 @@ class RHITestApplication : SDLApplication
 	{
 	}
 
-	protected override Result<void> OnStartup()
+	protected override Result<void> OnStartup(EngineConfig config)
 	{
-		if (base.OnStartup() case .Err)
+		if (base.OnStartup(config) case .Err)
 			return .Err;
 
 		DeviceCreationDesc deviceDesc = .()
@@ -114,7 +115,7 @@ class RHITestApplication : SDLApplication
 			return .Err;
 		}
 
-		mRendererPlugin = new .(mEngine, mDevice);
+		mRendererPlugin = new .(mDevice);
 
 		mPlugins.Add(mRendererPlugin);
 

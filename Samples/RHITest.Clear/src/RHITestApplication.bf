@@ -5,6 +5,7 @@ using Sedulous.Foundation.Logging.Debug;
 using Sedulous.RHI;
 using Sedulous.RHI.Vulkan;
 using System.Collections;
+using Sedulous.Core;
 namespace RHITest.Clear;
 
 internal static
@@ -54,9 +55,9 @@ class RHITestApplication : SDLApplication
 	{
 	}
 
-	protected override Result<void> OnStartup()
+	protected override Result<void> OnStartup(EngineConfig config)
 	{
-		if (base.OnStartup() case .Err)
+		if (base.OnStartup(config) case .Err)
 			return .Err;
 
 		DeviceCreationDesc deviceDesc = .()

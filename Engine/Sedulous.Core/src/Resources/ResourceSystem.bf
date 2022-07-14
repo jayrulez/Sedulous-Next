@@ -10,16 +10,12 @@ class ResourceSystem
 
 	private readonly Dictionary<Type, ResourceManager> mResourceManagers = new .() ~ delete _;
 
-	private readonly String mResourceDir = new .() ~ delete _;
-
 	private bool mIsRunning = false;
 
 	public ILogger Logger => mEngine.Logger;
 
-	public this(Engine engine, StringView resourceDir)
+	public this(Engine engine)
 	{
-		mResourceDir.Set(Path.GetFullPath(scope String(resourceDir), .. scope .()));
-
 		mEngine = engine;
 	}
 
@@ -77,6 +73,18 @@ class ResourceSystem
 		}
 		mResourceManagers[typeof(TResource)] = resourceManager;
 		resourceManager.AddRef();
+	}
+
+	public void AddResourceManager<TResource, TResourceManager>()
+		where TResource : Resource
+		where TResourceManager : ResourceManager<TResource>
+	{
+		if (mResourceManagers.ContainsKey(typeof(TResource)))
+		{
+			Logger.LogError("ResourceManager already registered for resource type '{}'.", typeof(TResource).GetName(.. scope .()));
+			return;
+		}
+		mResourceManagers[typeof(TResource)] = new TResourceManager(this);
 	}
 
 	public ResourceManager<T> GetResourceManager<T>()

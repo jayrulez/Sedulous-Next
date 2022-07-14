@@ -3,23 +3,17 @@ namespace Sedulous.Audio;
 
 class AudioPlugin : Plugin
 {
-	public this(Engine engine) : base(engine)
-	{
+	private Engine mEngine = null;
 
-	}
-
-	public override void OnStartup()
+	public override void OnStartup(Engine engine)
 	{
-		Engine.Logger.LogInformation("AudioPlugin:OnStartup");
-	}
+		mEngine = engine;
 
-	public override void OnInitialize()
-	{
-		Engine.Logger.LogInformation("AudioPlugin:OnInitialize");
+		mEngine.Logger.LogInformation("AudioPlugin:OnStartup");
 	}
 
 	public override void OnShutdown()
 	{
-		Engine.Logger.LogInformation("AudioPlugin:OnShutdown");
+		mEngine.Logger.LogInformation("AudioPlugin:OnShutdown");
 	}
 }

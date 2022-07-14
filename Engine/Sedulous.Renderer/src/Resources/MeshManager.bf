@@ -8,4 +8,9 @@ class MeshManager : ResourceManager<MeshResource>
 	{
 		return default;
 	}
+
+	public this(ResourceSystem resourceSystem) : base(resourceSystem)
+	{
+
+	}
 }

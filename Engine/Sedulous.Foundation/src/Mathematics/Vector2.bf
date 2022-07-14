@@ -110,7 +110,7 @@ struct TVector2<T>
 		return result;
 	}
 
-	public static Self Normalize(Self vector)
+	/*public static Self Normalize(Self vector)
 	{
 		T magnitude = (T)Math.Sqrt(vector.X * vector.X + vector.Y * vector.Y);
 		T inverseMagnitude = (T)1 / magnitude;
@@ -121,7 +121,7 @@ struct TVector2<T>
 		result.Y = vector.Y * inverseMagnitude;
 
 		return result;
-	}
+	}*/
 }
 
 typealias Vector2ui = TVector2<uint32>;
