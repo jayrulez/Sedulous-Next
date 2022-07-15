@@ -94,10 +94,10 @@ namespace Sedulous.RHI.Vulkan
 		[Union]
 		struct Resource
 		{
-			private VkBufferView[/*PHYSICAL_DEVICE_GROUP_MAX_SIZE*/4] m_BufferViews;
-			private VkImageView[/*PHYSICAL_DEVICE_GROUP_MAX_SIZE*/4] m_ImageViews;
-			private VkAccelerationStructureKHR[/*PHYSICAL_DEVICE_GROUP_MAX_SIZE*/4] m_AccelerationStructures;
-			private VkSampler m_Sampler;
+			public VkBufferView[PHYSICAL_DEVICE_GROUP_MAX_SIZE] m_BufferViews;
+			public VkImageView[PHYSICAL_DEVICE_GROUP_MAX_SIZE] m_ImageViews;
+			public VkAccelerationStructureKHR[PHYSICAL_DEVICE_GROUP_MAX_SIZE] m_AccelerationStructures;
+			public VkSampler m_Sampler;
 		};
 
 		private using private Resource m_Resource;
@@ -121,8 +121,8 @@ namespace Sedulous.RHI.Vulkan
 		[Union]
 		public struct Description
 		{
-			private DescriptorBufferDesc m_BufferDesc;
-			private DescriptorTextureDesc m_TextureDesc;
+			public DescriptorBufferDesc m_BufferDesc;
+			public DescriptorTextureDesc m_TextureDesc;
 		}
 		private using private Description m_Desc;
 
