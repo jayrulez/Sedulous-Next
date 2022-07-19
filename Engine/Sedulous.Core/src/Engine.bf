@@ -102,6 +102,7 @@ class Engine
 
 	public void DestroyWorld(World world)
 	{
+		mWorlds.Remove(world);
 		delete world;
 	}
 }

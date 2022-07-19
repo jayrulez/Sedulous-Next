@@ -55,6 +55,4 @@ struct TVector4<T> : IHashable
 	}
 }
 
-typealias Vector4ui = TVector4<uint32>;
-
 typealias Vector4 = TVector4<float>;

@@ -1,6 +1,6 @@
 using System;
 using System.Collections;
-namespace Sedulous.Core;
+namespace Sedulous.Core.World;
 
 class WorldModule
 {

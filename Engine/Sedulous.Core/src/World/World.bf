@@ -3,7 +3,7 @@ using System.Threading;
 using Sedulous.Foundation.Utilities;
 using Sedulous.Foundation.Mathematics;
 using System;
-namespace Sedulous.Core;
+namespace Sedulous.Core.World;
 
 enum WorldUpdatePhase
 {
@@ -13,29 +13,10 @@ enum WorldUpdatePhase
 	FixedUpdate,
 	Transform
 }
-struct Entity : IEquatable<Entity>,  IHashable
-{
-	public uint Id { get; }
-
-	public this(uint id)
-	{
-		Id = id;
-	}
-
-	public int GetHashCode()
-	{
-		return (.)Id;
-	}
-
-	public bool Equals(Entity other)
-	{
-		return Id == other.Id;
-	}
-}
 
 class World
 {
-	struct EntityTransform
+	public struct EntityTransform
 	{
 		public Vector3 Position;
 		public Quaternion Rotation;
@@ -45,10 +26,10 @@ class World
 	struct EntityHierarchy
 	{
 		public Entity Entity;
-		public Entity Parent;
-		public Entity FirstChild;
-		public Entity NextSibling;
-		public Entity PrevSibling;
+		public Entity? Parent;
+		public Entity? FirstChild;
+		public Entity? NextSibling;
+		public Entity? PrevSibling;
 
 		public EntityTransform LocalTransform;
 	}
@@ -141,14 +122,62 @@ class World
 #endregion
 
 #region Entities
-	public void CreateEntity() { }
+
+	private readonly Monitor mNextEntityIdMonitor = new .() ~ delete _;
+	private uint mNextEntityId = 0;
+
+	public Entity CreateEntity(Entity? parent = null, EntityTransform? transform = null)
+	{
+		mNextEntityIdMonitor.Enter();
+		Entity entity = .(++mNextEntityId);
+		mEntities.Add(entity);
+
+		EntityTransform entityTransform = transform ?? .();
+
+		mTransforms.Add(entityTransform);
+
+		EntityHierarchy hierarchy = .()
+			{
+				Entity = entity,
+				Parent = parent
+			};
+
+		if (parent != null)
+		{
+			SetParent(parent.Value, entity);
+		}
+
+		mNextEntityIdMonitor.Exit();
+
+
+
+		return entity;
+	}
+
+	private void SetParent(Entity parent, Entity child)
+	{
+		int parentHierarchyIndex = mHierarchies.FindIndex(scope (hierarchy) =>
+			{
+				return hierarchy.Entity.Equals(parent);
+			});
+
+		ref EntityHierarchy parentHierarchy = ref mHierarchies[parentHierarchyIndex];
+		
+		int childHierarchyIndex = mHierarchies.FindIndex(scope (hierarchy) =>
+			{
+				return hierarchy.Entity.Equals(child);
+			});
+	}
 
 	public void GetEntity(uint id) { }
 
-	public void RemoveEntity(Entity entity) { }
+	public void RemoveEntity(Entity entity) {
+
+	}
 
 	public void RemoveEntity(uint id)
 	{
+		RemoveEntity(Entity(id));
 	}
 
 
@@ -165,6 +194,7 @@ class World
 		{
 			module.Activate();
 		}
+
 		mModulesToActivate.Clear();
 
 		// Register update functions
