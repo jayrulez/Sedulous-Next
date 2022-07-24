@@ -124,6 +124,4 @@ struct TVector2<T>
 	}*/
 }
 
-typealias Vector2ui = TVector2<uint32>;
-
 typealias Vector2 = TVector2<float>;

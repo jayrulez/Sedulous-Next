@@ -24,6 +24,6 @@ struct TRect<T>
 	}
 }
 
-typealias Rect = TRect<int>;
+typealias IntRect = TRect<int>;
 
 typealias FloatRect = TRect<float>;

@@ -44,6 +44,6 @@ struct TVector3<T>
 	}
 }
 
-typealias Vector3ui = TVector3<uint32>;
-
 typealias Vector3 = TVector3<float>;
+
+typealias Float3 = TVector3<float>;
