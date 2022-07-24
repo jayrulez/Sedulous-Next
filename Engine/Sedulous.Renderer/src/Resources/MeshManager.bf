@@ -1,15 +1,15 @@
-using Sedulous.Core.Resources;
+using Sedulous.Core.Assets;
 using System;
 namespace Sedulous.Renderer.Resources;
 
-class MeshManager : ResourceManager<MeshResource>
+class MeshManager : AssetManager<MeshResource>
 {
 	public override MeshResource Load(StringView path)
 	{
 		return default;
 	}
 
-	public this(ResourceSystem resourceSystem) : base(resourceSystem)
+	public this(AssetSystem resourceSystem) : base(resourceSystem)
 	{
 
 	}

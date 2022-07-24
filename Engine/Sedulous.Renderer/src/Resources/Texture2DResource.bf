@@ -1,6 +1,6 @@
-using Sedulous.Core.Resources;
+using Sedulous.Core.Assets;
 namespace Sedulous.Renderer.Resources;
 
-class Texture2DResource : Resource
+class Texture2DResource : Asset
 {
 }

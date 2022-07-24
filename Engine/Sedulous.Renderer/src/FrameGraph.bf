@@ -1,6 +1,5 @@
-namespace Sedulous.Renderer
+namespace Sedulous.Renderer;
+
+class FrameGraph
 {
-	class FrameGraph
-	{
-	}
 }

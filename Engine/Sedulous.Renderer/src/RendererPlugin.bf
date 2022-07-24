@@ -19,8 +19,8 @@ class RendererPlugin : Plugin
 
 		mEngine.Logger.LogInformation("RendererPlugin:OnInitialize");
 
-		mEngine.ResourceSytem.AddResourceManager<Texture2DResource, Texture2DManager>();
-		mEngine.ResourceSytem.AddResourceManager<MaterialResource, MaterialManager>();
+		mEngine.ResourceSytem.AddAssetManager<Texture2DResource, Texture2DManager>();
+		mEngine.ResourceSytem.AddAssetManager<MaterialResource, MaterialManager>();
 	}
 
 	public override void OnShutdown()
