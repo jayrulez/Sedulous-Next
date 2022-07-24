@@ -6,6 +6,7 @@ using System;
 using Sedulous.Core.Jobs;
 using Sedulous.Core.Assets;
 using System.IO;
+using Sedulous.Core.World;
 namespace Sedulous.Core;
 
 class EngineConfig

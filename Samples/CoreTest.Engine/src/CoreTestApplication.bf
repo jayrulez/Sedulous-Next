@@ -6,6 +6,7 @@ using Sedulous.Core;
 using System.Collections;
 using System.Threading;
 using Sedulous.Core.Jobs;
+using Sedulous.Core.World;
 namespace CoreTest.Engine
 {
 	class PrintJob : Job
