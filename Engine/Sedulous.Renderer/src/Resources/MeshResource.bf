@@ -1,6 +1,6 @@
-using Sedulous.Core.Assets;
+using Sedulous.Core.Resources;
 namespace Sedulous.Renderer.Resources;
 
-class MeshResource : Asset
+class MeshResource : Resource
 {
 }

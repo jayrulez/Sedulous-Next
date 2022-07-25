@@ -1,6 +1,6 @@
-using Sedulous.Core.Assets;
+using Sedulous.Core.Resources;
 namespace Sedulous.Core.World;
 
-class WorldResource : Asset
+class WorldResource : Resource
 {
 }

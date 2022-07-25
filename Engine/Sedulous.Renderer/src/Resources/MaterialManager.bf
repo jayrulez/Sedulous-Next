@@ -1,15 +1,15 @@
-using Sedulous.Core.Assets;
+using Sedulous.Core.Resources;
 using System;
 namespace Sedulous.Renderer.Resources;
 
-class MaterialManager : AssetManager<MaterialResource>
+class MaterialManager : ResourceManager<MaterialResource>
 {
 	public override MaterialResource Load(StringView path)
 	{
 		return default;
 	}
 
-	public this(AssetSystem resourceSystem) : base(resourceSystem)
+	public this(ResourceSystem resourceSystem) : base(resourceSystem)
 	{
 
 	}

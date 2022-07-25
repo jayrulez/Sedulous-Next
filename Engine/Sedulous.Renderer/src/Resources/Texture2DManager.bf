@@ -1,15 +1,15 @@
-using Sedulous.Core.Assets;
+using Sedulous.Core.Resources;
 using System;
 namespace Sedulous.Renderer.Resources;
 
-class Texture2DManager : AssetManager<Texture2DResource>
+class Texture2DManager : ResourceManager<Texture2DResource>
 {
 	public override Texture2DResource Load(StringView path)
 	{
 		return default;
 	}
 
-	public this(AssetSystem resourceSystem) : base(resourceSystem)
+	public this(ResourceSystem resourceSystem) : base(resourceSystem)
 	{
 
 	}

@@ -4,7 +4,7 @@ using System.Threading;
 using Sedulous.Foundation.Utilities;
 using System;
 using Sedulous.Core.Jobs;
-using Sedulous.Core.Assets;
+using Sedulous.Core.Resources;
 using System.IO;
 using Sedulous.Core.World;
 namespace Sedulous.Core;
@@ -28,11 +28,11 @@ class Engine
 	private readonly List<World> mWorlds = new .() ~ delete _;
 	private readonly List<Plugin> mPlugins = new List<Plugin>() ~ delete _;
 	private readonly JobSystem mJobSystem = null;
-	private readonly AssetSystem mResourceSystem = null;
+	private readonly ResourceSystem mResourceSystem = null;
 	private readonly String mResourcesDirectory = new .() ~ delete _;
 
 	public JobSystem JobSytem => mJobSystem;
-	public AssetSystem ResourceSytem => mResourceSystem;
+	public ResourceSystem ResourceSytem => mResourceSystem;
 
 	public ILogger Logger { get; private set; }
 
