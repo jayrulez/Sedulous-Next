@@ -8,7 +8,7 @@ class SceneModule
 
 	private readonly Scene mScene;
 
-	public Scene World => mScene;
+	public Scene Scene => mScene;
 
 	public this(Scene scene)
 	{
