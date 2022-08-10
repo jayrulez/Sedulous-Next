@@ -8,7 +8,7 @@ class DebugLogger : BaseLogger
 	{
 	}
 
-	public override void Log(StringView message)
+	protected override void Log(StringView message)
 	{
 		Diagnostics.Debug.WriteLine(message);
 	}

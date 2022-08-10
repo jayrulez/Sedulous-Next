@@ -21,5 +21,5 @@ abstract class BaseLogger : ILogger
 		}
 	}
 
-	public abstract void Log(StringView message);
+	protected abstract void Log(StringView message);
 }
