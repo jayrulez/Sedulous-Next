@@ -75,8 +75,12 @@ internal class Worker
 			return;
 		}
 
+		Resume();
+
 		// Ensure the last task is completed
-		while (mState != .Idle) { }
+		while (mState != .Idle) {
+
+		}
 
 		mIsRunning = false;
 		mThread.Join();

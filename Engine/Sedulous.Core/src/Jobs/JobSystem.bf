@@ -208,6 +208,14 @@ class JobSystem
 			}
 		}
 
+		for (int i = 0; i < mWorkers.Count; i++)
+		{
+			if (mWorkers[i].State == .Idle)
+			{
+				mWorkers[i].Pause();
+			}
+		}
+
 		ClearCompletedJobs();
 
 		ClearCancelledJobs();
