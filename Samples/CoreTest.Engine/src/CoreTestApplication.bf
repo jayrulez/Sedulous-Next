@@ -35,7 +35,7 @@ namespace CoreTest.Engine
 		private Scene mScene = null;
 
 		public this(String windowTitle, uint windowWidth, uint windowHeight)
-			: base(mLogger = new DebugLogger(), windowTitle, windowWidth, windowHeight)
+			: base(mLogger = new DebugLogger(.Trace), windowTitle, windowWidth, windowHeight)
 		{
 		}
 
@@ -51,14 +51,14 @@ namespace CoreTest.Engine
 				mEngine.JobSytem.AddJob(mJobs.Add(.. new PrintJob("Hello", scope $"PrintJob{i+1}", flags)));
 			}
 
-			mScene = mEngine.CreateWorld();
+			mScene = mEngine.CreateScene();
 
 			return .Ok;
 		}
 
 		protected override void OnFinalize()
 		{
-			mEngine.DestroyWorld(mScene);
+			mEngine.DestroyScene(mScene);
 
 			base.OnFinalize();
 		}

@@ -51,7 +51,7 @@ class RHITestApplication : SDLApplication
 	private uint32 mFrameNum = uint32.MaxValue;
 
 	public this(String windowTitle, uint32 windowWidth, uint32 windowHeight)
-		: base(mLogger = new DebugLogger(), windowTitle, windowWidth, windowHeight)
+		: base(mLogger = new DebugLogger(.Information), windowTitle, windowWidth, windowHeight)
 	{
 	}
 

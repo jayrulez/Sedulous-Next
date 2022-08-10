@@ -92,7 +92,7 @@ class RHITestApplication : SDLApplication
 	private RendererPlugin mRendererPlugin = null;
 
 	public this(String windowTitle, uint32 windowWidth, uint32 windowHeight)
-		: base(mLogger = new DebugLogger(), windowTitle, windowWidth, windowHeight)
+		: base(mLogger = new DebugLogger(.Trace), windowTitle, windowWidth, windowHeight)
 	{
 	}
 

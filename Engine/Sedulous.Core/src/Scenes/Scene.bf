@@ -11,7 +11,7 @@ enum SceneUpdatePhase
 	Update,
 	PostUpdate,
 	FixedUpdate,
-	Transform
+	TransformUpdate
 }
 
 class Scene
