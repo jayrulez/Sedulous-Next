@@ -21,7 +21,7 @@ namespace Bulkan
 		public const int32 RTLD_NOW = 0x002;
 	}
 
-	delegate void LoanFunctionErrorCallBack(in StringView procName);
+	delegate void LoanFunctionErrorCallBack(StringView procName);
 
 	abstract class NativeLibrary : IDisposable
 	{

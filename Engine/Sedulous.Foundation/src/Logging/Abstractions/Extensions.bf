@@ -3,33 +3,33 @@ namespace Sedulous.Foundation.Logging.Abstractions;
 
 extension ILogger
 {
-	void LogTrace(StringView message, params Object[] args)
+	void LogTrace(StringView format, params Object[] args)
 	{
-		Log(.Trace, message, params args);
+		Log(.Trace, format, params args);
 	}
 
-	void LogDebug(StringView message, params Object[] args)
+	void LogDebug(StringView format, params Object[] args)
 	{
-		Log(.Debug, message, params args);
+		Log(.Debug, format, params args);
 	}
 
-	void LogInformation(StringView message, params Object[] args)
+	void LogInformation(StringView format, params Object[] args)
 	{
-		Log(.Information, message, params args);
+		Log(.Information, format, params args);
 	}
 
-	void LogWarning(StringView message, params Object[] args)
+	void LogWarning(StringView format, params Object[] args)
 	{
-		Log(.Warning, message, params args);
+		Log(.Warning, format, params args);
 	}
 
-	void LogError(StringView message, params Object[] args)
+	void LogError(StringView format, params Object[] args)
 	{
-		Log(.Error, message, params args);
+		Log(.Error, format, params args);
 	}
 
-	void LogCritical(StringView message, params Object[] args)
+	void LogCritical(StringView format, params Object[] args)
 	{
-		Log(.Critical, message, params args);
+		Log(.Critical, format, params args);
 	}
 }

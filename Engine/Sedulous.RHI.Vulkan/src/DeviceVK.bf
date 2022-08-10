@@ -1322,7 +1322,7 @@ class DeviceVK : Device
 
 		VulkanNative.SetLoadFunctionErrorCallBack(new (functionName) =>
 			{
-				GetLogger().LogError(scope $"Failed to load function: '{functionName}'.");
+				GetLogger().LogError("Failed to load function: '{0}'.", functionName);
 			});
 
 

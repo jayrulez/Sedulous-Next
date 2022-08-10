@@ -1,20 +1,15 @@
 using Sedulous.Foundation.Logging.Abstractions;
+using System;
 namespace Sedulous.Foundation.Logging.Debug;
 
-class DebugLogger : ILogger
+class DebugLogger : BaseLogger
 {
-	public LogLevel LogLevel { get; private set; }
-
-	public this(LogLevel logLevel)
+	public this(LogLevel logLevel) : base(logLevel)
 	{
-		LogLevel = logLevel;
 	}
 
-	public void Log(LogLevel logLevel, System.StringView message, params System.Object[] args)
+	public override void Log(StringView message)
 	{
-		if (logLevel >= LogLevel && logLevel != .None)
-		{
-			System.Diagnostics.Debug.WriteLine(scope $"{logLevel}: {message}", params args);
-		}
+		Diagnostics.Debug.WriteLine(message);
 	}
 }

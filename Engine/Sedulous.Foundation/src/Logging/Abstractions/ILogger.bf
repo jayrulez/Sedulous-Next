@@ -5,5 +5,5 @@ interface ILogger
 {
 	LogLevel LogLevel { get; }
 
-	void Log(LogLevel logLevel, StringView message, params Object[] args);
+	void Log(LogLevel logLevel, StringView format, params Object[] args);
 }
