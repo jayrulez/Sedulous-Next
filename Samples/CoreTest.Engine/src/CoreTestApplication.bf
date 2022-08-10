@@ -6,7 +6,7 @@ using Sedulous.Core;
 using System.Collections;
 using System.Threading;
 using Sedulous.Core.Jobs;
-using Sedulous.Core.World;
+using Sedulous.Core.Scenes;
 namespace CoreTest.Engine
 {
 	class PrintJob : Job
@@ -32,7 +32,7 @@ namespace CoreTest.Engine
 
 		private List<Job> mJobs = new .() ~ delete _;
 
-		private World mWorld = null;
+		private Scene mScene = null;
 
 		public this(String windowTitle, uint windowWidth, uint windowHeight)
 			: base(mLogger = new DebugLogger(), windowTitle, windowWidth, windowHeight)
@@ -51,14 +51,14 @@ namespace CoreTest.Engine
 				mEngine.JobSytem.AddJob(mJobs.Add(.. new PrintJob("Hello", scope $"PrintJob{i+1}", flags)));
 			}
 
-			mWorld = mEngine.CreateWorld();
+			mScene = mEngine.CreateWorld();
 
 			return .Ok;
 		}
 
 		protected override void OnFinalize()
 		{
-			mEngine.DestroyWorld(mWorld);
+			mEngine.DestroyWorld(mScene);
 
 			base.OnFinalize();
 		}

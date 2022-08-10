@@ -1,18 +1,18 @@
 using System;
 using System.Collections;
-namespace Sedulous.Core.World;
+namespace Sedulous.Core.Scenes;
 
-class WorldModule
+class SceneModule
 {
 	typealias UpdateFunction = delegate void();
 
-	private readonly World mWorld;
+	private readonly Scene mScene;
 
-	public World World => mWorld;
+	public Scene World => mScene;
 
-	public this(World world)
+	public this(Scene scene)
 	{
-		mWorld = world;
+		mScene = scene;
 	}
 
 	public virtual Result<void> Initialize() => .Ok;

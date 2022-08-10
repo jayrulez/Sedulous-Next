@@ -1,4 +1,4 @@
-namespace Sedulous.Core.World;
+namespace Sedulous.Core.Scenes;
 
 class Component
 {

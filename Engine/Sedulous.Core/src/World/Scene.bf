@@ -3,9 +3,9 @@ using System.Threading;
 using Sedulous.Foundation.Utilities;
 using Sedulous.Foundation.Mathematics;
 using System;
-namespace Sedulous.Core.World;
+namespace Sedulous.Core.Scenes;
 
-enum WorldUpdatePhase
+enum SceneUpdatePhase
 {
 	PreUpdate,
 	Update,
@@ -14,7 +14,7 @@ enum WorldUpdatePhase
 	Transform
 }
 
-class World
+class Scene
 {
 	public struct EntityTransform
 	{
@@ -38,15 +38,15 @@ class World
 
 	private readonly Clock mWorldClock = new .() ~ delete _;
 	private readonly Monitor mModulesMonitor = new .() ~ delete _;
-	private readonly List<WorldModule> mModules = new .() ~ delete _;
-	private readonly List<WorldModule> mModulesToActivate = new .() ~ delete _;
+	private readonly List<SceneModule> mModules = new .() ~ delete _;
+	private readonly List<SceneModule> mModulesToActivate = new .() ~ delete _;
 
 	private List<Entity> mEntities = new .() ~ delete _;
 	private List<EntityTransform> mTransforms = new .() ~ delete _;
 	private List<EntityHierarchy> mHierarchies = new .() ~ delete _;
 
 #region WorldModules
-	public WorldModule GetOrCreateModule<T>() where T : WorldModule
+	public SceneModule GetOrCreateModule<T>() where T : SceneModule
 	{
 		using (mModulesMonitor.Enter())
 		{
@@ -58,7 +58,7 @@ class World
 				}
 			}
 
-			WorldModule module = new T();
+			SceneModule module = new T();
 			module.Initialize();
 
 			mModules.Add(module);
@@ -69,11 +69,11 @@ class World
 		}
 	}
 
-	public void RemoveModule<T>() where T : WorldModule
+	public void RemoveModule<T>() where T : SceneModule
 	{
 		using (mModulesMonitor.Enter())
 		{
-			WorldModule moduleToRemove = null;
+			SceneModule moduleToRemove = null;
 
 			for (var module in mModules)
 			{
@@ -95,7 +95,7 @@ class World
 		}
 	}
 
-	public void RemoveModule(WorldModule moduleToRemove)
+	public void RemoveModule(SceneModule moduleToRemove)
 	{
 		using (mModulesMonitor.Enter())
 		{

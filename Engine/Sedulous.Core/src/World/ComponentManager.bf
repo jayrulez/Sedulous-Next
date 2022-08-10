@@ -1,11 +1,11 @@
-namespace Sedulous.Core.World;
+namespace Sedulous.Core.Scenes;
 
-abstract class ComponentManager : WorldModule
+abstract class ComponentManager : SceneModule
 {
-	public this(World world) : base(world) { }
+	public this(Scene scene) : base(scene) { }
 }
 
 class ComponentManager<T> : ComponentManager where T : Component
 {
-	public this(World world) : base(world) { }
+	public this(Scene scene) : base(scene) { }
 }

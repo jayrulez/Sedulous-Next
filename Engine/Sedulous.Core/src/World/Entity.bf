@@ -1,5 +1,5 @@
 using System;
-namespace Sedulous.Core.World;
+namespace Sedulous.Core.Scenes;
 
 struct Entity : IEquatable<Entity>, IHashable
 {

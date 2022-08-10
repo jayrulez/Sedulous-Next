@@ -6,7 +6,7 @@ using System;
 using Sedulous.Core.Jobs;
 using Sedulous.Core.Resources;
 using System.IO;
-using Sedulous.Core.World;
+using Sedulous.Core.Scenes;
 namespace Sedulous.Core;
 
 class EngineConfig
@@ -24,8 +24,8 @@ class EngineConfig
 class Engine
 {
 	private readonly Clock mEngineClock = new .() ~ delete _;
-	private readonly Monitor mWorldsMonitor = new .() ~ delete _;
-	private readonly List<World> mWorlds = new .() ~ delete _;
+	private readonly Monitor mScenesMonitor = new .() ~ delete _;
+	private readonly List<Scene> mScenes = new .() ~ delete _;
 	private readonly List<Plugin> mPlugins = new List<Plugin>() ~ delete _;
 	private readonly JobSystem mJobSystem = null;
 	private readonly ResourceSystem mResourceSystem = null;
@@ -82,28 +82,28 @@ class Engine
 		mJobSystem?.Update();
 		mResourceSystem?.Update();
 
-		for (World world in mWorlds)
+		for (Scene scene in mScenes)
 		{
-			//mJobSystem.RunJob(new => world.Update, "World Update");
-			world.Update();
+			//mJobSystem.RunJob(new => scene.Update, "Scene Update");
+			scene.Update();
 		}
 	}
 
-	public World CreateWorld()
+	public Scene CreateScene()
 	{
-		using (mWorldsMonitor.Enter())
+		using (mScenesMonitor.Enter())
 		{
-			World world = new World();
+			Scene scene = new Scene();
 
-			mWorlds.Add(world);
+			mScenes.Add(scene);
 
-			return world;
+			return scene;
 		}
 	}
 
-	public void DestroyWorld(World world)
+	public void DestroyScene(Scene scene)
 	{
-		mWorlds.Remove(world);
-		delete world;
+		mScenes.Remove(scene);
+		delete scene;
 	}
 }
