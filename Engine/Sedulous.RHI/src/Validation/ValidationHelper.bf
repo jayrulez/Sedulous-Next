@@ -124,6 +124,28 @@ namespace Sedulous.RHI.Validation
 
 			return (uint32)(requiredMask & usageMask) == (uint32)requiredMask;
 		}
+
+		public static void ConvertGeometryObjectsVal(GeometryObject* destObjects, GeometryObject* sourceObjects, uint32 objectNum)
+		{
+			for (uint32 i = 0; i < objectNum; i++)
+			{
+				readonly ref GeometryObject geometrySrc = ref sourceObjects[i];
+				ref GeometryObject geometryDst = ref destObjects[i];
+
+				geometryDst = geometrySrc;
+
+				if (geometrySrc.type == GeometryType.TRIANGLES)
+				{
+					geometryDst.triangles.vertexBuffer = geometrySrc.triangles.vertexBuffer;
+					geometryDst.triangles.indexBuffer = geometrySrc.triangles.indexBuffer;
+					geometryDst.triangles.transformBuffer = geometrySrc.triangles.transformBuffer;
+				}
+				else
+				{
+					geometryDst.boxes.buffer = geometrySrc.boxes.buffer;
+				}
+			}
+		}
 	}
 
 	static class ValidationHelper

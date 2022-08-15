@@ -647,7 +647,7 @@ struct ClearDesc
 
 struct ClearStorageBufferDesc
 {
-	public readonly Descriptor storageBuffer;
+	public Descriptor storageBuffer;
 	public uint32 value;
 	public uint32 setIndex;
 	public uint32 rangeIndex;
@@ -656,7 +656,7 @@ struct ClearStorageBufferDesc
 
 struct ClearStorageTextureDesc
 {
-	public readonly Descriptor storageTexture;
+	public Descriptor storageTexture;
 	public ClearValueDesc value;
 	public uint32 setIndex;
 	public uint32 rangeIndex;
@@ -847,15 +847,15 @@ struct BufferTransitionBarrierDesc
 
 struct BufferAliasingBarrierDesc
 {
-	public readonly Buffer before;
-	public readonly Buffer after;
+	public Buffer before;
+	public Buffer after;
 	public AccessBits nextAccess;
 }
 
 struct TextureAliasingBarrierDesc
 {
-	public readonly Texture before;
-	public readonly Texture after;
+	public Texture before;
+	public Texture after;
 	public AccessBits nextAccess;
 	public TextureLayout nextLayout;
 }
@@ -870,8 +870,8 @@ struct TransitionBarrierDesc
 
 struct AliasingBarrierDesc
 {
-	public readonly BufferAliasingBarrierDesc* buffers;
-	public readonly TextureAliasingBarrierDesc* textures;
+	public BufferAliasingBarrierDesc* buffers;
+	public TextureAliasingBarrierDesc* textures;
 	public uint32 bufferNum;
 	public uint32 textureNum;
 }
@@ -903,7 +903,7 @@ struct DescriptorSetDesc
 {
 	public DescriptorRangeDesc* ranges;
 	public uint32 rangeNum;
-	public readonly StaticSamplerDesc* staticSamplers;
+	public StaticSamplerDesc* staticSamplers;
 	public uint32 staticSamplerNum;
 	public DynamicConstantBufferDesc* dynamicConstantBuffers;
 	public uint32 dynamicConstantBufferNum;
@@ -911,14 +911,14 @@ struct DescriptorSetDesc
 
 struct DescriptorRangeUpdateDesc
 {
-	public readonly Descriptor* descriptors;
+	public Descriptor* descriptors;
 	public uint32 descriptorNum;
 	public uint32 offsetInRange;
 }
 
 struct DescriptorSetCopyDesc
 {
-	public readonly DescriptorSet srcDescriptorSet;
+	public DescriptorSet srcDescriptorSet;
 	public uint32 baseSrcRange;
 	public uint32 baseDstRange;
 	public uint32 rangeNum;
@@ -1067,8 +1067,8 @@ struct OutputMergerDesc
 
 struct PipelineLayoutDesc
 {
-	public readonly DescriptorSetDesc* descriptorSets;
-	public readonly PushConstantDesc* pushConstants;
+	public DescriptorSetDesc* descriptorSets;
+	public PushConstantDesc* pushConstants;
 	public uint32 descriptorSetNum;
 	public uint32 pushConstantNum;
 	public PipelineLayoutShaderStageBits stageMask;
@@ -1512,10 +1512,10 @@ struct GeometryObject
 		public Triangles triangles;
 		public AABBs boxes;
 	}
-	private GeometryShapes shapes;
+	public using GeometryShapes shapes;
 
-	public Triangles triangles { get => shapes.triangles; set mut { shapes.triangles = value; } }
-	public AABBs boxes { get => shapes.boxes; set mut { shapes.boxes = value; } }
+	/*public Triangles triangles { get => shapes.triangles; set mut { shapes.triangles = value; } }
+	public AABBs boxes { get => shapes.boxes; set mut { shapes.boxes = value; } }*/
 }
 
 struct GeometryObjectInstance
@@ -1547,7 +1547,7 @@ struct AccelerationStructureMemoryBindingDesc
 
 struct StridedBufferRegion
 {
-	public readonly Buffer buffer;
+	public Buffer buffer;
 	public uint64 offset;
 	public uint64 size;
 	public uint64 stride;
@@ -1673,6 +1673,46 @@ public static
 		if (condition == false)
 		{
 			logger.LogError(format, arg1, arg2);
+
+			return returnCode;
+		}
+	}
+
+	public static mixin RETURN_ON_FAILURE<T>(ILogger logger, bool condition, T returnCode, StringView format, Object arg1, Object arg2, Object arg3)
+	{
+		if (condition == false)
+		{
+			logger.LogError(format, arg1, arg2, arg3);
+
+			return returnCode;
+		}
+	}
+
+	public static mixin RETURN_ON_FAILURE<T>(ILogger logger, bool condition, T returnCode, StringView format, Object arg1, Object arg2, Object arg3, Object arg4)
+	{
+		if (condition == false)
+		{
+			logger.LogError(format, arg1, arg2, arg3, arg4);
+
+			return returnCode;
+		}
+	}
+
+	public static mixin RETURN_ON_FAILURE<T>(ILogger logger, bool condition, T returnCode, StringView format, Object arg1, Object arg2, Object arg3, Object arg4, Object arg5)
+	{
+		if (condition == false)
+		{
+			logger.LogError(format, arg1, arg2, arg3, arg4, arg5);
+
+			return returnCode;
+		}
+	}
+
+	public static mixin RETURN_ON_FAILURE<T>(ILogger logger, bool condition, T returnCode, StringView format, Object arg1, Object arg2, Object arg3, Object arg4, Object arg5, Object arg6)
+	{
+		if (condition == false)
+		{
+			logger.LogError(format, arg1, arg2, arg3, arg4, arg5, arg6);
 
 			return returnCode;
 		}
