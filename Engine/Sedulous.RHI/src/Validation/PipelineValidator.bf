@@ -4,7 +4,7 @@ namespace Sedulous.RHI.Validation
 	class PipelineValidator : Pipeline
 	{
 		private readonly DeviceValidator mDevice;
-		private readonly Pipeline mPipeline;
+		private Pipeline mPipeline;
 		private readonly PipelineLayout m_PipelineLayout = null;
 
 		private readonly String mDebugName = new .() ~ delete _;
@@ -36,6 +36,8 @@ namespace Sedulous.RHI.Validation
 			mPipeline = pipeline;
 			m_PipelineLayout = rayTracingPipelineDesc.pipelineLayout;
 		}
+
+		public ref Pipeline GetImpl() => ref mPipeline;
 
 		public PipelineLayout GetPipelineLayout()
 		{

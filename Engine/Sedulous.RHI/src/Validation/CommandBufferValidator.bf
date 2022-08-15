@@ -76,7 +76,7 @@ namespace Sedulous.RHI.Validation
 	class CommandBufferValidator : CommandBuffer
 	{
 		private readonly DeviceValidator mDevice;
-		private readonly CommandBuffer mCommandBuffer;
+		private CommandBuffer mCommandBuffer;
 
 		List<uint8> m_ValidationCommands = new .() ~ delete _;
 		bool m_IsRecordingStarted = false;
@@ -107,6 +107,9 @@ namespace Sedulous.RHI.Validation
 			mDevice = device;
 			mCommandBuffer = commandBuffer;
 		}
+		
+
+		public ref CommandBuffer GetImpl() => ref mCommandBuffer;
 
 		public override void SetDebugName(System.StringView name)
 		{

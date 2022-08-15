@@ -5,7 +5,7 @@ namespace Sedulous.RHI.Validation
 	class PipelineLayoutValidator : PipelineLayout
 	{
 		private readonly DeviceValidator mDevice;
-		private readonly PipelineLayout mPipelineLayout;
+		private PipelineLayout mPipelineLayout;
 
 		private readonly PipelineLayoutDesc m_PipelineLayoutDesc;
 		private List<DescriptorSetDesc> m_DescriptorSets;
@@ -74,6 +74,9 @@ namespace Sedulous.RHI.Validation
 			Deallocate!(mDevice.GetDeviceAllocator(), m_StaticSamplerDescs);
 			Deallocate!(mDevice.GetDeviceAllocator(), m_DynamicConstantBufferDescs);
 		}
+		
+
+		public ref PipelineLayout GetImpl() => ref mPipelineLayout;
 
 		public readonly ref PipelineLayoutDesc GetPipelineLayoutDesc() => ref m_PipelineLayoutDesc;
 

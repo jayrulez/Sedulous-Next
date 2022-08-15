@@ -5,7 +5,7 @@ namespace Sedulous.RHI.Validation
 	class DescriptorPoolValidator : DescriptorPool
 	{
 		private readonly DeviceValidator mDevice;
-		private readonly DescriptorPool mDescriptorPool;
+		private DescriptorPool mDescriptorPool;
 
 		private List<DescriptorSetValidator> m_DescriptorSets;
 		DescriptorPoolDesc m_Desc = .();
@@ -128,6 +128,8 @@ namespace Sedulous.RHI.Validation
 
 			Deallocate!(mDevice.GetDeviceAllocator(), m_DescriptorSets);
 		}
+
+		public ref DescriptorPool GetImpl() => ref mDescriptorPool;
 
 		public override void SetDebugName(System.StringView name)
 		{

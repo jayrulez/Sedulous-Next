@@ -4,7 +4,7 @@ namespace Sedulous.RHI.Validation
 	class FrameBufferValidator : FrameBuffer
 	{
 		private readonly DeviceValidator mDevice;
-		private readonly FrameBuffer mFrameBuffer;
+		private FrameBuffer mFrameBuffer;
 
 		private readonly String mDebugName = new .() ~ delete _;
 
@@ -13,6 +13,8 @@ namespace Sedulous.RHI.Validation
 			mDevice = device;
 			mFrameBuffer = frameBuffer;
 		}
+
+		public ref FrameBuffer GetImpl() => ref mFrameBuffer;
 
 		public override void SetDebugName(System.StringView name)
 		{

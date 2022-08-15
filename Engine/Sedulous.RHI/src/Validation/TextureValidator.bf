@@ -4,7 +4,7 @@ namespace Sedulous.RHI.Validation
 	class TextureValidator : Texture
 	{
 		private readonly DeviceValidator mDevice;
-		private readonly Texture mTexture;
+		private Texture mTexture;
 		private MemoryValidator m_Memory = null;
 		private readonly TextureDesc m_TextureDesc = .();
 		private bool m_IsBoundToMemory = false;
@@ -24,6 +24,8 @@ namespace Sedulous.RHI.Validation
 			if (m_Memory != null)
 				m_Memory.UnbindTexture(this);
 		}
+
+		public ref Texture GetImpl() => ref mTexture;
 
 		public void SetBoundToMemory()
 		{

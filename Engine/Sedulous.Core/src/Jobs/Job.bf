@@ -111,9 +111,7 @@ abstract class Job : RefCounted
 		Execute();
 
 		// Job could have been canceled in execute method.
-		if (mState == .Canceled)
-			return;
-
-		mState = .Completed;
+		if (mState != .Canceled)
+			mState = .Completed;
 	}
 }

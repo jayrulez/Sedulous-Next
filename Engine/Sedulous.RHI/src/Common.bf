@@ -761,7 +761,7 @@ struct BufferDesc
 
 struct Texture1DViewDesc
 {
-	public readonly Texture texture;
+	public Texture texture;
 	public Texture1DViewType viewType;
 	public Format format;
 	public uint16 mipOffset;
@@ -774,7 +774,7 @@ struct Texture1DViewDesc
 
 struct Texture2DViewDesc
 {
-	public readonly Texture texture;
+	public Texture texture;
 	public Texture2DViewType viewType;
 	public Format format;
 	public uint16 mipOffset;
@@ -787,7 +787,7 @@ struct Texture2DViewDesc
 
 struct Texture3DViewDesc
 {
-	public readonly Texture texture;
+	public Texture texture;
 	public Texture3DViewType viewType;
 	public Format format;
 	public uint16 mipOffset;
@@ -800,7 +800,7 @@ struct Texture3DViewDesc
 
 struct BufferViewDesc
 {
-	public readonly Buffer buffer;
+	public Buffer buffer;
 	public BufferViewType viewType;
 	public Format format;
 	public uint64 offset;
@@ -1077,7 +1077,7 @@ struct PipelineLayoutDesc
 
 struct GraphicsPipelineDesc
 {
-	public readonly PipelineLayout pipelineLayout;
+	public PipelineLayout pipelineLayout;
 	public readonly InputAssemblyDesc* inputAssembly;
 	public readonly RasterizationDesc* rasterization;
 	public readonly OutputMergerDesc* outputMerger;
@@ -1087,14 +1087,14 @@ struct GraphicsPipelineDesc
 
 struct ComputePipelineDesc
 {
-	public readonly PipelineLayout pipelineLayout;
+	public PipelineLayout pipelineLayout;
 	public ShaderDesc computeShader;
 }
 
 struct FrameBufferDesc
 {
-	public readonly Descriptor* colorAttachments;
-	public readonly Descriptor depthStencilAttachment;
+	public Descriptor* colorAttachments;
+	public Descriptor depthStencilAttachment;
 	public readonly ClearValueDesc* colorClearValues;
 	public readonly ClearValueDesc* depthStencilClearValue;
 	public uint32 colorAttachmentNum;
@@ -1315,9 +1315,9 @@ struct BufferUploadDesc
 struct ResourceGroupDesc
 {
 	public MemoryLocation memoryLocation;
-	public readonly Texture* textures;
+	public Texture* textures;
 	public uint32 textureNum;
-	public readonly Buffer* buffers;
+	public Buffer* buffers;
 	public uint32 bufferNum;
 }
 #endregion
@@ -1471,7 +1471,7 @@ struct ShaderGroupDesc
 
 struct RayTracingPipelineDesc
 {
-	public readonly PipelineLayout pipelineLayout;
+	public PipelineLayout pipelineLayout;
 	public readonly ShaderLibrary* shaderLibrary;
 	public readonly ShaderGroupDesc* shaderGroupDescs; // TODO: move to ShaderLibrary
 	public uint32 shaderGroupDescNum;
@@ -1534,7 +1534,7 @@ struct AccelerationStructureDesc
 	public AccelerationStructureBuildBits flags;
 	public uint32 physicalDeviceMask;
 	public uint32 instanceOrGeometryObjectNum;
-	public readonly GeometryObject* geometryObjects;
+	public GeometryObject* geometryObjects;
 }
 
 struct AccelerationStructureMemoryBindingDesc

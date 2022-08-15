@@ -23,6 +23,8 @@ namespace Sedulous.RHI.Validation
 			mDevice.DestroyAccelerationStructure(ref mAccelerationStructure);
 		}
 
+		public AccelerationStructure GetImpl() => mAccelerationStructure;
+
 		public void SetBoundToMemory(MemoryValidator memory)
 		{
 			m_Memory = memory;

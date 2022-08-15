@@ -5,7 +5,7 @@ namespace Sedulous.RHI.Validation
 	class SwapChainValidator : SwapChain
 	{
 		private readonly DeviceValidator mDevice;
-		private readonly SwapChain mSwapChain;
+		private SwapChain mSwapChain;
 		private List<TextureValidator> m_Textures;
 		private SwapChainDesc m_SwapChainDesc = .();
 
@@ -27,6 +27,8 @@ namespace Sedulous.RHI.Validation
 
 			Deallocate!(mDevice.GetDeviceAllocator(), m_Textures);
 		}
+
+		public ref SwapChain GetImpl() => ref mSwapChain;
 
 		public override void SetDebugName(System.StringView name)
 		{

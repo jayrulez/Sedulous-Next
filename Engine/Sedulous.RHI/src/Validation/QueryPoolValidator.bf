@@ -5,7 +5,7 @@ namespace Sedulous.RHI.Validation
 	class QueryPoolValidator : QueryPool
 	{
 		private readonly DeviceValidator mDevice;
-		private readonly QueryPool mQueryPool;
+		private QueryPool mQueryPool;
 
 		private List<uint64> m_DeviceState;
 		private uint32 m_QueryNum;
@@ -34,6 +34,8 @@ namespace Sedulous.RHI.Validation
 		{
 			Deallocate!(mDevice.GetDeviceAllocator(), m_DeviceState);
 		}
+
+		public ref QueryPool GetImpl() => ref mQueryPool;
 
 		public override void SetDebugName(System.StringView name)
 		{

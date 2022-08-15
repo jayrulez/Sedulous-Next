@@ -6,7 +6,7 @@ namespace Sedulous.RHI.Validation
 	class QueueSemaphoreValidator : QueueSemaphore
 	{
 		private readonly DeviceValidator mDevice;
-		private readonly QueueSemaphore mQueueSemaphore;
+		private QueueSemaphore mQueueSemaphore;
 
 		private readonly String mDebugName = new .() ~ delete _;
 
@@ -17,6 +17,8 @@ namespace Sedulous.RHI.Validation
 			mDevice = device;
 			mQueueSemaphore = queueSemaphore;
 		}
+
+		public ref QueueSemaphore GetImpl() => ref mQueueSemaphore;
 
 		public void Signal()
 		{

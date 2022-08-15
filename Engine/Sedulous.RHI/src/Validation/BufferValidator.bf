@@ -4,7 +4,7 @@ namespace Sedulous.RHI.Validation
 	class BufferValidator : Buffer
 	{
 		private readonly DeviceValidator mDevice;
-		private readonly Buffer mBuffer;
+		private Buffer mBuffer;
 		private MemoryValidator m_Memory = null;
 		private readonly BufferDesc m_BufferDesc = .();
 		private bool m_IsBoundToMemory = false;
@@ -25,6 +25,8 @@ namespace Sedulous.RHI.Validation
 			if (m_Memory != null)
 				m_Memory.UnbindBuffer(this);
 		}
+
+		public ref Buffer GetImpl() => ref mBuffer;
 
 		public void SetBoundToMemory()
 		{

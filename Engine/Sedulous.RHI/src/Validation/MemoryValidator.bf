@@ -6,7 +6,7 @@ namespace Sedulous.RHI.Validation
 	class MemoryValidator : Memory
 	{
 		private readonly DeviceValidator mDevice;
-		private readonly Memory mMemory;
+		private Memory mMemory;
 
 		private List<BufferValidator> m_Buffers = new .() ~ delete _;
 		private List<TextureValidator> m_Textures = new .() ~ delete _;
@@ -25,6 +25,8 @@ namespace Sedulous.RHI.Validation
 			m_Size = size;
 			m_MemoryLocation = memoryLocation;
 		}
+
+		public ref Memory GetImpl() => ref mMemory;
 
 		public uint64 GetSize() => m_Size;
 

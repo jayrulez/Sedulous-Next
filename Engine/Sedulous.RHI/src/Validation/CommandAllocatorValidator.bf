@@ -4,7 +4,7 @@ namespace Sedulous.RHI.Validation
 	class CommandAllocatorValidator : CommandAllocator
 	{
 		private readonly DeviceValidator mDevice;
-		private readonly CommandAllocator mCommandAllocator;
+		private CommandAllocator mCommandAllocator;
 
 		private readonly String mDebugName = new .() ~ delete _;
 
@@ -13,6 +13,8 @@ namespace Sedulous.RHI.Validation
 			mDevice = device;
 			mCommandAllocator = commandAllocator;
 		}
+
+		public ref CommandAllocator GetImpl() => ref mCommandAllocator;
 
 		public override void SetDebugName(StringView name)
 		{

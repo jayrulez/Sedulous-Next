@@ -23,7 +23,7 @@ namespace Sedulous.RHI.Validation
 	class DescriptorValidator : Descriptor
 	{
 		private readonly DeviceValidator mDevice;
-		private readonly Descriptor mDescriptor;
+		private Descriptor mDescriptor;
 
 		private ResourceType m_ResourceType = ResourceType.NONE;
 		private ResourceViewType m_ResourceViewType = ResourceViewType.NONE;
@@ -148,6 +148,8 @@ namespace Sedulous.RHI.Validation
 			mDescriptor = descriptor;
 			m_ResourceType = .SAMPLER;
 		}
+
+		public ref Descriptor GetImpl() => ref mDescriptor;
 
 		public override void SetDebugName(System.StringView name)
 		{

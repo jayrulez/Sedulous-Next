@@ -39,6 +39,8 @@ class JobGroup : Job
 
 	public void AddJob(Job job)
 	{
+		if (State != .Pending)
+			Runtime.FatalError("Cannot add job to JobGroup unless the State is pending.");
 		mJobs.Add(job);
 	}
 }
