@@ -256,7 +256,7 @@ namespace Sedulous.RHI.Vulkan
 
 		public VkImageView GetImageView(uint32 physicalDeviceIndex) => m_ImageViews[physicalDeviceIndex];
 
-		public readonly ref VkSampler GetSampler() => ref m_Sampler;
+		public ref VkSampler GetSampler() => ref m_Sampler;
 
 		public VkAccelerationStructureKHR GetAccelerationStructure(uint32 physicalDeviceIndex) => m_AccelerationStructures[physicalDeviceIndex];
 

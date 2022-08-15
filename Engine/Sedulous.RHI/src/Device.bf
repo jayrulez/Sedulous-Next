@@ -19,7 +19,7 @@ abstract class Device
 	public DeviceAllocator GetDeviceAllocator() => m_Allocator;
 
 	public abstract void SetDebugName(StringView name);
-	public abstract readonly ref DeviceDesc GetDesc();
+	public abstract ref DeviceDesc GetDesc();
 	public abstract Result GetCommandQueue(CommandQueueType commandQueueType, out CommandQueue commandQueue);
 
 	public abstract Result CreateCommandAllocator(CommandQueue commandQueue, uint32 physicalDeviceMask, out CommandAllocator commandAllocator);

@@ -5,7 +5,7 @@ namespace Sedulous.RHI
 	{
 		public abstract void SetDebugName(StringView name);
 
-		public abstract Result Begin(DescriptorPool* descriptorPool, uint32 physicalDeviceIndex);
+		public abstract Result Begin(DescriptorPool descriptorPool, uint32 physicalDeviceIndex);
 		public abstract Result End();
 
 		public abstract void SetPipeline(Pipeline pipeline);

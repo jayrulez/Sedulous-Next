@@ -210,7 +210,7 @@ namespace Sedulous.RHI.Vulkan
 			m_Device.SetDebugNameToTrivialObject(.VK_OBJECT_TYPE_COMMAND_BUFFER, (uint64)m_Handle.Handle, name);
 		}
 
-		public override Result Begin(DescriptorPool* descriptorPool, uint32 physicalDeviceIndex)
+		public override Result Begin(DescriptorPool descriptorPool, uint32 physicalDeviceIndex)
 		{
 			//MaybeUnused(descriptorPool);
 
