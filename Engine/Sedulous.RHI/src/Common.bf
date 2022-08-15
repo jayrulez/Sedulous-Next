@@ -2,6 +2,11 @@ using System;
 using Sedulous.Foundation.Logging.Abstractions;
 namespace Sedulous.RHI;
 
+// NRI Commit: dcd4f638da4b49e2678e04c440d040cf0b954e08
+// NRI_VERSION_MAJOR 1
+// NRI_VERSION_MINOR 84
+// NRI_VERSION_DATE "14 August 2022"
+
 public static
 {
 	public static uint32 SetBit(uint32 index)

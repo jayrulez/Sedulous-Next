@@ -151,20 +151,20 @@ class RHITestApplication : SDLApplication
 
 		for (ref Frame frame in ref mFrames)
 		{
-			mDevice.DestroyCommandBuffer(ref frame.commandBuffer);
-			mDevice.DestroyCommandAllocator(ref frame.commandAllocator);
-			mDevice.DestroyDeviceSemaphore(ref frame.deviceSemaphore);
+			mDevice.DestroyCommandBuffer(frame.commandBuffer);
+			mDevice.DestroyCommandAllocator(frame.commandAllocator);
+			mDevice.DestroyDeviceSemaphore(frame.deviceSemaphore);
 		}
 
 		for (ref BackBuffer backBuffer in ref mSwapChainBuffers)
 		{
-			mDevice.DestroyFrameBuffer(ref backBuffer.frameBuffer);
-			mDevice.DestroyDescriptor(ref backBuffer.colorAttachment);
+			mDevice.DestroyFrameBuffer(backBuffer.frameBuffer);
+			mDevice.DestroyDescriptor(backBuffer.colorAttachment);
 		}
 
-		mDevice.DestroyQueueSemaphore(ref mAcquireSemaphore);
-		mDevice.DestroyQueueSemaphore(ref mReleaseSemaphore);
-		mDevice.DestroySwapChain(ref mSwapChain);
+		mDevice.DestroyQueueSemaphore(mAcquireSemaphore);
+		mDevice.DestroyQueueSemaphore(mReleaseSemaphore);
+		mDevice.DestroySwapChain(mSwapChain);
 
 		base.OnFinalize();
 	}

@@ -38,12 +38,15 @@ namespace Sedulous.RHI.Vulkan
 		{
 			readonly TextureVK texture = (TextureVK)textureViewDesc.texture;
 
+			readonly uint32 mipLevelsLeft = texture.GetMipNum() - textureViewDesc.mipOffset;
+			readonly uint32 arrayLayersLeft = texture.GetArraySize() - descriptorTextureDesc.imageArrayOffset;
+
 			descriptorTextureDesc.texture = texture;
 			descriptorTextureDesc.imageAspectFlags = texture.GetImageAspectFlags();
 			descriptorTextureDesc.imageMipOffset = textureViewDesc.mipOffset;
-			descriptorTextureDesc.imageMipNum = textureViewDesc.mipNum;
+			descriptorTextureDesc.imageMipNum = (textureViewDesc.mipNum == REMAINING_MIP_LEVELS) ? mipLevelsLeft : textureViewDesc.mipNum;
 			descriptorTextureDesc.imageArrayOffset = textureViewDesc.arrayOffset;
-			descriptorTextureDesc.imageArraySize = textureViewDesc.arraySize;
+			descriptorTextureDesc.imageArraySize = (textureViewDesc.arraySize == REMAINING_ARRAY_LAYERS) ? arrayLayersLeft : textureViewDesc.arraySize;
 			descriptorTextureDesc.imageLayout = VulkanUtils.GetImageLayoutForView(textureViewDesc.viewType);
 		}
 
@@ -51,10 +54,12 @@ namespace Sedulous.RHI.Vulkan
 		{
 			readonly TextureVK texture = (TextureVK)textureViewDesc.texture;
 
+			readonly uint32 mipLevelsLeft = texture.GetMipNum() - textureViewDesc.mipOffset;
+
 			descriptorTextureDesc.texture = texture;
 			descriptorTextureDesc.imageAspectFlags = texture.GetImageAspectFlags();
 			descriptorTextureDesc.imageMipOffset = textureViewDesc.mipOffset;
-			descriptorTextureDesc.imageMipNum = textureViewDesc.mipNum;
+			descriptorTextureDesc.imageMipNum = (textureViewDesc.mipNum == REMAINING_MIP_LEVELS) ? mipLevelsLeft : textureViewDesc.mipNum;
 			descriptorTextureDesc.imageArrayOffset = 0;
 			descriptorTextureDesc.imageArraySize = 1;
 			descriptorTextureDesc.imageLayout = VulkanUtils.GetImageLayoutForView(textureViewDesc.viewType);
