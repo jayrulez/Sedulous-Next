@@ -36,6 +36,8 @@ namespace Sedulous.RHI.Validation
 		FrameBuffer m_FrameBuffer = null;
 		int32 m_AnnotationStack = 0;
 
+		private readonly String mDebugName = new .() ~ delete _;
+
 		private mut Command AllocateValidationCommand<Command>()
 		{
 			readonly int commandSize = sizeof(Command);
@@ -61,8 +63,11 @@ namespace Sedulous.RHI.Validation
 
 		public override void SetDebugName(System.StringView name)
 		{
+			mDebugName.Set(name);
 			mCommandBuffer.SetDebugName(name);
 		}
+
+		public String GetDebugName() => mDebugName;
 
 		public override Result Begin(DescriptorPool descriptorPool, uint32 physicalDeviceIndex)
 		{

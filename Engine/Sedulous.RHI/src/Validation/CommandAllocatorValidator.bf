@@ -6,6 +6,8 @@ namespace Sedulous.RHI.Validation
 		private readonly DeviceValidator mDevice;
 		private readonly CommandAllocator mCommandAllocator;
 
+		private readonly String mDebugName = new .() ~ delete _;
+
 		public this(DeviceValidator device, CommandAllocator commandAllocator)
 		{
 			mDevice = device;
@@ -14,8 +16,11 @@ namespace Sedulous.RHI.Validation
 
 		public override void SetDebugName(StringView name)
 		{
+			mDebugName.Set(name);
 			mCommandAllocator.SetDebugName(name);
 		}
+
+		public String GetDebugName() => mDebugName;
 
 		public override Result CreateCommandBuffer(out CommandBuffer commandBuffer)
 		{

@@ -20,15 +20,26 @@ namespace Sedulous.RHI.Validation
 		Dictionary<MemoryType, MemoryLocation> m_MemoryTypeMap = new .() ~ delete _;
 		Monitor m_Monitor;
 
+		private readonly String mDebugName = new .() ~ delete _;
+
 		public this(Device device, ILogger logger, DeviceAllocator allocator) : base(logger, allocator)
 		{
 			mDevice = device;
 		}
 
+		public void RegisterMemoryType(MemoryType memoryType, MemoryLocation memoryLocation)
+		{
+			using (m_Monitor.Enter())
+			m_MemoryTypeMap[memoryType] = memoryLocation;
+		}
+
 		public override void SetDebugName(StringView name)
 		{
+			mDebugName.Set(name);
 			mDevice.SetDebugName(name);
 		}
+
+		public String GetDebugName() => mDebugName;
 
 		public override ref DeviceDesc GetDesc()
 		{
@@ -39,18 +50,18 @@ namespace Sedulous.RHI.Validation
 		{
 			commandQueue = ?;
 			RETURN_ON_FAILURE!(mDevice.GetLogger(), commandQueueType < CommandQueueType.MAX_NUM, Result.INVALID_ARGUMENT,
-			    "Can't get CommandQueue: 'commandQueueType' is invalid.");
+				"Can't get CommandQueue: 'commandQueueType' is invalid.");
 
 			CommandQueue commandQueueImpl;
 			readonly Result result = mDevice.GetCommandQueue(commandQueueType, out commandQueueImpl);
 
 			if (result == Result.SUCCESS)
 			{
-			    readonly uint32 index = (uint32)commandQueueType;
-			    if (m_CommandQueues[index] == null)
-			        m_CommandQueues[index] = Allocate!<CommandQueueValidator>(mDevice.GetDeviceAllocator(), this, commandQueueImpl);
+				readonly uint32 index = (uint32)commandQueueType;
+				if (m_CommandQueues[index] == null)
+					m_CommandQueues[index] = Allocate!<CommandQueueValidator>(mDevice.GetDeviceAllocator(), this, commandQueueImpl);
 
-			    commandQueue = (CommandQueue)m_CommandQueues[index];
+				commandQueue = (CommandQueue)m_CommandQueues[index];
 			}
 
 			return result;
@@ -169,7 +180,7 @@ namespace Sedulous.RHI.Validation
 
 		public override Result CreateSwapChain(SwapChainDesc swapChainDesc, out SwapChain swapChain)
 		{
-			swapChain= ?;
+			swapChain = ?;
 
 			return default;
 		}
@@ -189,72 +200,58 @@ namespace Sedulous.RHI.Validation
 
 		public override void DestroyCommandAllocator(ref CommandAllocator commandAllocator)
 		{
-
 		}
 
 		public override void DestroyDescriptorPool(ref DescriptorPool descriptorPool)
 		{
-
 		}
 
 		public override void DestroyBuffer(ref Buffer buffer)
 		{
-
 		}
 
 		public override void DestroyTexture(ref Texture texture)
 		{
-
 		}
 
 		public override void DestroyDescriptor(ref Descriptor descriptor)
 		{
-
 		}
 
 		public override void DestroyPipelineLayout(ref PipelineLayout pipelineLayout)
 		{
-
 		}
 
 		public override void DestroyPipeline(ref Pipeline pipeline)
 		{
-
 		}
 
 		public override void DestroyFrameBuffer(ref FrameBuffer frameBuffer)
 		{
-
 		}
 
 		public override void DestroyQueryPool(ref QueryPool queryPool)
 		{
-
 		}
 
 		public override void DestroyQueueSemaphore(ref QueueSemaphore queueSemaphore)
 		{
-
 		}
 
 		public override void DestroyDeviceSemaphore(ref DeviceSemaphore deviceSemaphore)
 		{
-
 		}
 
 		public override void DestroySwapChain(ref SwapChain swapChain)
 		{
-
 		}
 
 		public override void DestroyAccelerationStructure(ref AccelerationStructure accelerationStructure)
 		{
-
 		}
 
 		public override void DestroyCommandBuffer(ref CommandBuffer commandBuffer)
 		{
-
 		}
 
 		public override Result GetDisplays(Display** displays, ref uint32 displayNum)
@@ -290,7 +287,6 @@ namespace Sedulous.RHI.Validation
 
 		public override void FreeMemory(ref Memory memory)
 		{
-
 		}
 
 		public override FormatSupportBits GetFormatSupport(Format format)
@@ -310,7 +306,6 @@ namespace Sedulous.RHI.Validation
 
 		public override void SetSPIRVBindingOffsets(SPIRVBindingOffsets spirvBindingOffsets)
 		{
-
 		}
 
 		public uint32 GetPhysicalDeviceNum() => m_PhysicalDeviceNum;

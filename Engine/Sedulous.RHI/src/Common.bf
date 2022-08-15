@@ -683,8 +683,8 @@ struct TextureDataLayoutDesc
 struct WorkSubmissionDesc
 {
 	public CommandBuffer* commandBuffers;
-	public readonly QueueSemaphore* wait;
-	public readonly QueueSemaphore* signal;
+	public QueueSemaphore* wait;
+	public QueueSemaphore* signal;
 	public uint32 commandBufferNum;
 	public uint32 waitNum;
 	public uint32 signalNum;
@@ -1668,6 +1668,16 @@ public static
 		}
 	}
 
+	public static mixin RETURN_ON_FAILURE<T>(ILogger logger, bool condition, T returnCode, StringView format, Object arg1, Object arg2)
+	{
+		if (condition == false)
+		{
+			logger.LogError(format, arg1, arg2);
+
+			return returnCode;
+		}
+	}
+
 	public static mixin RETURN_ON_FAILURE<T>(ILogger logger, bool condition, T returnCode, StringView format)
 	{
 		if (condition == false)
@@ -1691,6 +1701,11 @@ public static
 	public static void REPORT_ERROR(ILogger logger, StringView format, params Object[] args)
 	{
 		logger.LogError(format, params args);
+	}
+
+	public static void REPORT_ERROR(ILogger logger, StringView format)
+	{
+		logger.LogError(format);
 	}
 
 	public static mixin CHECK(ILogger logger, bool condition, StringView format, Object args)
