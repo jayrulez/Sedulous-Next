@@ -3,6 +3,7 @@ using Sedulous.Foundation.Logging.Abstractions;
 using System;
 using Sedulous.Foundation.Logging.Debug;
 using Sedulous.RHI;
+using Sedulous.RHI.Validation;
 using Sedulous.RHI.Vulkan;
 using System.Collections;
 using Sedulous.Renderer;
@@ -52,6 +53,37 @@ struct Vertex
 {
 	public float[2] position;
 	public float[2] uv;
+}
+
+public static
+{
+	public static Result CreateDevice(DeviceCreationDesc deviceCreationDesc, DeviceAllocator allocator, ILogger logger, out Device device)
+	{
+		Result result = CreateDeviceVK(deviceCreationDesc, allocator, logger, out device);
+		if (result != .SUCCESS)
+		{
+			return result;
+		}
+
+		if (deviceCreationDesc.enableNRIValidation)
+		{
+			Device deviceValidator = CreateDeviceValidation(deviceCreationDesc, device, .. ?);
+			if (deviceValidator == null)
+			{
+				DestroyDevice(device);
+				return .FAILURE;
+			}
+
+			device = deviceValidator;
+		}
+
+		return .SUCCESS;
+	}
+
+	public static void DestroyDevice(Device device)
+	{
+		device.Destroy();
+	}
 }
 
 class RHITestApplication : SDLApplication
@@ -108,7 +140,7 @@ class RHITestApplication : SDLApplication
 				spirvBindingOffsets = SPIRV_BINDING_OFFSETS
 			};
 
-		Result result = CreateDeviceVK(deviceDesc, mDeviceAllocator, Logger, out mDevice);
+		Result result = CreateDevice(deviceDesc, mDeviceAllocator, Logger, out mDevice);
 		if (result != .SUCCESS)
 		{
 			Logger.LogError("Failed to create Device");
@@ -128,7 +160,10 @@ class RHITestApplication : SDLApplication
 			delete mRendererPlugin;
 
 		if (mDevice != null)
-			delete mDevice;
+		{
+			mDevice.Destroy();
+			mDevice = null;
+		}
 
 		if (mDeviceAllocator != null)
 			delete mDeviceAllocator;
@@ -279,31 +314,31 @@ class RHITestApplication : SDLApplication
 
 		for (ref Frame frame in ref mFrames)
 		{
-			mDevice.DestroyCommandBuffer(ref frame.commandBuffer);
-			mDevice.DestroyCommandAllocator(ref frame.commandAllocator);
-			mDevice.DestroyDeviceSemaphore(ref frame.deviceSemaphore);
-			mDevice.DestroyDescriptor(ref frame.constantBufferView);
+			mDevice.DestroyCommandBuffer(frame.commandBuffer);
+			mDevice.DestroyCommandAllocator(frame.commandAllocator);
+			mDevice.DestroyDeviceSemaphore(frame.deviceSemaphore);
+			mDevice.DestroyDescriptor(frame.constantBufferView);
 		}
 
 		for (ref BackBuffer backBuffer in ref mSwapChainBuffers)
 		{
-			mDevice.DestroyFrameBuffer(ref backBuffer.frameBuffer);
-			mDevice.DestroyDescriptor(ref backBuffer.colorAttachment);
+			mDevice.DestroyFrameBuffer(backBuffer.frameBuffer);
+			mDevice.DestroyDescriptor(backBuffer.colorAttachment);
 		}
-		mDevice.DestroyPipeline(ref m_Pipeline);
-		mDevice.DestroyPipelineLayout(ref m_PipelineLayout);
-		mDevice.DestroyDescriptor(ref m_TextureShaderResource);
-		mDevice.DestroyDescriptor(ref m_Sampler);
-		mDevice.DestroyBuffer(ref m_ConstantBuffer);
-		mDevice.DestroyBuffer(ref m_GeometryBuffer);
-		mDevice.DestroyTexture(ref m_Texture);
-		mDevice.DestroyDescriptorPool(ref m_DescriptorPool);
-		mDevice.DestroyQueueSemaphore(ref mAcquireSemaphore);
-		mDevice.DestroyQueueSemaphore(ref mReleaseSemaphore);
-		mDevice.DestroySwapChain(ref mSwapChain);
+		mDevice.DestroyPipeline(m_Pipeline);
+		mDevice.DestroyPipelineLayout(m_PipelineLayout);
+		mDevice.DestroyDescriptor(m_TextureShaderResource);
+		mDevice.DestroyDescriptor(m_Sampler);
+		mDevice.DestroyBuffer(m_ConstantBuffer);
+		mDevice.DestroyBuffer(m_GeometryBuffer);
+		mDevice.DestroyTexture(m_Texture);
+		mDevice.DestroyDescriptorPool(m_DescriptorPool);
+		mDevice.DestroyQueueSemaphore(mAcquireSemaphore);
+		mDevice.DestroyQueueSemaphore(mReleaseSemaphore);
+		mDevice.DestroySwapChain(mSwapChain);
 
 		for (Memory memory in m_MemoryAllocations)
-			mDevice.FreeMemory(ref memory);
+			mDevice.FreeMemory(memory);
 
 		base.OnFinalize();
 	}
@@ -360,6 +395,8 @@ class RHITestApplication : SDLApplication
 				clearDesc.value.rgba32f = .() { r = 0.0f, g = 0.0f, b = 1.0f, a = 1.0f };
 				Rect rect3 = .() { left = 0, top = (.)(windowHeight * 2) / 3, width = windowWidth, height = windowHeight / 3 };
 				commandBuffer.ClearAttachments(&clearDesc, 1, &rect3, 1);
+
+				commandBuffer.EndAnnotation();
 			}
 			commandBuffer.EndRenderPass();
 

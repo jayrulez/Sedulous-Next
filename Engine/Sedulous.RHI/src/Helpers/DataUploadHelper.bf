@@ -71,13 +71,13 @@ namespace Sedulous.RHI.Helpers
 		{
 			for (uint32 i = 0; i < m_CommandBuffers.Count; i++)
 			{
-				m_Device.DestroyCommandBuffer(ref m_CommandBuffers[i]);
-				m_Device.DestroyCommandAllocator(ref m_CommandAllocators[i]);
+				m_Device.DestroyCommandBuffer(m_CommandBuffers[i]);
+				m_Device.DestroyCommandAllocator(m_CommandAllocators[i]);
 			}
-			m_Device.DestroyDeviceSemaphore(ref m_DeviceSemaphore);
+			m_Device.DestroyDeviceSemaphore(m_DeviceSemaphore);
 
-			m_Device.DestroyBuffer(ref m_UploadBuffer);
-			m_Device.FreeMemory(ref m_UploadBufferMemory);
+			m_Device.DestroyBuffer(m_UploadBuffer);
+			m_Device.FreeMemory(m_UploadBufferMemory);
 		}
 
 		private Result UploadTextures(TextureUploadDesc* textureUploadDescs, uint32 textureDataDescNum)

@@ -42,20 +42,21 @@ abstract class Device
 	public abstract Result CreateRayTracingPipeline(RayTracingPipelineDesc rayTracingPipelineDesc, out Pipeline pipeline);
 	public abstract Result CreateAccelerationStructure(AccelerationStructureDesc accelerationStructureDesc, out AccelerationStructure accelerationStructure);
 
-	public abstract void DestroyCommandAllocator(ref CommandAllocator commandAllocator);
-	public abstract void DestroyDescriptorPool(ref DescriptorPool descriptorPool);
-	public abstract void DestroyBuffer(ref Buffer buffer);
-	public abstract void DestroyTexture(ref Texture texture);
-	public abstract void DestroyDescriptor(ref Descriptor descriptor);
-	public abstract void DestroyPipelineLayout(ref PipelineLayout pipelineLayout);
-	public abstract void DestroyPipeline(ref Pipeline pipeline);
-	public abstract void DestroyFrameBuffer(ref FrameBuffer frameBuffer);
-	public abstract void DestroyQueryPool(ref QueryPool queryPool);
-	public abstract void DestroyQueueSemaphore(ref QueueSemaphore queueSemaphore);
-	public abstract void DestroyDeviceSemaphore(ref DeviceSemaphore deviceSemaphore);
-	public abstract void DestroySwapChain(ref SwapChain swapChain);
-	public abstract void DestroyAccelerationStructure(ref AccelerationStructure accelerationStructure);
-	public abstract void DestroyCommandBuffer(ref CommandBuffer commandBuffer);
+	public abstract void DestroyCommandAllocator(CommandAllocator commandAllocator);
+	public abstract void DestroyDescriptorPool(DescriptorPool descriptorPool);
+	public abstract void DestroyBuffer(Buffer buffer);
+	public abstract void DestroyTexture(Texture texture);
+	public abstract void DestroyDescriptor(Descriptor descriptor);
+	public abstract void DestroyPipelineLayout(PipelineLayout pipelineLayout);
+	public abstract void DestroyPipeline(Pipeline pipeline);
+	public abstract void DestroyFrameBuffer(FrameBuffer frameBuffer);
+	public abstract void DestroyQueryPool(QueryPool queryPool);
+	public abstract void DestroyQueueSemaphore(QueueSemaphore queueSemaphore);
+	public abstract void DestroyDeviceSemaphore(DeviceSemaphore deviceSemaphore);
+	public abstract void DestroySwapChain(SwapChain swapChain);
+	public abstract void DestroyAccelerationStructure(AccelerationStructure accelerationStructure);
+	public abstract void DestroyCommandBuffer(CommandBuffer commandBuffer);
+	public abstract void Destroy();
 
 	public abstract Result GetDisplays(Display** displays, ref uint32 displayNum);
 	public abstract Result GetDisplaySize(ref Display display, ref uint16 width, ref uint16 height);
@@ -64,7 +65,7 @@ abstract class Device
 	public abstract Result BindBufferMemory(BufferMemoryBindingDesc* memoryBindingDescs, uint32 memoryBindingDescNum);
 	public abstract Result BindTextureMemory(TextureMemoryBindingDesc* memoryBindingDescs, uint32 memoryBindingDescNum);
 	public abstract Result BindAccelerationStructureMemory(AccelerationStructureMemoryBindingDesc* memoryBindingDescs, uint32 memoryBindingDescNum);
-	public abstract void FreeMemory(ref Memory memory);
+	public abstract void FreeMemory(Memory memory);
 
 	public abstract FormatSupportBits GetFormatSupport(Format format);
 

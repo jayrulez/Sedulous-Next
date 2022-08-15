@@ -11,7 +11,7 @@ namespace Sedulous.RHI.Vulkan;
 
 public static
 {
-	public static Result CreateDeviceVK(in DeviceCreationDesc deviceCreationDesc, DeviceAllocator allocator, ILogger logger, out Device device)
+	public static Result CreateDeviceVK(DeviceCreationDesc deviceCreationDesc, DeviceAllocator allocator, ILogger logger, out Device device)
 	{
 		DeviceVK implementation = Allocate!<DeviceVK>(allocator, logger, allocator);
 
@@ -28,7 +28,7 @@ public static
 		return res;
 	}
 
-	public static Result CreateDeviceVK(in DeviceCreationVulkanDesc deviceCreationDesc, DeviceAllocator allocator, ILogger logger, out Device device)
+	public static Result CreateDeviceVK(DeviceCreationVulkanDesc deviceCreationDesc, DeviceAllocator allocator, ILogger logger, out Device device)
 	{
 		DeviceVK implementation = Allocate!<DeviceVK>(allocator, logger, allocator);
 		readonly Result res = implementation.Create(deviceCreationDesc);
@@ -331,13 +331,13 @@ class DeviceVK : Device
 		extensions.Add(VK_KHR_WIN32_SURFACE_EXTENSION_NAME);
 		#endif
 		#if VK_USE_PLATFORM_METAL_EXT
-		    extensions.Add(VK_EXT_METAL_SURFACE_EXTENSION_NAME);
+			extensions.Add(VK_EXT_METAL_SURFACE_EXTENSION_NAME);
 		#endif
 		#if VK_USE_PLATFORM_XLIB_KHR
 			extensions.Add(VK_KHR_XLIB_SURFACE_EXTENSION_NAME);
 		#endif
 		#if VK_USE_PLATFORM_WAYLAND_KHR
-		    extensions.Add(VK_KHR_WAYLAND_SURFACE_EXTENSION_NAME);
+			extensions.Add(VK_KHR_WAYLAND_SURFACE_EXTENSION_NAME);
 		#endif
 		extensions.Add(VK_KHR_SURFACE_EXTENSION_NAME);
 		//extensions.Add(VK_KHR_DISPLAY_EXTENSION_NAME); //VK_KHR_display
@@ -1723,74 +1723,79 @@ class DeviceVK : Device
 		return CreateImplementation<DeviceSemaphoreVK...>(vkFence, out deviceSemaphore);
 	}
 
-	public override void DestroyCommandAllocator(ref CommandAllocator commandAllocator)
+	public override void DestroyCommandAllocator(CommandAllocator commandAllocator)
 	{
 		Deallocate!(GetDeviceAllocator(), (CommandAllocatorVK)commandAllocator);
 	}
 
-	public override void DestroyDescriptorPool(ref DescriptorPool descriptorPool)
+	public override void DestroyDescriptorPool(DescriptorPool descriptorPool)
 	{
 		Deallocate!(GetDeviceAllocator(), (DescriptorPoolVK)descriptorPool);
 	}
 
-	public override void DestroyBuffer(ref Buffer buffer)
+	public override void DestroyBuffer(Buffer buffer)
 	{
 		Deallocate!(GetDeviceAllocator(), (BufferVK)buffer);
 	}
 
-	public override void DestroyTexture(ref Texture texture)
+	public override void DestroyTexture(Texture texture)
 	{
 		Deallocate!(GetDeviceAllocator(), (TextureVK)texture);
 	}
 
-	public override void DestroyDescriptor(ref Descriptor descriptor)
+	public override void DestroyDescriptor(Descriptor descriptor)
 	{
 		Deallocate!(GetDeviceAllocator(), (DescriptorVK)descriptor);
 	}
 
-	public override void DestroyPipelineLayout(ref PipelineLayout pipelineLayout)
+	public override void DestroyPipelineLayout(PipelineLayout pipelineLayout)
 	{
 		Deallocate!(GetDeviceAllocator(), (PipelineLayoutVK)pipelineLayout);
 	}
 
-	public override void DestroyPipeline(ref Pipeline pipeline)
+	public override void DestroyPipeline(Pipeline pipeline)
 	{
 		Deallocate!(GetDeviceAllocator(), (PipelineVK)pipeline);
 	}
 
-	public override void DestroyFrameBuffer(ref FrameBuffer frameBuffer)
+	public override void DestroyFrameBuffer(FrameBuffer frameBuffer)
 	{
 		Deallocate!(GetDeviceAllocator(), (FrameBufferVK)frameBuffer);
 	}
 
-	public override void DestroyQueryPool(ref QueryPool queryPool)
+	public override void DestroyQueryPool(QueryPool queryPool)
 	{
 		Deallocate!(GetDeviceAllocator(), (QueryPoolVK)queryPool);
 	}
 
-	public override void DestroyQueueSemaphore(ref QueueSemaphore queueSemaphore)
+	public override void DestroyQueueSemaphore(QueueSemaphore queueSemaphore)
 	{
 		Deallocate!(GetDeviceAllocator(), (QueueSemaphoreVK)queueSemaphore);
 	}
 
-	public override void DestroyDeviceSemaphore(ref DeviceSemaphore deviceSemaphore)
+	public override void DestroyDeviceSemaphore(DeviceSemaphore deviceSemaphore)
 	{
 		Deallocate!(GetDeviceAllocator(), (DeviceSemaphoreVK)deviceSemaphore);
 	}
 
-	public override void DestroySwapChain(ref SwapChain swapChain)
+	public override void DestroySwapChain(SwapChain swapChain)
 	{
 		Deallocate!(GetDeviceAllocator(), (SwapChainVK)swapChain);
 	}
 
-	public override void DestroyAccelerationStructure(ref AccelerationStructure accelerationStructure)
+	public override void DestroyAccelerationStructure(AccelerationStructure accelerationStructure)
 	{
 		Deallocate!(GetDeviceAllocator(), (AccelerationStructureVK)accelerationStructure);
 	}
 
-	public override void DestroyCommandBuffer(ref CommandBuffer commandBuffer)
+	public override void DestroyCommandBuffer(CommandBuffer commandBuffer)
 	{
 		Deallocate!(GetDeviceAllocator(), (CommandBufferVK)commandBuffer);
+	}
+
+	public override void Destroy()
+	{
+		Deallocate!(GetDeviceAllocator(), this);
 	}
 
 	public override Result GetDisplays(Display** displays, ref uint32 displayNum)
@@ -1800,7 +1805,8 @@ class DeviceVK : Device
 
 		uint32 displayCount = 1;
 
-		if(displays == null || displayNum == 0){
+		if (displays == null || displayNum == 0)
+		{
 			VkPhysicalDevice device = m_PhysicalDevices.Front;
 			VkPhysicalDeviceProperties properties = .();
 			vkGetPhysicalDeviceProperties(device, &properties);
@@ -1827,7 +1833,8 @@ class DeviceVK : Device
 			displays[i] = (Display*)(void*)&display;
 		}
 
-		for(int i = displayCount -1; i < displayNum; i++){
+		for (int i = displayCount - 1; i < displayNum; i++)
+		{
 			displays[i] = null;
 		}
 
@@ -2018,7 +2025,7 @@ class DeviceVK : Device
 		return result;
 	}
 
-	public override void FreeMemory(ref Memory memory)
+	public override void FreeMemory(Memory memory)
 	{
 		Deallocate!(GetDeviceAllocator(), (MemoryVK)memory);
 	}

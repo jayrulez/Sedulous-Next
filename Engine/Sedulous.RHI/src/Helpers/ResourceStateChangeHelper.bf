@@ -23,11 +23,11 @@ namespace Sedulous.RHI.Helpers
 		public ~this()
 		{
 			if (m_CommandBuffer != null)
-				m_Device.DestroyCommandBuffer(ref m_CommandBuffer);
+				m_Device.DestroyCommandBuffer(m_CommandBuffer);
 			m_CommandBuffer = null;
 
 			if (m_CommandAllocator != null)
-				m_Device.DestroyCommandAllocator(ref m_CommandAllocator);
+				m_Device.DestroyCommandAllocator(m_CommandAllocator);
 			m_CommandAllocator = null;
 
 			Deallocate!(m_Device.GetDeviceAllocator(), m_WaitIdleHelper);

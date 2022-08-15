@@ -107,7 +107,7 @@ namespace Sedulous.RHI.Validation
 			mDevice = device;
 			mCommandBuffer = commandBuffer;
 		}
-		
+
 
 		public ref CommandBuffer GetImpl() => ref mCommandBuffer;
 
@@ -127,7 +127,11 @@ namespace Sedulous.RHI.Validation
 			RETURN_ON_FAILURE!(mDevice.GetLogger(), physicalDeviceIndex < mDevice.GetPhysicalDeviceNum(), Result.FAILURE,
 				"Can't begin recording of CommandBuffer: 'physicalDeviceIndex' is invalid.");
 
-			Result result = mCommandBuffer.Begin(descriptorPool, physicalDeviceIndex);
+			DescriptorPool descriptorPoolImpl = null;
+			if (descriptorPool != null)
+				descriptorPoolImpl = ((DescriptorPoolValidator)descriptorPool).GetImpl();
+
+			Result result = mCommandBuffer.Begin(descriptorPoolImpl, physicalDeviceIndex);
 			if (result == Result.SUCCESS)
 				m_IsRecordingStarted = true;
 
@@ -162,7 +166,9 @@ namespace Sedulous.RHI.Validation
 			RETURN_ON_FAILURE!(mDevice.GetLogger(), m_IsRecordingStarted, void(),
 				"Can't set pipeline: the command buffer must be in the recording state.");
 
-			mCommandBuffer.SetPipeline(pipeline);
+			Pipeline pipelineImpl = ((PipelineValidator)pipeline).GetImpl();
+
+			mCommandBuffer.SetPipeline(pipelineImpl);
 		}
 
 		public override void SetPipelineLayout(PipelineLayout pipelineLayout)
@@ -170,7 +176,9 @@ namespace Sedulous.RHI.Validation
 			RETURN_ON_FAILURE!(mDevice.GetLogger(), m_IsRecordingStarted, void(),
 				"Can't set pipeline layout: the command buffer must be in the recording state.");
 
-			mCommandBuffer.SetPipelineLayout(pipelineLayout);
+			PipelineLayout pipelineLayoutImpl = ((PipelineLayoutValidator)pipelineLayout).GetImpl();
+
+			mCommandBuffer.SetPipelineLayout(pipelineLayoutImpl);
 		}
 
 		public override void SetDescriptorSets(uint32 baseIndex, uint32 descriptorSetNum, DescriptorSet* descriptorSets, uint32* dynamicConstantBufferOffsets)
@@ -180,7 +188,7 @@ namespace Sedulous.RHI.Validation
 
 			DescriptorSet* descriptorSetsImpl = scope:: List<DescriptorSet>() { Count = descriptorSetNum }.Ptr; //STACK_ALLOC!<DescriptorSet>(descriptorSetNum);
 			for (uint32 i = 0; i < descriptorSetNum; i++)
-				descriptorSetsImpl[i] = descriptorSets[i];
+				descriptorSetsImpl[i] = ((DescriptorSetValidator)descriptorSets[i]).GetImpl();
 
 			mCommandBuffer.SetDescriptorSets(baseIndex, descriptorSetNum, descriptorSetsImpl, dynamicConstantBufferOffsets);
 		}
@@ -198,7 +206,9 @@ namespace Sedulous.RHI.Validation
 			RETURN_ON_FAILURE!(mDevice.GetLogger(), m_IsRecordingStarted, void(),
 				"Can't set descriptor pool: the command buffer must be in the recording state.");
 
-			mCommandBuffer.SetDescriptorPool(descriptorPool);
+			DescriptorPool descriptorPoolImpl = ((DescriptorPoolValidator)descriptorPool).GetImpl();
+
+			mCommandBuffer.SetDescriptorPool(descriptorPoolImpl);
 		}
 
 		public override void PipelineBarrier(TransitionBarrierDesc* transitionBarriers, AliasingBarrierDesc* aliasingBarriers, BarrierDependency dependency)
@@ -232,12 +242,12 @@ namespace Sedulous.RHI.Validation
 				transitionBarrierImpl.buffers = STACK_ALLOC!<BufferTransitionBarrierDesc>(transitionBarriers.bufferNum);
 				Internal.MemCpy((void*)transitionBarrierImpl.buffers, transitionBarriers.buffers, sizeof(BufferTransitionBarrierDesc) * transitionBarriers.bufferNum);
 				for (uint32 i = 0; i < transitionBarrierImpl.bufferNum; i++)
-					((BufferTransitionBarrierDesc*)transitionBarrierImpl.buffers)[i].buffer = transitionBarriers.buffers[i].buffer;
+					((BufferTransitionBarrierDesc*)transitionBarrierImpl.buffers)[i].buffer = ((BufferValidator)transitionBarriers.buffers[i].buffer).GetImpl();
 
 				transitionBarrierImpl.textures = STACK_ALLOC!<TextureTransitionBarrierDesc>(transitionBarriers.textureNum);
 				Internal.MemCpy((void*)transitionBarrierImpl.textures, transitionBarriers.textures, sizeof(TextureTransitionBarrierDesc) * transitionBarriers.textureNum);
 				for (uint32 i = 0; i < transitionBarrierImpl.textureNum; i++)
-					((TextureTransitionBarrierDesc*)transitionBarrierImpl.textures)[i].texture = transitionBarriers.textures[i].texture;
+					((TextureTransitionBarrierDesc*)transitionBarrierImpl.textures)[i].texture = ((TextureValidator)transitionBarriers.textures[i].texture).GetImpl();
 
 				transitionBarriers = &transitionBarrierImpl;
 			}
@@ -251,16 +261,16 @@ namespace Sedulous.RHI.Validation
 				Internal.MemCpy((void*)aliasingBarriersImpl.buffers, aliasingBarriers.buffers, sizeof(BufferAliasingBarrierDesc) * aliasingBarriers.bufferNum);
 				for (uint32 i = 0; i < aliasingBarriersImpl.bufferNum; i++)
 				{
-					((BufferAliasingBarrierDesc*)aliasingBarriersImpl.buffers)[i].before = aliasingBarriers.buffers[i].before;
-					((BufferAliasingBarrierDesc*)aliasingBarriersImpl.buffers)[i].after = aliasingBarriers.buffers[i].after;
+					((BufferAliasingBarrierDesc*)aliasingBarriersImpl.buffers)[i].before = ((BufferValidator)aliasingBarriers.buffers[i].before).GetImpl();
+					((BufferAliasingBarrierDesc*)aliasingBarriersImpl.buffers)[i].after = ((BufferValidator)aliasingBarriers.buffers[i].after).GetImpl();
 				}
 
 				aliasingBarriersImpl.textures = STACK_ALLOC!<TextureAliasingBarrierDesc>(aliasingBarriers.textureNum);
 				Internal.MemCpy((void*)aliasingBarriersImpl.textures, aliasingBarriers.textures, sizeof(TextureAliasingBarrierDesc) * aliasingBarriers.textureNum);
 				for (uint32 i = 0; i < aliasingBarriersImpl.textureNum; i++)
 				{
-					((TextureAliasingBarrierDesc*)aliasingBarriersImpl.textures)[i].before = aliasingBarriers.textures[i].before;
-					((TextureAliasingBarrierDesc*)aliasingBarriersImpl.textures)[i].after = aliasingBarriers.textures[i].after;
+					((TextureAliasingBarrierDesc*)aliasingBarriersImpl.textures)[i].before = ((TextureValidator)aliasingBarriers.textures[i].before).GetImpl();
+					((TextureAliasingBarrierDesc*)aliasingBarriersImpl.textures)[i].after = ((TextureValidator)aliasingBarriers.textures[i].after).GetImpl();
 				}
 
 				aliasingBarriers = &aliasingBarriersImpl;
@@ -282,7 +292,9 @@ namespace Sedulous.RHI.Validation
 
 			m_FrameBuffer = frameBuffer;
 
-			mCommandBuffer.BeginRenderPass(frameBuffer, renderPassBeginFlag);
+			FrameBuffer frameBufferImpl = ((FrameBufferValidator) frameBuffer).GetImpl();
+
+			mCommandBuffer.BeginRenderPass(frameBufferImpl, renderPassBeginFlag);
 		}
 
 		public override void EndRenderPass()
@@ -366,7 +378,9 @@ namespace Sedulous.RHI.Validation
 			RETURN_ON_FAILURE!(mDevice.GetLogger(), m_IsRecordingStarted, void(),
 				"Can't set index buffers: the command buffer must be in the recording state.");
 
-			mCommandBuffer.SetIndexBuffer(buffer, offset, indexType);
+			Buffer bufferImpl = ((BufferValidator)buffer).GetImpl();
+
+			mCommandBuffer.SetIndexBuffer(bufferImpl, offset, indexType);
 		}
 
 		public override void SetVertexBuffers(uint32 baseSlot, uint32 bufferNum, Buffer* buffers, uint64* offsets)
@@ -376,7 +390,7 @@ namespace Sedulous.RHI.Validation
 
 			Buffer* buffersImpl = scope:: List<Buffer>() { Count = bufferNum }.Ptr; //STACK_ALLOC!<Buffer>(bufferNum);
 			for (uint32 i = 0; i < bufferNum; i++)
-				buffersImpl[i] = buffers[i];
+				buffersImpl[i] = ((BufferValidator)buffers[i]).GetImpl();
 
 			mCommandBuffer.SetVertexBuffers(baseSlot, bufferNum, buffersImpl, offsets);
 		}
@@ -411,7 +425,9 @@ namespace Sedulous.RHI.Validation
 			RETURN_ON_FAILURE!(mDevice.GetLogger(), m_FrameBuffer != null, void(),
 				"Can't record draw call: this operation is allowed only inside render pass.");
 
-			mCommandBuffer.DrawIndirect(buffer, offset, drawNum, stride);
+			Buffer bufferImpl = ((BufferValidator)buffer).GetImpl();
+
+			mCommandBuffer.DrawIndirect(bufferImpl, offset, drawNum, stride);
 		}
 
 		public override void DrawIndexedIndirect(Buffer buffer, uint64 offset, uint32 drawNum, uint32 stride)
@@ -422,7 +438,9 @@ namespace Sedulous.RHI.Validation
 			RETURN_ON_FAILURE!(mDevice.GetLogger(), m_FrameBuffer != null, void(),
 				"Can't record draw call: this operation is allowed only inside render pass.");
 
-			mCommandBuffer.DrawIndexedIndirect(buffer, offset, drawNum, stride);
+			Buffer bufferImpl = ((BufferValidator)buffer).GetImpl();
+
+			mCommandBuffer.DrawIndexedIndirect(bufferImpl, offset, drawNum, stride);
 		}
 
 		public override void Dispatch(uint32 x, uint32 y, uint32 z)
@@ -444,7 +462,9 @@ namespace Sedulous.RHI.Validation
 			RETURN_ON_FAILURE!(mDevice.GetLogger(), m_FrameBuffer == null, void(),
 				"Can't record dispatch call: this operation is allowed only outside render pass.");
 
-			mCommandBuffer.DispatchIndirect(buffer, offset);
+			Buffer bufferImpl = ((BufferValidator)buffer).GetImpl();
+
+			mCommandBuffer.DispatchIndirect(bufferImpl, offset);
 		}
 
 		public override void BeginQuery(QueryPool queryPool, uint32 offset)
@@ -468,7 +488,9 @@ namespace Sedulous.RHI.Validation
 				validationCommand.queryPoolOffset = offset;
 			}
 
-			mCommandBuffer.BeginQuery(queryPool, offset);
+			QueryPool queryPoolImpl = ((QueryPoolValidator)queryPool).GetImpl();
+
+			mCommandBuffer.BeginQuery(queryPoolImpl, offset);
 		}
 
 		public override void EndQuery(QueryPool queryPool, uint32 offset)
@@ -489,7 +511,9 @@ namespace Sedulous.RHI.Validation
 				validationCommand.queryPoolOffset = offset;
 			}
 
-			mCommandBuffer.EndQuery(queryPool, offset);
+			QueryPool queryPoolImpl = ((QueryPoolValidator)queryPool).GetImpl();
+
+			mCommandBuffer.EndQuery(queryPoolImpl, offset);
 		}
 
 		public override void BeginAnnotation(System.StringView name)
@@ -522,7 +546,7 @@ namespace Sedulous.RHI.Validation
 				"Can't clear storage buffer: 'clearDesc.storageBuffer' is invalid.");
 
 			var clearDescImpl = clearDesc;
-			clearDescImpl.storageBuffer = clearDesc.storageBuffer;
+			clearDescImpl.storageBuffer = ((DescriptorValidator)clearDesc.storageBuffer).GetImpl();
 
 			mCommandBuffer.ClearStorageBuffer(clearDescImpl);
 		}
@@ -539,7 +563,7 @@ namespace Sedulous.RHI.Validation
 				"Can't clear storage texture: 'clearDesc.storageTexture' is invalid.");
 
 			var clearDescImpl = clearDesc;
-			clearDescImpl.storageTexture = clearDesc.storageTexture;
+			clearDescImpl.storageTexture = ((DescriptorValidator)clearDesc.storageTexture).GetImpl();
 
 			mCommandBuffer.ClearStorageTexture(clearDescImpl);
 		}
@@ -564,7 +588,10 @@ namespace Sedulous.RHI.Validation
 				}
 			}
 
-			mCommandBuffer.CopyBuffer(dstBuffer, dstPhysicalDeviceIndex, dstOffset, srcBuffer, srcPhysicalDeviceIndex,
+			Buffer dstBufferImpl = ((BufferValidator)dstBuffer).GetImpl();
+			Buffer srcBufferImpl = ((BufferValidator)srcBuffer).GetImpl();
+
+			mCommandBuffer.CopyBuffer(dstBufferImpl, dstPhysicalDeviceIndex, dstOffset, srcBufferImpl, srcPhysicalDeviceIndex,
 				srcOffset, size);
 		}
 
@@ -579,7 +606,10 @@ namespace Sedulous.RHI.Validation
 			RETURN_ON_FAILURE!(mDevice.GetLogger(), (dstRegionDesc == null && srcRegionDesc == null) || (dstRegionDesc != null && srcRegionDesc != null), void(),
 				"Can't copy texture: 'dstRegionDesc' and 'srcRegionDesc' must be valid pointers or be both NULL.");
 
-			mCommandBuffer.CopyTexture(dstTexture, dstPhysicalDeviceIndex, dstRegionDesc, srcTexture, srcPhysicalDeviceIndex,
+			Texture dstTextureImpl = ((TextureValidator)dstTexture).GetImpl();
+			Texture srcTextureImpl = ((TextureValidator)srcTexture).GetImpl();
+
+			mCommandBuffer.CopyTexture(dstTextureImpl, dstPhysicalDeviceIndex, dstRegionDesc, srcTextureImpl, srcPhysicalDeviceIndex,
 				srcRegionDesc);
 		}
 
@@ -591,7 +621,10 @@ namespace Sedulous.RHI.Validation
 			RETURN_ON_FAILURE!(mDevice.GetLogger(), m_FrameBuffer == null, void(),
 				"Can't upload buffer to texture: this operation is allowed only outside render pass.");
 
-			mCommandBuffer.UploadBufferToTexture(dstTexture, dstRegionDesc, srcBuffer, srcDataLayoutDesc);
+			Texture dstTextureImpl = ((TextureValidator)dstTexture).GetImpl();
+			Buffer srcBufferImpl = ((BufferValidator)srcBuffer).GetImpl();
+
+			mCommandBuffer.UploadBufferToTexture(dstTextureImpl, dstRegionDesc, srcBufferImpl, srcDataLayoutDesc);
 		}
 
 		public override void ReadbackTextureToBuffer(Buffer dstBuffer, ref TextureDataLayoutDesc dstDataLayoutDesc, Texture srcTexture, TextureRegionDesc srcRegionDesc)
@@ -602,7 +635,10 @@ namespace Sedulous.RHI.Validation
 			RETURN_ON_FAILURE!(mDevice.GetLogger(), m_FrameBuffer == null, void(),
 				"Can't readback texture to buffer: this operation is allowed only outside render pass.");
 
-			mCommandBuffer.ReadbackTextureToBuffer(dstBuffer, ref dstDataLayoutDesc, srcTexture, srcRegionDesc);
+			Buffer dstBufferImpl = ((BufferValidator)dstBuffer).GetImpl();
+			Texture srcTextureImpl = ((TextureValidator)srcTexture).GetImpl();
+
+			mCommandBuffer.ReadbackTextureToBuffer(dstBufferImpl, ref dstDataLayoutDesc, srcTextureImpl, srcRegionDesc);
 		}
 
 		public override void CopyQueries(QueryPool queryPool, uint32 offset, uint32 num, Buffer dstBuffer, uint64 dstOffset)
@@ -621,7 +657,10 @@ namespace Sedulous.RHI.Validation
 					"Can't copy queries: offset + num ('{}') is out of range.", offset + num);
 			}
 
-			mCommandBuffer.CopyQueries(queryPool, offset, num, dstBuffer, dstOffset);
+			QueryPool queryPoolImpl = ((QueryPoolValidator)queryPool).GetImpl();
+			Buffer dstBufferImpl = ((BufferValidator)dstBuffer).GetImpl();
+
+			mCommandBuffer.CopyQueries(queryPoolImpl, offset, num, dstBufferImpl, dstOffset);
 		}
 
 		public override void ResetQueries(QueryPool queryPool, uint32 offset, uint32 num)
@@ -646,7 +685,9 @@ namespace Sedulous.RHI.Validation
 				validationCommand.queryNum = num;
 			}
 
-			mCommandBuffer.ResetQueries(queryPool, offset, num);
+			QueryPool queryPoolImpl = ((QueryPoolValidator)queryPool).GetImpl();
+
+			mCommandBuffer.ResetQueries(queryPoolImpl, offset, num);
 		}
 
 		public override void BuildTopLevelAccelerationStructure(uint32 instanceNum, Buffer buffer, uint64 bufferOffset, AccelerationStructureBuildBits flags, AccelerationStructure dst, Buffer scratch, uint64 scratchOffset)
@@ -666,7 +707,11 @@ namespace Sedulous.RHI.Validation
 			RETURN_ON_FAILURE!(mDevice.GetLogger(), scratchOffset < scratchVal.GetDesc().size, void(),
 				"Can't update TLAS: 'scratchOffset' is out of bounds.");
 
-			mCommandBuffer.BuildTopLevelAccelerationStructure(instanceNum, buffer, bufferOffset, flags, dst, scratch, scratchOffset);
+			AccelerationStructure dstImpl = ((AccelerationStructureValidator)dst).GetImpl();
+			Buffer scratchImpl = ((BufferValidator)scratch).GetImpl();
+			Buffer bufferImpl = ((BufferValidator)buffer).GetImpl();
+
+			mCommandBuffer.BuildTopLevelAccelerationStructure(instanceNum, bufferImpl, bufferOffset, flags, dstImpl, scratchImpl, scratchOffset);
 		}
 
 		public override void BuildBottomLevelAccelerationStructure(uint32 geometryObjectNum, GeometryObject* geometryObjects, AccelerationStructureBuildBits flags, AccelerationStructure dst, Buffer scratch, uint64 scratchOffset)
@@ -685,10 +730,13 @@ namespace Sedulous.RHI.Validation
 			RETURN_ON_FAILURE!(mDevice.GetLogger(), scratchOffset < scratchVal.GetDesc().size, void(),
 				"Can't build BLAS: 'scratchOffset' is out of bounds.");
 
+			AccelerationStructure dstImpl = ((AccelerationStructureValidator)dst).GetImpl();
+			Buffer scratchImpl = ((BufferValidator)scratch).GetImpl();
+
 			List<GeometryObject> objectImplArray = scope .() { Count = geometryObjectNum };
 			ConvertGeometryObjectsVal(objectImplArray.Ptr, geometryObjects, geometryObjectNum);
 
-			mCommandBuffer.BuildBottomLevelAccelerationStructure(geometryObjectNum, objectImplArray.Ptr, flags, dst, scratch, scratchOffset);
+			mCommandBuffer.BuildBottomLevelAccelerationStructure(geometryObjectNum, objectImplArray.Ptr, flags, dstImpl, scratchImpl, scratchOffset);
 		}
 
 		public override void UpdateTopLevelAccelerationStructure(uint32 instanceNum, Buffer buffer, uint64 bufferOffset, AccelerationStructureBuildBits flags, AccelerationStructure dst, AccelerationStructure src, Buffer scratch, uint64 scratchOffset)
@@ -708,7 +756,12 @@ namespace Sedulous.RHI.Validation
 			RETURN_ON_FAILURE!(mDevice.GetLogger(), scratchOffset < scratchVal.GetDesc().size, void(),
 				"Can't update TLAS: 'scratchOffset' is out of bounds.");
 
-			mCommandBuffer.UpdateTopLevelAccelerationStructure(instanceNum, buffer, bufferOffset, flags, dst, src, scratch, scratchOffset);
+			AccelerationStructure dstImpl = ((AccelerationStructureValidator)dst).GetImpl();
+			AccelerationStructure srcImpl = ((AccelerationStructureValidator)src).GetImpl();
+			Buffer scratchImpl = ((BufferValidator)scratch).GetImpl();
+			Buffer bufferImpl = ((BufferValidator)buffer).GetImpl();
+
+			mCommandBuffer.UpdateTopLevelAccelerationStructure(instanceNum, bufferImpl, bufferOffset, flags, dstImpl, srcImpl, scratchImpl, scratchOffset);
 		}
 
 		public override void UpdateBottomLevelAccelerationStructure(uint32 geometryObjectNum, GeometryObject* geometryObjects, AccelerationStructureBuildBits flags, AccelerationStructure dst, AccelerationStructure src, Buffer scratch, uint64 scratchOffset)
@@ -727,10 +780,14 @@ namespace Sedulous.RHI.Validation
 			RETURN_ON_FAILURE!(mDevice.GetLogger(), scratchOffset < scratchVal.GetDesc().size, void(),
 				"Can't update BLAS: 'scratchOffset' is out of bounds.");
 
+			AccelerationStructure dstImpl = ((AccelerationStructureValidator)dst).GetImpl();
+			AccelerationStructure srcImpl = ((AccelerationStructureValidator)src).GetImpl();
+			Buffer scratchImpl = ((BufferValidator)scratch).GetImpl();
+
 			List<GeometryObject> objectImplArray = scope .() { Count = geometryObjectNum };
 			ConvertGeometryObjectsVal(objectImplArray.Ptr, geometryObjects, geometryObjectNum);
 
-			mCommandBuffer.UpdateBottomLevelAccelerationStructure(geometryObjectNum, objectImplArray.Ptr, flags, dst, src, scratch, scratchOffset);
+			mCommandBuffer.UpdateBottomLevelAccelerationStructure(geometryObjectNum, objectImplArray.Ptr, flags, dstImpl, srcImpl, scratchImpl, scratchOffset);
 		}
 
 		public override void CopyAccelerationStructure(AccelerationStructure dst, AccelerationStructure src, CopyMode copyMode)
@@ -744,7 +801,10 @@ namespace Sedulous.RHI.Validation
 			RETURN_ON_FAILURE!(mDevice.GetLogger(), copyMode < CopyMode.MAX_NUM, void(),
 				"Can't copy AS: 'copyMode' is invalid.");
 
-			mCommandBuffer.CopyAccelerationStructure(dst, src, copyMode);
+			AccelerationStructure dstImpl = ((AccelerationStructureValidator)dst).GetImpl();
+			AccelerationStructure srcImpl = ((AccelerationStructureValidator)src).GetImpl();
+
+			mCommandBuffer.CopyAccelerationStructure(dstImpl, srcImpl, copyMode);
 		}
 
 		public override void WriteAccelerationStructureSize(AccelerationStructure* accelerationStructures, uint32 accelerationStructureNum, QueryPool queryPool, uint32 queryOffset)
@@ -764,10 +824,12 @@ namespace Sedulous.RHI.Validation
 				RETURN_ON_FAILURE!(mDevice.GetLogger(), accelerationStructures[i] != null, void(),
 					"Can't write AS size: 'accelerationStructures[{}]' is invalid.", i);
 
-				accelerationStructureArray[i] = accelerationStructures[i];
+				accelerationStructureArray[i] = ((AccelerationStructureValidator)accelerationStructures[i]).GetImpl();
 			}
 
-			mCommandBuffer.WriteAccelerationStructureSize(accelerationStructures, accelerationStructureNum, queryPool, queryOffset);
+			QueryPool queryPoolImpl = ((QueryPoolValidator)queryPool).GetImpl();
+
+			mCommandBuffer.WriteAccelerationStructureSize(accelerationStructures, accelerationStructureNum, queryPoolImpl, queryOffset);
 		}
 
 		public override void DispatchRays(DispatchRaysDesc dispatchRaysDesc)
@@ -799,10 +861,10 @@ namespace Sedulous.RHI.Validation
 				"Can't record ray tracing dispatch: 'dispatchRaysDesc.callableShaders.offset' is misaligned.");
 
 			var dispatchRaysDescImpl = dispatchRaysDesc;
-			dispatchRaysDescImpl.raygenShader.buffer = dispatchRaysDesc.raygenShader.buffer;
-			dispatchRaysDescImpl.missShaders.buffer = dispatchRaysDesc.missShaders.buffer;
-			dispatchRaysDescImpl.hitShaderGroups.buffer = dispatchRaysDesc.hitShaderGroups.buffer;
-			dispatchRaysDescImpl.callableShaders.buffer = dispatchRaysDesc.callableShaders.buffer;
+			dispatchRaysDescImpl.raygenShader.buffer = ((BufferValidator)dispatchRaysDesc.raygenShader.buffer).GetImpl();
+			dispatchRaysDescImpl.missShaders.buffer = ((BufferValidator)dispatchRaysDesc.missShaders.buffer).GetImpl();
+			dispatchRaysDescImpl.hitShaderGroups.buffer = ((BufferValidator)dispatchRaysDesc.hitShaderGroups.buffer).GetImpl();
+			dispatchRaysDescImpl.callableShaders.buffer = ((BufferValidator)dispatchRaysDesc.callableShaders.buffer).GetImpl();
 
 			mCommandBuffer.DispatchRays(dispatchRaysDescImpl);
 		}

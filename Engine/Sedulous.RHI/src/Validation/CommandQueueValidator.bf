@@ -150,7 +150,7 @@ namespace Sedulous.RHI.Validation
 	class CommandQueueValidator : CommandQueue
 	{
 		private readonly DeviceValidator mDevice;
-		private readonly CommandQueue mCommandQueue;
+		private CommandQueue mCommandQueue;
 
 		private readonly String mDebugName = new .() ~ delete _;
 
@@ -248,6 +248,9 @@ namespace Sedulous.RHI.Validation
 			mDevice = device;
 			mCommandQueue = commandQueue;
 		}
+		
+
+		public ref CommandQueue GetImpl() => ref mCommandQueue;
 
 		public override void SetDebugName(StringView name)
 		{
@@ -264,15 +267,19 @@ namespace Sedulous.RHI.Validation
 			var workSubmissionDescImpl = workSubmissionDesc;
 			workSubmissionDescImpl.commandBuffers = scope List<CommandBuffer>() { Count = workSubmissionDesc.commandBufferNum }.Ptr; //STACK_ALLOC!<CommandBuffer*>(workSubmissionDesc.commandBufferNum);
 			for (uint32 i = 0; i < workSubmissionDesc.commandBufferNum; i++)
-				((CommandBuffer*)workSubmissionDescImpl.commandBuffers)[i] = workSubmissionDesc.commandBuffers[i];
+				((CommandBuffer*)workSubmissionDescImpl.commandBuffers)[i] = ((CommandBufferValidator)workSubmissionDesc.commandBuffers[i]).GetImpl();
 
 			workSubmissionDescImpl.wait = scope List<QueueSemaphore>() { Count = workSubmissionDesc.waitNum }.Ptr; //STACK_ALLOC(QueueSemaphore*, workSubmissionDesc.waitNum);
 			for (uint32 i = 0; i < workSubmissionDesc.waitNum; i++)
-				((QueueSemaphore*)workSubmissionDescImpl.wait)[i] = workSubmissionDesc.wait[i];
+				((QueueSemaphore*)workSubmissionDescImpl.wait)[i] = ((QueueSemaphoreValidator)workSubmissionDesc.wait[i]).GetImpl();
 
 			workSubmissionDescImpl.signal = scope List<QueueSemaphore>() { Count = workSubmissionDesc.signalNum }.Ptr; //STACK_ALLOC(QueueSemaphore*, workSubmissionDesc.signalNum);
 			for (uint32 i = 0; i < workSubmissionDesc.signalNum; i++)
-				((QueueSemaphore*)workSubmissionDescImpl.signal)[i] = workSubmissionDesc.signal[i];
+				((QueueSemaphore*)workSubmissionDescImpl.signal)[i] = ((QueueSemaphoreValidator)workSubmissionDesc.signal[i]).GetImpl();
+
+			DeviceSemaphore deviceSemaphoreImpl = null;
+			if (deviceSemaphore != null)
+			    deviceSemaphoreImpl = ((DeviceSemaphoreValidator) deviceSemaphore).GetImpl();
 
 			for (uint32 i = 0; i < workSubmissionDesc.waitNum; i++)
 			{
@@ -280,7 +287,7 @@ namespace Sedulous.RHI.Validation
 				semaphore.Wait();
 			}
 
-			mCommandQueue.Submit(workSubmissionDescImpl, deviceSemaphore);
+			mCommandQueue.Submit(workSubmissionDescImpl, deviceSemaphoreImpl);
 
 			for (uint32 i = 0; i < workSubmissionDesc.signalNum; i++)
 			{
@@ -296,7 +303,9 @@ namespace Sedulous.RHI.Validation
 		{
 			((DeviceSemaphoreValidator)deviceSemaphore).Wait();
 
-			mCommandQueue.Wait(deviceSemaphore);
+			DeviceSemaphore deviceSemaphoreImpl = ((DeviceSemaphoreValidator)deviceSemaphore).GetImpl();
+
+			mCommandQueue.Wait(deviceSemaphoreImpl);
 		}
 
 		public override Result ChangeResourceStates(TransitionBarrierDesc transitionBarriers)
@@ -312,7 +321,7 @@ namespace Sedulous.RHI.Validation
 				BufferValidator bufferVal = (BufferValidator)transitionBarriers.buffers[i].buffer;
 
 				bufferTransitionBarriers[i] = transitionBarriers.buffers[i];
-				bufferTransitionBarriers[i].buffer = bufferVal;
+				bufferTransitionBarriers[i].buffer = bufferVal.GetImpl();
 			}
 
 			for (uint32 i = 0; i < transitionBarriers.textureNum; i++)
@@ -323,7 +332,7 @@ namespace Sedulous.RHI.Validation
 				TextureValidator textureVal = (TextureValidator)transitionBarriers.textures[i].texture;
 
 				textureTransitionBarriers[i] = transitionBarriers.textures[i];
-				textureTransitionBarriers[i].texture = textureVal;
+				textureTransitionBarriers[i].texture = textureVal.GetImpl();
 			}
 
 			TransitionBarrierDesc transitionBarriersImpl = transitionBarriers;
@@ -351,7 +360,7 @@ namespace Sedulous.RHI.Validation
 				TextureValidator textureVal = (TextureValidator)textureUploadDescs[i].texture;
 
 				textureUploadDescsImpl[i] = textureUploadDescs[i];
-				textureUploadDescsImpl[i].texture = textureVal;
+				textureUploadDescsImpl[i].texture = textureVal.GetImpl();
 			}
 
 			BufferUploadDesc* bufferUploadDescsImpl = STACK_ALLOC!<BufferUploadDesc>(bufferUploadDescNum);
@@ -364,7 +373,7 @@ namespace Sedulous.RHI.Validation
 				BufferValidator bufferVal = (BufferValidator)bufferUploadDescs[i].buffer;
 
 				bufferUploadDescsImpl[i] = bufferUploadDescs[i];
-				bufferUploadDescsImpl[i].buffer = bufferVal;
+				bufferUploadDescsImpl[i].buffer = bufferVal.GetImpl();
 			}
 
 			return mCommandQueue.UploadData(textureUploadDescsImpl, textureUploadDescNum, bufferUploadDescsImpl, bufferUploadDescNum);

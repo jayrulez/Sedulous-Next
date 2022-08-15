@@ -5,7 +5,7 @@ namespace Sedulous.RHI.Validation
 	class DescriptorSetValidator : DescriptorSet
 	{
 		private readonly DeviceValidator mDevice;
-		private readonly DescriptorSet mDescriptorSet;
+		private DescriptorSet mDescriptorSet;
 		private readonly DescriptorSetDesc m_DescriptorSetDesc;
 
 		private readonly String mDebugName = new .() ~ delete _;
@@ -17,6 +17,8 @@ namespace Sedulous.RHI.Validation
 
 			m_DescriptorSetDesc = descriptorSetDesc;
 		}
+
+		public ref DescriptorSet GetImpl() => ref mDescriptorSet;
 
 		public readonly ref DescriptorSetDesc GetDesc() => ref m_DescriptorSetDesc;
 
@@ -77,7 +79,7 @@ namespace Sedulous.RHI.Validation
 					RETURN_ON_FAILURE!(mDevice.GetLogger(), updateDesc.descriptors[j] != null, void(),
 						"Can't update descriptor ranges: 'rangeUpdateDescs[{}].descriptors[{}]' is invalid.", i, j);
 
-					descriptors[j] = updateDesc.descriptors[j];
+					descriptors[j] = ((DescriptorValidator)updateDesc.descriptors[j]).GetImpl();
 				}
 			}
 
@@ -109,7 +111,7 @@ namespace Sedulous.RHI.Validation
 				RETURN_ON_FAILURE!(mDevice.GetLogger(), descriptors[i] != null, void(),
 					"Can't update dynamic constant buffers: 'descriptors[{}]' is invalid.", i);
 
-				descriptorsImpl[i] = descriptors[i];
+				descriptorsImpl[i] = ((DescriptorValidator)descriptors[i]).GetImpl();
 			}
 
 			mDescriptorSet.UpdateDynamicConstantBuffers(physicalDeviceMask, baseBuffer, bufferNum, descriptorsImpl);
@@ -165,7 +167,7 @@ namespace Sedulous.RHI.Validation
 				"Can't copy descriptor set: destination range of dynamic constant buffers is invalid.");
 
 			var descriptorSetCopyDescImpl = descriptorSetCopyDesc;
-			descriptorSetCopyDescImpl.srcDescriptorSet = descriptorSetCopyDesc.srcDescriptorSet;
+			descriptorSetCopyDescImpl.srcDescriptorSet = ((DescriptorSetValidator)descriptorSetCopyDesc.srcDescriptorSet).GetImpl();
 
 			mDescriptorSet.Copy(descriptorSetCopyDescImpl);
 		}

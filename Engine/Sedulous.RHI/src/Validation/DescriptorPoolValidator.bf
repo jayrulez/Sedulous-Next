@@ -180,7 +180,9 @@ namespace Sedulous.RHI.Validation
 					"Can't allocate DescriptorSet: the maximum number of descriptors exceeded ('STATIC_SAMPLER').");
 			}
 
-			Result result = mDescriptorPool.AllocateDescriptorSets(pipelineLayout, setIndex, descriptorSets, instanceNum,
+			PipelineLayout pipelineLayoutImpl = ((PipelineLayoutValidator)pipelineLayout).GetImpl();
+
+			Result result = mDescriptorPool.AllocateDescriptorSets(pipelineLayoutImpl, setIndex, descriptorSets, instanceNum,
 				physicalDeviceMask, variableDescriptorNum);
 
 			if (result != Result.SUCCESS)

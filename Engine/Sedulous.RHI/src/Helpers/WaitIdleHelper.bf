@@ -17,7 +17,7 @@ namespace Sedulous.RHI.Helpers
 		public ~this()
 		{
 			if (m_DeviceSemaphore != null)
-				m_Device.DestroyDeviceSemaphore(ref m_DeviceSemaphore);
+				m_Device.DestroyDeviceSemaphore(m_DeviceSemaphore);
 			m_DeviceSemaphore = null;
 		}
 

@@ -20,7 +20,7 @@ namespace Sedulous.RHI.Validation
 			if (m_Memory != null)
 				m_Memory.UnbindAccelerationStructure(this);
 
-			mDevice.DestroyAccelerationStructure(ref mAccelerationStructure);
+			mDevice.DestroyAccelerationStructure(mAccelerationStructure);
 		}
 
 		public AccelerationStructure GetImpl() => mAccelerationStructure;

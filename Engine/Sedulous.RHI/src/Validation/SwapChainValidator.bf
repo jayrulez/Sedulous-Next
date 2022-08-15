@@ -64,15 +64,17 @@ namespace Sedulous.RHI.Validation
 		public override uint32 AcquireNextTexture(QueueSemaphore textureReadyForRender)
 		{
 			((QueueSemaphoreValidator)textureReadyForRender).Signal();
+			QueueSemaphore queueSemaphoreImpl = ((QueueSemaphoreValidator) textureReadyForRender).GetImpl();
 
-			return mSwapChain.AcquireNextTexture(textureReadyForRender);
+			return mSwapChain.AcquireNextTexture(queueSemaphoreImpl);
 		}
 
 		public override Result Present(QueueSemaphore textureReadyForPresent)
 		{
 			((QueueSemaphoreValidator)textureReadyForPresent).Wait();
+    		QueueSemaphore queueSemaphoreImpl = ((QueueSemaphoreValidator) textureReadyForPresent).GetImpl();
 
-			return mSwapChain.Present(textureReadyForPresent);
+			return mSwapChain.Present(queueSemaphoreImpl);
 		}
 
 		public override Result SetHdrMetadata(HdrMetadata hdrMetadata)

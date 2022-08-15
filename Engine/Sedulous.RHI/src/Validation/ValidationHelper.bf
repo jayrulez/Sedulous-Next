@@ -136,13 +136,13 @@ namespace Sedulous.RHI.Validation
 
 				if (geometrySrc.type == GeometryType.TRIANGLES)
 				{
-					geometryDst.triangles.vertexBuffer = geometrySrc.triangles.vertexBuffer;
-					geometryDst.triangles.indexBuffer = geometrySrc.triangles.indexBuffer;
-					geometryDst.triangles.transformBuffer = geometrySrc.triangles.transformBuffer;
+					geometryDst.triangles.vertexBuffer = ((BufferValidator)geometrySrc.triangles.vertexBuffer).GetImpl();
+					geometryDst.triangles.indexBuffer = ((BufferValidator)geometrySrc.triangles.indexBuffer).GetImpl();
+					geometryDst.triangles.transformBuffer = ((BufferValidator)geometrySrc.triangles.transformBuffer).GetImpl();
 				}
 				else
 				{
-					geometryDst.boxes.buffer = geometrySrc.boxes.buffer;
+					geometryDst.boxes.buffer = ((BufferValidator)geometrySrc.boxes.buffer).GetImpl();
 				}
 			}
 		}

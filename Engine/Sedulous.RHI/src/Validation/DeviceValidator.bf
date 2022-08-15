@@ -6,13 +6,13 @@ namespace Sedulous.RHI.Validation
 {
 	public static
 	{
-		public static Result CreateDeviceValidation(DeviceCreationDesc deviceCreationDesc, Device device, DeviceAllocator allocator, ILogger logger, out Device validationDevice)
+		public static Result CreateDeviceValidation(DeviceCreationDesc deviceCreationDesc, Device device, out Device validationDevice)
 		{
 			uint32 physicalDeviceNum = 1;
 			if (deviceCreationDesc.physicalDeviceGroup != null)
 				physicalDeviceNum = deviceCreationDesc.physicalDeviceGroup.physicalDeviceGroupSize;
 
-			validationDevice = Allocate!<DeviceValidator>(allocator, device, logger, allocator, physicalDeviceNum);
+			validationDevice = Allocate!<DeviceValidator>(device.GetDeviceAllocator(), device, device.GetLogger(), device.GetDeviceAllocator(), physicalDeviceNum);
 
 			return .SUCCESS;
 		}
@@ -25,7 +25,7 @@ namespace Sedulous.RHI.Validation
 		private uint32 m_PhysicalDeviceMask = 0;
 		private CommandQueueValidator[COMMAND_QUEUE_TYPE_NUM] m_CommandQueues = .();
 		private Dictionary<MemoryType, MemoryLocation> m_MemoryTypeMap;
-		private Monitor m_Monitor;
+		private Monitor m_Monitor = new .() ~ delete _;
 
 		private readonly String mDebugName = new .() ~ delete _;
 
@@ -46,7 +46,9 @@ namespace Sedulous.RHI.Validation
 					Deallocate!(GetDeviceAllocator(), m_CommandQueues[i]);
 			}
 
-			Deallocate!(mDevice.GetDeviceAllocator(), mDevice);
+			Deallocate!(GetDeviceAllocator(), m_MemoryTypeMap);
+
+			mDevice.Destroy();
 		}
 
 		public void RegisterMemoryType(MemoryType memoryType, MemoryLocation memoryLocation)
@@ -96,8 +98,10 @@ namespace Sedulous.RHI.Validation
 			RETURN_ON_FAILURE!(GetLogger(), IsPhysicalDeviceMaskValid(physicalDeviceMask), Result.INVALID_ARGUMENT,
 				"Can't create CommandAllocator: 'physicalDeviceMask' is invalid.");
 
+			var commandQueueImpl = ((CommandQueueValidator) commandQueue).GetImpl();
+
 			CommandAllocator commandAllocatorImpl = null;
-			readonly Result result = mDevice.CreateCommandAllocator(commandQueue, physicalDeviceMask, out commandAllocatorImpl);
+			readonly Result result = mDevice.CreateCommandAllocator(commandQueueImpl, physicalDeviceMask, out commandAllocatorImpl);
 
 			if (result == Result.SUCCESS)
 			{
@@ -201,7 +205,7 @@ namespace Sedulous.RHI.Validation
 				bufferViewDesc.offset, bufferViewDesc.size, bufferDesc.size);
 
 			var bufferViewDescImpl = bufferViewDesc;
-			bufferViewDescImpl.buffer = bufferViewDesc.buffer;
+			bufferViewDescImpl.buffer = ((BufferValidator)bufferViewDesc.buffer).GetImpl();
 
 			Descriptor descriptorImpl = null;
 			readonly Result result = mDevice.CreateBufferView(bufferViewDescImpl, out descriptorImpl);
@@ -250,7 +254,7 @@ namespace Sedulous.RHI.Validation
 				textureViewDesc.arrayOffset, textureViewDesc.arraySize, textureDesc.arraySize);
 
 			var textureViewDescImpl = textureViewDesc;
-			textureViewDescImpl.texture = textureViewDesc.texture;
+			textureViewDescImpl.texture = ((TextureValidator)textureViewDesc.texture).GetImpl();
 
 			Descriptor descriptorImpl = null;
 			readonly Result result = mDevice.CreateTexture1DView(textureViewDescImpl, out descriptorImpl);
@@ -299,7 +303,7 @@ namespace Sedulous.RHI.Validation
 				textureViewDesc.arrayOffset, textureViewDesc.arraySize, textureDesc.arraySize);
 
 			var textureViewDescImpl = textureViewDesc;
-			textureViewDescImpl.texture = textureViewDesc.texture;
+			textureViewDescImpl.texture = ((TextureValidator)textureViewDesc.texture).GetImpl();
 
 			Descriptor descriptorImpl = null;
 			readonly Result result = mDevice.CreateTexture2DView(textureViewDescImpl, out descriptorImpl);
@@ -348,7 +352,7 @@ namespace Sedulous.RHI.Validation
 				textureViewDesc.sliceOffset, textureViewDesc.sliceNum, textureDesc.size[2]);
 
 			var textureViewDescImpl = textureViewDesc;
-			textureViewDescImpl.texture = textureViewDesc.texture;
+			textureViewDescImpl.texture = ((TextureValidator)textureViewDesc.texture).GetImpl();
 
 			Descriptor descriptorImpl = null;
 			readonly Result result = mDevice.CreateTexture3DView(textureViewDescImpl, out descriptorImpl);
@@ -516,7 +520,7 @@ namespace Sedulous.RHI.Validation
 			}
 
 			var graphicsPipelineDescImpl = graphicsPipelineDesc;
-			graphicsPipelineDescImpl.pipelineLayout = graphicsPipelineDesc.pipelineLayout;
+			graphicsPipelineDescImpl.pipelineLayout = ((PipelineLayoutValidator)graphicsPipelineDesc.pipelineLayout).GetImpl();
 
 			Pipeline pipelineImpl = null;
 			readonly Result result = mDevice.CreateGraphicsPipeline(graphicsPipelineDescImpl, out pipelineImpl);
@@ -547,7 +551,7 @@ namespace Sedulous.RHI.Validation
 				"Can't create Pipeline: 'computePipelineDesc.computeShader.stage' must be ShaderStage.COMPUTE.");
 
 			var computePipelineDescImpl = computePipelineDesc;
-			computePipelineDescImpl.pipelineLayout = computePipelineDesc.pipelineLayout;
+			computePipelineDescImpl.pipelineLayout = ((PipelineLayoutValidator)computePipelineDesc.pipelineLayout).GetImpl();
 
 			Pipeline pipelineImpl = null;
 			readonly Result result = mDevice.CreateComputePipeline(computePipelineDescImpl, out pipelineImpl);
@@ -591,12 +595,12 @@ namespace Sedulous.RHI.Validation
 
 			var frameBufferDescImpl = frameBufferDesc;
 			if (frameBufferDesc.depthStencilAttachment != null)
-				frameBufferDescImpl.depthStencilAttachment = frameBufferDesc.depthStencilAttachment;
+				frameBufferDescImpl.depthStencilAttachment = ((DescriptorValidator)frameBufferDesc.depthStencilAttachment).GetImpl();
 			if (frameBufferDesc.colorAttachmentNum > 0)
 			{
 				frameBufferDescImpl.colorAttachments = scope:: List<Descriptor>() { Count = frameBufferDesc.colorAttachmentNum }.Ptr; //STACK_ALLOC(Descriptor*, frameBufferDesc.colorAttachmentNum);
 				for (uint32 i = 0; i < frameBufferDesc.colorAttachmentNum; i++)
-					((Descriptor*)frameBufferDescImpl.colorAttachments)[i] = frameBufferDesc.colorAttachments[i];
+					((Descriptor*)frameBufferDescImpl.colorAttachments)[i] = ((DescriptorValidator)frameBufferDesc.colorAttachments[i]).GetImpl();
 			}
 
 			FrameBuffer frameBufferImpl = null;
@@ -717,7 +721,7 @@ namespace Sedulous.RHI.Validation
 				"Can't create SwapChain: 'swapChainDesc.physicalDeviceIndex' is invalid.");
 
 			var swapChainDescImpl = swapChainDesc;
-			swapChainDescImpl.commandQueue = swapChainDesc.commandQueue;
+			swapChainDescImpl.commandQueue = ((CommandQueueValidator)swapChainDesc.commandQueue).GetImpl();
 
 			SwapChain swapChainImpl;
 			readonly Result result = mDevice.CreateSwapChain(swapChainDescImpl, out swapChainImpl);
@@ -765,7 +769,7 @@ namespace Sedulous.RHI.Validation
 			}
 
 			var pipelineDescImpl = pipelineDesc;
-			pipelineDescImpl.pipelineLayout = pipelineDesc.pipelineLayout;
+			pipelineDescImpl.pipelineLayout = ((PipelineLayoutValidator)pipelineDesc.pipelineLayout).GetImpl();
 
 			Pipeline pipelineImpl = null;
 			readonly Result result = mDevice.CreateRayTracingPipeline(pipelineDescImpl, out pipelineImpl);
@@ -812,87 +816,92 @@ namespace Sedulous.RHI.Validation
 			return result;
 		}
 
-		public override void DestroyCommandAllocator(ref CommandAllocator commandAllocator)
+		public override void DestroyCommandAllocator(CommandAllocator commandAllocator)
 		{
-			mDevice.DestroyCommandAllocator(ref ((CommandAllocatorValidator)commandAllocator).GetImpl());
+			mDevice.DestroyCommandAllocator(((CommandAllocatorValidator)commandAllocator)?.GetImpl());
 			Deallocate!(GetDeviceAllocator(), (CommandAllocatorValidator)commandAllocator);
 		}
 
-		public override void DestroyDescriptorPool(ref DescriptorPool descriptorPool)
+		public override void DestroyDescriptorPool(DescriptorPool descriptorPool)
 		{
-			mDevice.DestroyDescriptorPool(ref ((DescriptorPoolValidator)descriptorPool).GetImpl());
+			mDevice.DestroyDescriptorPool(((DescriptorPoolValidator)descriptorPool)?.GetImpl());
 			Deallocate!(GetDeviceAllocator(), (DescriptorPoolValidator)descriptorPool);
 		}
 
-		public override void DestroyBuffer(ref Buffer buffer)
+		public override void DestroyBuffer(Buffer buffer)
 		{
-			mDevice.DestroyBuffer(ref ((BufferValidator)buffer).GetImpl());
+			mDevice.DestroyBuffer(((BufferValidator)buffer)?.GetImpl());
 			Deallocate!(GetDeviceAllocator(), (BufferValidator)buffer);
 		}
 
-		public override void DestroyTexture(ref Texture texture)
+		public override void DestroyTexture(Texture texture)
 		{
-			mDevice.DestroyTexture(ref ((TextureValidator)texture).GetImpl());
+			mDevice.DestroyTexture(((TextureValidator)texture)?.GetImpl());
 			Deallocate!(GetDeviceAllocator(), (TextureValidator)texture);
 		}
 
-		public override void DestroyDescriptor(ref Descriptor descriptor)
+		public override void DestroyDescriptor(Descriptor descriptor)
 		{
-			mDevice.DestroyDescriptor(ref ((DescriptorValidator)descriptor).GetImpl());
+			mDevice.DestroyDescriptor(((DescriptorValidator)descriptor)?.GetImpl());
 			Deallocate!(GetDeviceAllocator(), (DescriptorValidator)descriptor);
 		}
 
-		public override void DestroyPipelineLayout(ref PipelineLayout pipelineLayout)
+		public override void DestroyPipelineLayout(PipelineLayout pipelineLayout)
 		{
-			mDevice.DestroyPipelineLayout(ref ((PipelineLayoutValidator)pipelineLayout).GetImpl());
+			mDevice.DestroyPipelineLayout(((PipelineLayoutValidator)pipelineLayout)?.GetImpl());
 			Deallocate!(GetDeviceAllocator(), (PipelineLayoutValidator)pipelineLayout);
 		}
 
-		public override void DestroyPipeline(ref Pipeline pipeline)
+		public override void DestroyPipeline(Pipeline pipeline)
 		{
-			mDevice.DestroyPipeline(ref ((PipelineValidator)pipeline).GetImpl());
+			mDevice.DestroyPipeline(((PipelineValidator)pipeline)?.GetImpl());
 			Deallocate!(GetDeviceAllocator(), (PipelineValidator)pipeline);
 		}
 
-		public override void DestroyFrameBuffer(ref FrameBuffer frameBuffer)
+		public override void DestroyFrameBuffer(FrameBuffer frameBuffer)
 		{
-			mDevice.DestroyFrameBuffer(ref ((FrameBufferValidator)frameBuffer).GetImpl());
+			mDevice.DestroyFrameBuffer(((FrameBufferValidator)frameBuffer)?.GetImpl());
 			Deallocate!(GetDeviceAllocator(), (FrameBuffer)frameBuffer);
 		}
 
-		public override void DestroyQueryPool(ref QueryPool queryPool)
+		public override void DestroyQueryPool(QueryPool queryPool)
 		{
-			mDevice.DestroyQueryPool(ref ((QueryPoolValidator)queryPool).GetImpl());
+			mDevice.DestroyQueryPool(((QueryPoolValidator)queryPool)?.GetImpl());
 			Deallocate!(GetDeviceAllocator(), (QueryPoolValidator)queryPool);
 		}
 
-		public override void DestroyQueueSemaphore(ref QueueSemaphore queueSemaphore)
+		public override void DestroyQueueSemaphore(QueueSemaphore queueSemaphore)
 		{
-			mDevice.DestroyQueueSemaphore(ref ((QueueSemaphoreValidator)queueSemaphore).GetImpl());
+			mDevice.DestroyQueueSemaphore(((QueueSemaphoreValidator)queueSemaphore)?.GetImpl());
 			Deallocate!(GetDeviceAllocator(), (QueueSemaphoreValidator)queueSemaphore);
 		}
 
-		public override void DestroyDeviceSemaphore(ref DeviceSemaphore deviceSemaphore)
+		public override void DestroyDeviceSemaphore(DeviceSemaphore deviceSemaphore)
 		{
-			mDevice.DestroyDeviceSemaphore(ref ((DeviceSemaphoreValidator)deviceSemaphore).GetImpl());
+			mDevice.DestroyDeviceSemaphore(((DeviceSemaphoreValidator)deviceSemaphore)?.GetImpl());
 			Deallocate!(GetDeviceAllocator(), (DeviceSemaphoreValidator)deviceSemaphore);
 		}
 
-		public override void DestroySwapChain(ref SwapChain swapChain)
+		public override void DestroySwapChain(SwapChain swapChain)
 		{
-			mDevice.DestroySwapChain(ref ((SwapChainValidator)swapChain).GetImpl());
+			mDevice.DestroySwapChain(((SwapChainValidator)swapChain)?.GetImpl());
 			Deallocate!(GetDeviceAllocator(), (SwapChainValidator)swapChain);
 		}
 
-		public override void DestroyAccelerationStructure(ref AccelerationStructure accelerationStructure)
+		public override void DestroyAccelerationStructure(AccelerationStructure accelerationStructure)
 		{
 			Deallocate!(GetDeviceAllocator(), (AccelerationStructureValidator)accelerationStructure);
 		}
 
-		public override void DestroyCommandBuffer(ref CommandBuffer commandBuffer)
+		public override void DestroyCommandBuffer(CommandBuffer commandBuffer)
 		{
-			mDevice.DestroyCommandBuffer(ref ((CommandBufferValidator)commandBuffer).GetImpl());
+			mDevice.DestroyCommandBuffer(((CommandBufferValidator)commandBuffer)?.GetImpl());
 			Deallocate!(mDevice.GetDeviceAllocator(), commandBuffer);
+		}
+
+		public override void Destroy()
+		{
+			Deallocate!(GetDeviceAllocator(), this);
 		}
 
 		public override Result GetDisplays(Display** displays, ref uint32 displayNum)
@@ -1132,7 +1141,7 @@ namespace Sedulous.RHI.Validation
 			return result;
 		}
 
-		public override void FreeMemory(ref Memory memory)
+		public override void FreeMemory(Memory memory)
 		{
 			MemoryValidator memoryVal = (MemoryValidator)memory;
 
@@ -1143,7 +1152,7 @@ namespace Sedulous.RHI.Validation
 				return;
 			}
 
-			mDevice.FreeMemory(ref ((MemoryValidator)memory).GetImpl());
+			mDevice.FreeMemory(((MemoryValidator)memory).GetImpl());
 			Deallocate!(GetDeviceAllocator(), (MemoryValidator)memory);
 		}
 
@@ -1171,7 +1180,7 @@ namespace Sedulous.RHI.Validation
 					"Can't calculate the number of allocations: 'resourceGroupDesc.buffers[{}]' is invalid.", i);
 
 				BufferValidator bufferVal = (BufferValidator)resourceGroupDesc.buffers[i];
-				buffersImpl[i] = (Buffer)bufferVal;
+				buffersImpl[i] = (Buffer)bufferVal.GetImpl();
 			}
 
 			Texture* texturesImpl = scope List<Texture>() { Count = resourceGroupDesc.textureNum }.Ptr; // STACK_ALLOC(Texture*, resourceGroupDesc.textureNum);
@@ -1182,7 +1191,7 @@ namespace Sedulous.RHI.Validation
 					"Can't calculate the number of allocations: 'resourceGroupDesc.textures[{}]' is invalid.", i);
 
 				TextureValidator textureVal = (TextureValidator)resourceGroupDesc.textures[i];
-				texturesImpl[i] = (Texture)textureVal;
+				texturesImpl[i] = (Texture)textureVal.GetImpl();
 			}
 
 			ResourceGroupDesc resourceGroupDescImpl = resourceGroupDesc;
@@ -1214,7 +1223,7 @@ namespace Sedulous.RHI.Validation
 					"Can't allocate and bind memory: 'resourceGroupDesc.buffers[{}]' is invalid.", i);
 
 				BufferValidator bufferVal = (BufferValidator)resourceGroupDesc.buffers[i];
-				buffersImpl[i] = (Buffer)bufferVal;
+				buffersImpl[i] = (Buffer)bufferVal.GetImpl();
 			}
 
 			Texture* texturesImpl = scope List<Texture>() { Count = resourceGroupDesc.textureNum }.Ptr; //STACK_ALLOC(Texture*, resourceGroupDesc.textureNum);
@@ -1225,7 +1234,7 @@ namespace Sedulous.RHI.Validation
 					"Can't allocate and bind memory: 'resourceGroupDesc.textures[{}]' is invalid.", i);
 
 				TextureValidator textureVal = (TextureValidator)resourceGroupDesc.textures[i];
-				texturesImpl[i] = (Texture)textureVal;
+				texturesImpl[i] = (Texture)textureVal.GetImpl();
 			}
 
 			readonly int allocationNum = CalculateAllocationNumber(resourceGroupDesc);

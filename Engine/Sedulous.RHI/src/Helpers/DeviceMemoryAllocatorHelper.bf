@@ -277,7 +277,7 @@ namespace Sedulous.RHI.Helpers
 			{
 				for (int i = 0; i < allocationNum; i++)
 				{
-					m_Device.FreeMemory(ref allocations[i]);
+					m_Device.FreeMemory(allocations[i]);
 					allocations[i] = null;
 				}
 			}

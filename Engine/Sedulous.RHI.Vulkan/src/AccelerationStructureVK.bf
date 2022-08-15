@@ -163,7 +163,7 @@ namespace Sedulous.RHI.Vulkan
 			if (m_Buffer != null)
 			{
 				Buffer buffer = m_Buffer;
-				m_Device.DestroyBuffer(ref buffer);
+				m_Device.DestroyBuffer(buffer);
 			}
 		}
 
