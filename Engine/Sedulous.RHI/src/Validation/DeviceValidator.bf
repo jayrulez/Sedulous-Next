@@ -27,6 +27,14 @@ namespace Sedulous.RHI.Validation
 			mDevice = device;
 		}
 
+		public ~this(){
+			for (int i = 0; i < m_CommandQueues.Count; i++)
+			{
+			    if (m_CommandQueues[i] != null)
+			        Deallocate!(GetDeviceAllocator(), m_CommandQueues[i]);
+			}
+		}
+
 		public void RegisterMemoryType(MemoryType memoryType, MemoryLocation memoryLocation)
 		{
 			using (m_Monitor.Enter())
@@ -182,7 +190,60 @@ namespace Sedulous.RHI.Validation
 		{
 			swapChain = ?;
 
-			return default;
+			RETURN_ON_FAILURE(GetLog(), swapChainDesc.commandQueue != nullptr, Result::INVALID_ARGUMENT,
+			    "Can't create SwapChain: 'swapChainDesc.commandQueue' is invalid.");
+
+			RETURN_ON_FAILURE(GetLog(), swapChainDesc.windowSystemType < WindowSystemType::MAX_NUM, Result::INVALID_ARGUMENT,
+			    "Can't create SwapChain: 'swapChainDesc.windowSystemType' is invalid.");
+
+			if (swapChainDesc.windowSystemType == WindowSystemType::WINDOWS)
+			{
+			    RETURN_ON_FAILURE(GetLog(), swapChainDesc.window.windows.hwnd != nullptr, Result::INVALID_ARGUMENT,
+			        "Can't create SwapChain: 'swapChainDesc.window.windows.hwnd' is invalid.");
+			}
+			else if (swapChainDesc.windowSystemType == WindowSystemType::X11)
+			{
+			    RETURN_ON_FAILURE(GetLog(), swapChainDesc.window.x11.dpy != nullptr, Result::INVALID_ARGUMENT,
+			        "Can't create SwapChain: 'swapChainDesc.window.x11.dpy' is invalid.");
+			    RETURN_ON_FAILURE(GetLog(), swapChainDesc.window.x11.window != 0, Result::INVALID_ARGUMENT,
+			        "Can't create SwapChain: 'swapChainDesc.window.x11.window' is invalid.");
+			}
+			else if (swapChainDesc.windowSystemType == WindowSystemType::WAYLAND)
+			{
+			    RETURN_ON_FAILURE(GetLog(), swapChainDesc.window.wayland.display != nullptr, Result::INVALID_ARGUMENT,
+			        "Can't create SwapChain: 'swapChainDesc.window.wayland.display' is invalid.");
+			    RETURN_ON_FAILURE(GetLog(), swapChainDesc.window.wayland.surface != 0, Result::INVALID_ARGUMENT,
+			        "Can't create SwapChain: 'swapChainDesc.window.wayland.surface' is invalid.");
+			}
+
+			RETURN_ON_FAILURE(GetLog(), swapChainDesc.width != 0, Result::INVALID_ARGUMENT,
+			    "Can't create SwapChain: 'swapChainDesc.width' is 0.");
+
+			RETURN_ON_FAILURE(GetLog(), swapChainDesc.height != 0, Result::INVALID_ARGUMENT,
+			    "Can't create SwapChain: 'swapChainDesc.height' is 0.");
+
+			RETURN_ON_FAILURE(GetLog(), swapChainDesc.textureNum > 0, Result::INVALID_ARGUMENT,
+			    "Can't create SwapChain: 'swapChainDesc.textureNum' is invalid.");
+
+			RETURN_ON_FAILURE(GetLog(), swapChainDesc.format < SwapChainFormat::MAX_NUM, Result::INVALID_ARGUMENT,
+			    "Can't create SwapChain: 'swapChainDesc.format' is invalid.");
+
+			RETURN_ON_FAILURE(GetLog(), swapChainDesc.physicalDeviceIndex < m_PhysicalDeviceNum, Result::INVALID_ARGUMENT,
+			    "Can't create SwapChain: 'swapChainDesc.physicalDeviceIndex' is invalid.");
+
+			auto swapChainDescImpl = swapChainDesc;
+			swapChainDescImpl.commandQueue = NRI_GET_IMPL_PTR(CommandQueue, swapChainDesc.commandQueue);
+
+			SwapChain* swapChainImpl;
+			const Result result = m_SwapChainAPI.CreateSwapChain(m_Device, swapChainDescImpl, swapChainImpl);
+
+			if (result == Result::SUCCESS)
+			{
+			    RETURN_ON_FAILURE(GetLog(), swapChainImpl != nullptr, Result::FAILURE, "Unexpected error: 'swapChainImpl' is NULL.");
+			    swapChain = (SwapChain*)Allocate<SwapChainVal>(GetStdAllocator(), *this, *swapChainImpl, swapChainDesc);
+			}
+
+			return result;
 		}
 
 		public override Result CreateRayTracingPipeline(RayTracingPipelineDesc rayTracingPipelineDesc, out Pipeline pipeline)
@@ -244,6 +305,8 @@ namespace Sedulous.RHI.Validation
 
 		public override void DestroySwapChain(ref SwapChain swapChain)
 		{
+			m_SwapChainAPI.DestroySwapChain(*NRI_GET_IMPL_REF(SwapChain, &swapChain));
+			Deallocate(GetStdAllocator(), (SwapChainVal*)&swapChain);
 		}
 
 		public override void DestroyAccelerationStructure(ref AccelerationStructure accelerationStructure)
