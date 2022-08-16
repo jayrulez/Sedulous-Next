@@ -57,8 +57,8 @@ class Engine
 
 	private void Startup()
 	{
-		mJobSystem.Startup();
-		mResourceSystem.Startup();
+		//mJobSystem.Startup();
+		//mResourceSystem.Startup();
 
 		for (var plugin in mPlugins)
 		{
@@ -73,14 +73,14 @@ class Engine
 			mPlugins[i].OnShutdown();
 		}
 
-		mResourceSystem.Shutdown();
-		mJobSystem.Shutdown();
+		//mResourceSystem.Shutdown();
+		//mJobSystem.Shutdown();
 	}
 
 	private void Tick()
 	{
-		mJobSystem?.Update();
-		mResourceSystem?.Update();
+		//mJobSystem?.Update();
+		//mResourceSystem?.Update();
 
 		for (Scene scene in mScenes)
 		{

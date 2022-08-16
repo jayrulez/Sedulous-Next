@@ -1,5 +1,5 @@
 FileVersion = 1
-Dependencies = {corlib = "*", "Sedulous.SDL" = "*", "Sedulous.RHI" = "*", "Sedulous.RHI.Vulkan" = "*", Dxc-Beef = "*", "Sedulous.Renderer" = "*"}
+Dependencies = {corlib = "*", "Sedulous.SDL" = "*", "Sedulous.RHI" = "*", "Sedulous.RHI.Vulkan" = "*", Dxc-Beef = "*", "Sedulous.Renderer" = "*", StbImageBeef = "*"}
 
 [Project]
 Name = "RHITest.Triangle"

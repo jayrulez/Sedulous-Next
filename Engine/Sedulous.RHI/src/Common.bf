@@ -754,6 +754,56 @@ struct TextureDesc
 	public uint16 arraySize;
 	public uint8 sampleNum;
 	public uint32 physicalDeviceMask;
+
+	public const TextureUsageBits DEFAULT_USAGE_MASK = TextureUsageBits.SHADER_RESOURCE;
+
+	public static TextureDesc Texture1D(Format format, uint16 width, uint16 mipNum = 1, uint16 arraySize = 1, TextureUsageBits usageMask = DEFAULT_USAGE_MASK)
+	{
+		TextureDesc textureDesc = .();
+		textureDesc.type = TextureType.TEXTURE_1D;
+		textureDesc.format = format;
+		textureDesc.usageMask = usageMask;
+		textureDesc.size[0] = width;
+		textureDesc.size[1] = 1;
+		textureDesc.size[2] = 1;
+		textureDesc.mipNum = mipNum;
+		textureDesc.arraySize = arraySize;
+		textureDesc.sampleNum = 1;
+
+		return textureDesc;
+	}
+
+	public static TextureDesc Texture2D(Format format, uint16 width, uint16 height, uint16 mipNum = 1, uint16 arraySize = 1, TextureUsageBits usageMask = DEFAULT_USAGE_MASK, uint8 sampleNum = 1)
+	{
+		TextureDesc textureDesc = .();
+		textureDesc.type = TextureType.TEXTURE_2D;
+		textureDesc.format = format;
+		textureDesc.usageMask = usageMask;
+		textureDesc.size[0] = width;
+		textureDesc.size[1] = height;
+		textureDesc.size[2] = 1;
+		textureDesc.mipNum = mipNum;
+		textureDesc.arraySize = arraySize;
+		textureDesc.sampleNum = sampleNum;
+
+		return textureDesc;
+	}
+
+	public static TextureDesc Texture3D(Format format, uint16 width, uint16 height, uint16 depth, uint16 mipNum = 1, TextureUsageBits usageMask = DEFAULT_USAGE_MASK)
+	{
+		TextureDesc textureDesc = .();
+		textureDesc.type = TextureType.TEXTURE_3D;
+		textureDesc.format = format;
+		textureDesc.usageMask = usageMask;
+		textureDesc.size[0] = width;
+		textureDesc.size[1] = height;
+		textureDesc.size[2] = depth;
+		textureDesc.mipNum = mipNum;
+		textureDesc.arraySize = 1;
+		textureDesc.sampleNum = 1;
+
+		return textureDesc;
+	}
 }
 
 struct BufferDesc
@@ -951,7 +1001,7 @@ struct SPIRVBindingOffsets
 struct ShaderDesc
 {
 	public ShaderStage stage;
-	public readonly void* bytecode;
+	public void* bytecode;
 	public uint64 size;
 	public char8* entryPointName;
 }
@@ -985,8 +1035,8 @@ struct VertexStreamDesc
 
 struct InputAssemblyDesc
 {
-	public readonly VertexAttributeDesc* attributes;
-	public readonly VertexStreamDesc* streams;
+	public VertexAttributeDesc* attributes;
+	public VertexStreamDesc* streams;
 	public uint8 attributeNum;
 	public uint8 streamNum;
 	public Topology topology;
@@ -1061,7 +1111,7 @@ struct StencilAttachmentDesc
 
 struct OutputMergerDesc
 {
-	public readonly ColorAttachmentDesc* color;
+	public ColorAttachmentDesc* color;
 	public DepthAttachmentDesc depth;
 	public StencilAttachmentDesc stencil;
 	public Format depthStencilFormat;
@@ -1083,10 +1133,10 @@ struct PipelineLayoutDesc
 struct GraphicsPipelineDesc
 {
 	public PipelineLayout pipelineLayout;
-	public readonly InputAssemblyDesc* inputAssembly;
-	public readonly RasterizationDesc* rasterization;
-	public readonly OutputMergerDesc* outputMerger;
-	public readonly ShaderDesc* shaderStages;
+	public InputAssemblyDesc* inputAssembly;
+	public RasterizationDesc* rasterization;
+	public OutputMergerDesc* outputMerger;
+	public ShaderDesc* shaderStages;
 	public uint32 shaderStageNum;
 }
 
@@ -1291,7 +1341,7 @@ struct DeviceDesc
 #region Helper
 struct TextureSubresourceUploadDesc
 {
-	public readonly void* slices;
+	public void* slices;
 	public uint32 sliceNum;
 	public uint32 rowPitch;
 	public uint32 slicePitch;
@@ -1299,7 +1349,7 @@ struct TextureSubresourceUploadDesc
 
 struct TextureUploadDesc
 {
-	public readonly TextureSubresourceUploadDesc* subresources;
+	public TextureSubresourceUploadDesc* subresources;
 	public Texture texture;
 	public AccessBits nextAccess;
 	public TextureLayout nextLayout;
@@ -1309,7 +1359,7 @@ struct TextureUploadDesc
 
 struct BufferUploadDesc
 {
-	public readonly void* data;
+	public void* data;
 	public uint64 dataSize;
 	public Buffer buffer;
 	public uint64 bufferOffset;
@@ -1376,7 +1426,7 @@ struct WaylandWindow
 
 struct MetalWindow
 {
-    public void* caMetalLayer;
+	public void* caMetalLayer;
 }
 
 [Union] struct Window

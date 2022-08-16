@@ -8,6 +8,8 @@ using Sedulous.RHI.Vulkan;
 using System.Collections;
 using Sedulous.Renderer;
 using Sedulous.Core;
+using System.IO;
+using StbImageBeef;
 namespace RHITest.Triangle;
 
 internal static
@@ -21,7 +23,65 @@ internal static
 	public static Color<float> COLOR_0 = .() { r = 1.0f, g = 1.0f, b = 0.0f, a = 1.0f };
 	public static Color<float> COLOR_1 = .() { r = 0.46f, g = 0.72f, b = 0.0f, a = 1.0f };
 
+
+	public static Vertex[] g_VertexData =
+		new .(
+		.()
+		{
+			position = .(-0.71f, -0.50f),
+			uv = .(0.0f, 0.0f)
+		},
+			.()
+		{
+			position = .(0.00f,  0.71f),
+			uv = .(1.0f, 1.0f)
+		},
+			.()
+		{
+			position = .(0.71f, -0.50f),
+			uv = .(0.0f, 1.0f)
+		}) ~ delete _;
+
 	public static uint16[?] g_IndexData = .(0, 1, 2);
+
+	public static Result<void> LoadTexture(StringView path, ref TextureResource texture)
+	{
+		FileStream fs = scope FileStream();
+		fs.Open(path, .Open, .Read);
+		ImageResult image = ImageResult.FromStream(fs, ColorComponents.RedGreenBlueAlpha);
+
+		Format format = .UNKNOWN;
+		switch (image.Comp) {
+		case .Default:
+			break;
+		case .Grey:
+			format = .R8_UNORM;
+			break;
+		case .GreyAlpha:
+			format = .RG8_UNORM;
+			break;
+		case .RedGreenBlue:
+			format = .RGBA8_UNORM;
+			break;
+		case .RedGreenBlueAlpha:
+			format = .RGBA8_UNORM;
+			break;
+		}
+
+		texture.image = image;
+		texture.data = image.Data;
+		texture.avgColor = .();
+		texture.hash = 100;
+		texture.alphaMode = .OPAQUE;
+		texture.format = format;
+		texture.width = (.)image.Width;
+		texture.height = (.)image.Height;
+		texture.depth = 1;
+		texture.mipNum = 1;
+		texture.arraySize = 1;
+
+		return .();
+	}
 }
 
 struct BackBuffer
@@ -135,8 +195,8 @@ class RHITestApplication : SDLApplication
 
 		DeviceCreationDesc deviceDesc = .()
 			{
-				enableAPIValidation = true,
-				enableNRIValidation = true,
+				enableAPIValidation = false,
+				enableNRIValidation = false,
 				spirvBindingOffsets = SPIRV_BINDING_OFFSETS
 			};
 
@@ -266,7 +326,11 @@ class RHITestApplication : SDLApplication
 		}
 
 		result = mDevice.CreateQueueSemaphore(out mAcquireSemaphore);
+		if (result != .SUCCESS)
+			return .Err;
 		result = mDevice.CreateQueueSemaphore(out mReleaseSemaphore);
+		if (result != .SUCCESS)
+			return .Err;
 
 		// Buffered resources
 		for (ref Frame frame in ref mFrames)
@@ -277,33 +341,273 @@ class RHITestApplication : SDLApplication
 		}
 
 		// Pipeline
+		readonly ref DeviceDesc deviceDesc = ref mDevice.GetDesc();
 		{
+			DescriptorRangeDesc[1] descriptorRangeConstant = .();
+			descriptorRangeConstant[0] = .() { baseRegisterIndex = 0, descriptorNum = 1, descriptorType = DescriptorType.CONSTANT_BUFFER, visibility = ShaderStage.ALL };
+
+			DescriptorRangeDesc[2] descriptorRangeTexture = .();
+			descriptorRangeTexture[0] = .() { baseRegisterIndex = 0, descriptorNum = 1, descriptorType = DescriptorType.TEXTURE, visibility = ShaderStage.FRAGMENT };
+			descriptorRangeTexture[1] = .() { baseRegisterIndex = 0, descriptorNum = 1, descriptorType = DescriptorType.SAMPLER, visibility = ShaderStage.FRAGMENT };
+
+			DescriptorSetDesc[] descriptorSetDescs = scope .
+				(
+				.() { ranges = &descriptorRangeConstant, rangeNum = descriptorRangeConstant.Count },
+				.() { ranges = &descriptorRangeTexture, rangeNum = descriptorRangeTexture.Count }
+				);
+
+			PushConstantDesc pushConstant = .() { registerIndex = 1, size = sizeof(float), visibility = ShaderStage.FRAGMENT };
+
+			PipelineLayoutDesc pipelineLayoutDesc = .() { };
+			pipelineLayoutDesc.descriptorSetNum = (.)descriptorSetDescs.Count;
+			pipelineLayoutDesc.descriptorSets = descriptorSetDescs.Ptr;
+			pipelineLayoutDesc.pushConstantNum = 1;
+			pipelineLayoutDesc.pushConstants = &pushConstant;
+			pipelineLayoutDesc.stageMask = PipelineLayoutShaderStageBits.VERTEX | PipelineLayoutShaderStageBits.FRAGMENT;
+
+			result = mDevice.CreatePipelineLayout(pipelineLayoutDesc, out m_PipelineLayout);
+			if (result != .SUCCESS)
+				return .Err;
+
+			VertexStreamDesc vertexStreamDesc = .();
+			vertexStreamDesc.bindingSlot = 0;
+			vertexStreamDesc.stride = sizeof(Vertex);
+
+			VertexAttributeDesc[2] vertexAttributeDesc = .();
+			{
+				vertexAttributeDesc[0].format = Format.RG32_SFLOAT;
+				vertexAttributeDesc[0].streamIndex = 0;
+				vertexAttributeDesc[0].offset = offsetof(Vertex, position);
+				vertexAttributeDesc[0].d3d = .() { semanticName = "POSITION", semanticIndex = 0 };
+				vertexAttributeDesc[0].vk.location = {0 };
+
+				vertexAttributeDesc[1].format = Format.RG32_SFLOAT;
+				vertexAttributeDesc[1].streamIndex = 0;
+				vertexAttributeDesc[1].offset = offsetof(Vertex, uv);
+				vertexAttributeDesc[1].d3d = .() { semanticName = "TEXCOORD", semanticIndex = 0 };
+				vertexAttributeDesc[1].vk.location = 1;
+			}
+
+			InputAssemblyDesc inputAssemblyDesc = .();
+			inputAssemblyDesc.topology = Topology.TRIANGLE_LIST;
+			inputAssemblyDesc.attributes = &vertexAttributeDesc;
+			inputAssemblyDesc.attributeNum = (uint8)vertexAttributeDesc.Count;
+			inputAssemblyDesc.streams = &vertexStreamDesc;
+			inputAssemblyDesc.streamNum = 1;
+
+			RasterizationDesc rasterizationDesc = .();
+			rasterizationDesc.viewportNum = 1;
+			rasterizationDesc.fillMode = FillMode.SOLID;
+			rasterizationDesc.cullMode = CullMode.NONE;
+			rasterizationDesc.sampleNum = 1;
+			rasterizationDesc.sampleMask = 0xFFFF;
+
+			ColorAttachmentDesc colorAttachmentDesc = .();
+			colorAttachmentDesc.format = swapChainFormat;
+			colorAttachmentDesc.colorWriteMask = ColorWriteBits.RGBA;
+			colorAttachmentDesc.blendEnabled = true;
+			colorAttachmentDesc.colorBlend = .() { srcFactor = BlendFactor.SRC_ALPHA, dstFactor = BlendFactor.ONE_MINUS_SRC_ALPHA, func = BlendFunc.ADD };
+
+			OutputMergerDesc outputMergerDesc = .();
+			outputMergerDesc.colorNum = 1;
+			outputMergerDesc.color = &colorAttachmentDesc;
+
+
+
+			ShaderDesc[] shaderStages = scope .(
+				.()
+				{
+					stage = .VERTEX,
+					bytecode = vertexShaderByteCode.Ptr,
+					size = (.)vertexShaderByteCode.Count,
+					entryPointName = null
+				},
+					.()
+				{
+					stage = .FRAGMENT,
+					bytecode = fragmentShaderByteCode.Ptr,
+					size = (.)fragmentShaderByteCode.Count,
+					entryPointName = null
+				}
+					);
+
+			GraphicsPipelineDesc graphicsPipelineDesc = .();
+			graphicsPipelineDesc.pipelineLayout = m_PipelineLayout;
+			graphicsPipelineDesc.inputAssembly = &inputAssemblyDesc;
+			graphicsPipelineDesc.rasterization = &rasterizationDesc;
+			graphicsPipelineDesc.outputMerger = &outputMergerDesc;
+			graphicsPipelineDesc.shaderStages = shaderStages.Ptr;
+			graphicsPipelineDesc.shaderStageNum = (.)shaderStages.Count;
+
+			result = mDevice.CreateGraphicsPipeline(graphicsPipelineDesc, out m_Pipeline);
+			if (result != .SUCCESS)
+				return .Err;
 		}
 
 		// Descriptor pool
 		{
+			DescriptorPoolDesc descriptorPoolDesc = .();
+			descriptorPoolDesc.descriptorSetMaxNum = BUFFERED_FRAME_MAX_NUM + 1;
+			descriptorPoolDesc.constantBufferMaxNum = BUFFERED_FRAME_MAX_NUM;
+			descriptorPoolDesc.textureMaxNum = 1;
+			descriptorPoolDesc.samplerMaxNum = 1;
+
+			result =  mDevice.CreateDescriptorPool(descriptorPoolDesc, out m_DescriptorPool);
+			if (result != .SUCCESS)
+				return .Err;
 		}
 
 		// Load texture
-		{
-		}
+		TextureResource texture = .();
+		if (LoadTexture("images/ball.png", ref texture) case .Err)
+			return .Err;
+
+		defer texture.Dispose();
 
 		// Resources
+		readonly uint32 constantBufferSize = (.)Math.Align((uint32)sizeof(ConstantBufferLayout), deviceDesc.constantBufferOffsetAlignment);
+		readonly uint64 indexDataSize = sizeof(decltype(g_IndexData[0])) * g_IndexData.Count;
+		readonly uint64 indexDataAlignedSize = (.)Math.Align((.)indexDataSize, 16);
+		readonly uint64 vertexDataSize = (.)sizeof(decltype(g_VertexData[0])) * (.)g_VertexData.Count;
 		{
+			// Texture
+			TextureDesc textureDesc = TextureDesc.Texture2D(texture.GetFormat(),
+				texture.GetWidth(), texture.GetHeight(), texture.GetMipNum());
+			result = mDevice.CreateTexture(textureDesc, out m_Texture);
+
+			// Constant buffer
+			{
+				BufferDesc bufferDesc = .();
+				bufferDesc.size = constantBufferSize * BUFFERED_FRAME_MAX_NUM;
+				bufferDesc.usageMask = BufferUsageBits.CONSTANT_BUFFER;
+				result =  mDevice.CreateBuffer(bufferDesc, out m_ConstantBuffer);
+				if (result != .SUCCESS)
+					return .Err;
+			}
+
+			// Geometry buffer
+			{
+				BufferDesc bufferDesc = .();
+				bufferDesc.size = indexDataAlignedSize + vertexDataSize;
+				bufferDesc.usageMask = BufferUsageBits.VERTEX_BUFFER | BufferUsageBits.INDEX_BUFFER;
+				result = mDevice.CreateBuffer(bufferDesc, out m_GeometryBuffer);
+				if (result != .SUCCESS)
+					return .Err;
+			}
+			m_GeometryOffset = indexDataAlignedSize;
 		}
+
+		ResourceGroupDesc resourceGroupDesc = .();
+		resourceGroupDesc.memoryLocation = MemoryLocation.HOST_UPLOAD;
+		resourceGroupDesc.bufferNum = 1;
+		resourceGroupDesc.buffers = &m_ConstantBuffer;
+
+		m_MemoryAllocations.Resize(1);
+		result = mDevice.AllocateAndBindMemory(resourceGroupDesc, m_MemoryAllocations.Ptr);
+		if (result != .SUCCESS)
+			return .Err;
+
+		resourceGroupDesc.memoryLocation = MemoryLocation.DEVICE;
+		resourceGroupDesc.bufferNum = 1;
+		resourceGroupDesc.buffers = &m_GeometryBuffer;
+		resourceGroupDesc.textureNum = 1;
+		resourceGroupDesc.textures = &m_Texture;
+
+		m_MemoryAllocations.Resize(1 + mDevice.CalculateAllocationNumber(resourceGroupDesc));
+		result = mDevice.AllocateAndBindMemory(resourceGroupDesc, m_MemoryAllocations.Ptr + 1);
+		if (result != .SUCCESS)
+			return .Err;
 
 		// Descriptors
 		{
+			// Texture
+			Texture2DViewDesc texture2DViewDesc = .() { texture = m_Texture, viewType = Texture2DViewType.SHADER_RESOURCE_2D, format = texture.GetFormat() };
+			result = mDevice.CreateTexture2DView(texture2DViewDesc, out m_TextureShaderResource);
+
+			// Sampler
+			SamplerDesc samplerDesc = .();
+			samplerDesc.anisotropy = 4;
+			samplerDesc.addressModes = .() { u = AddressMode.MIRRORED_REPEAT, v = AddressMode.MIRRORED_REPEAT };
+			samplerDesc.minification = Filter.LINEAR;
+			samplerDesc.magnification = Filter.LINEAR;
+			samplerDesc.mip = Filter.LINEAR;
+			samplerDesc.mipMax = 16.0f;
+			result = mDevice.CreateSampler(samplerDesc, out m_Sampler);
+			if (result != .SUCCESS)
+				return .Err;
+
+			// Constant buffer
+			for (uint32 i = 0; i < BUFFERED_FRAME_MAX_NUM; i++)
+			{
+				BufferViewDesc bufferViewDesc = .();
+				bufferViewDesc.buffer = m_ConstantBuffer;
+				bufferViewDesc.viewType = BufferViewType.CONSTANT;
+				bufferViewDesc.offset = i * constantBufferSize;
+				bufferViewDesc.size = constantBufferSize;
+				result = mDevice.CreateBufferView(bufferViewDesc, out mFrames[i].constantBufferView);
+				if (result != .SUCCESS)
+					return .Err;
+
+				mFrames[i].constantBufferViewOffset = bufferViewDesc.offset;
+			}
 		}
 
 		// Descriptor sets
 		{
+
+			// Texture
+			result = m_DescriptorPool.AllocateDescriptorSets(m_PipelineLayout, 1, &m_TextureDescriptorSet, 1, WHOLE_DEVICE_GROUP, 0);
+			if (result != .SUCCESS)
+				return .Err;
+
+			DescriptorRangeUpdateDesc[2] descriptorRangeUpdateDescs = .();
+			descriptorRangeUpdateDescs[0].descriptorNum = 1;
+			descriptorRangeUpdateDescs[0].descriptors = &m_TextureShaderResource;
+
+			descriptorRangeUpdateDescs[1].descriptorNum = 1;
+			descriptorRangeUpdateDescs[1].descriptors = &m_Sampler;
+			m_TextureDescriptorSet.UpdateDescriptorRanges(WHOLE_DEVICE_GROUP, 0, descriptorRangeUpdateDescs.Count, &descriptorRangeUpdateDescs);
+
+			// Constant buffer
+			for (ref Frame frame in ref mFrames)
+			{
+				m_DescriptorPool.AllocateDescriptorSets(m_PipelineLayout, 0, &frame.constantBufferDescriptorSet, 1, WHOLE_DEVICE_GROUP, 0);
+				if (result != .SUCCESS)
+					return .Err;
+
+				DescriptorRangeUpdateDesc descriptorRangeUpdateDesc = .() { descriptors = &frame.constantBufferView, descriptorNum = 1 };
+				frame.constantBufferDescriptorSet.UpdateDescriptorRanges(WHOLE_DEVICE_GROUP, 0, 1, &descriptorRangeUpdateDesc);
+			}
 		}
 
 		// Upload data
 		{
-		}
+			List<uint8> geometryBufferData = scope .() { Count = (.)(indexDataAlignedSize + vertexDataSize) };
+			Internal.MemCpy(geometryBufferData.Ptr, &g_IndexData, (.)indexDataSize);
+			Internal.MemCpy(&geometryBufferData[(.)indexDataAlignedSize], &g_VertexData, (.)vertexDataSize);
 
+			TextureSubresourceUploadDesc[16] subresources = .();
+			for (uint32 mip = 0; mip < texture.GetMipNum(); mip++)
+				texture.GetSubresource(ref subresources[mip], mip);
+
+			TextureUploadDesc textureData = .();
+			textureData.subresources = &subresources;
+			textureData.mipNum = texture.GetMipNum();
+			textureData.arraySize = 1;
+			textureData.texture = m_Texture;
+			textureData.nextLayout = TextureLayout.SHADER_RESOURCE;
+			textureData.nextAccess = AccessBits.SHADER_RESOURCE;
+
+			BufferUploadDesc bufferData = .();
+			bufferData.buffer = m_GeometryBuffer;
+			bufferData.data = geometryBufferData.Ptr;
+			bufferData.dataSize = (.)geometryBufferData.Count;
+			bufferData.nextAccess = AccessBits.INDEX_BUFFER | AccessBits.VERTEX_BUFFER;
+
+			result = mCommandQueue.UploadData(&textureData, 1, &bufferData, 1);
+			if (result != .SUCCESS)
+				return .Err;
+		}
 
 		return .Ok;
 	}
@@ -360,18 +664,29 @@ class RHITestApplication : SDLApplication
 		mCommandQueue.Wait(frame.deviceSemaphore);
 		frame.commandAllocator.Reset();
 
-		CommandBuffer commandBuffer = frame.commandBuffer;
-		commandBuffer.Begin(null, 0);
+		ConstantBufferLayout* commonConstants = (ConstantBufferLayout*)m_ConstantBuffer.Map(frame.constantBufferViewOffset, sizeof(ConstantBufferLayout));
+		if (commonConstants != null)
 		{
-			TextureTransitionBarrierDesc textureTransitionBarrierDesc = .();
-			textureTransitionBarrierDesc.texture = backBuffer.texture;
-			textureTransitionBarrierDesc.prevAccess = AccessBits.UNKNOWN;
-			textureTransitionBarrierDesc.nextAccess = AccessBits.COLOR_ATTACHMENT;
-			textureTransitionBarrierDesc.prevLayout = TextureLayout.UNKNOWN;
-			textureTransitionBarrierDesc.nextLayout = TextureLayout.COLOR_ATTACHMENT;
-			textureTransitionBarrierDesc.arraySize = 1;
-			textureTransitionBarrierDesc.mipNum = 1;
+			commonConstants.color[0] = 0.8f;
+			commonConstants.color[1] = 0.5f;
+			commonConstants.color[2] = 0.1f;
+			commonConstants.scale = m_Scale;
 
+			m_ConstantBuffer.Unmap();
+		}
+
+		TextureTransitionBarrierDesc textureTransitionBarrierDesc = .();
+		textureTransitionBarrierDesc.texture = backBuffer.texture;
+		textureTransitionBarrierDesc.prevAccess = AccessBits.UNKNOWN;
+		textureTransitionBarrierDesc.nextAccess = AccessBits.COLOR_ATTACHMENT;
+		textureTransitionBarrierDesc.prevLayout = TextureLayout.UNKNOWN;
+		textureTransitionBarrierDesc.nextLayout = TextureLayout.COLOR_ATTACHMENT;
+		textureTransitionBarrierDesc.arraySize = 1;
+		textureTransitionBarrierDesc.mipNum = 1;
+
+		CommandBuffer commandBuffer = frame.commandBuffer;
+		commandBuffer.Begin(m_DescriptorPool, 0);
+		{
 			TransitionBarrierDesc transitionBarriers = .();
 			transitionBarriers.textureNum = 1;
 			transitionBarriers.textures = &textureTransitionBarrierDesc;
@@ -379,24 +694,53 @@ class RHITestApplication : SDLApplication
 
 			commandBuffer.BeginRenderPass(backBuffer.frameBuffer, RenderPassBeginFlag.NONE);
 			{
-				commandBuffer.BeginAnnotation("Clear");
+				{
+					commandBuffer.BeginAnnotation("Clear");
 
-				ClearDesc clearDesc = .();
-				clearDesc.colorAttachmentIndex = 0;
+					uint32 halfWidth = windowWidth / 2;
+					uint32 halfHeight = windowHeight / 2;
 
-				clearDesc.value.rgba32f = .() { r = 1.0f, g = 0.0f, b = 0.0f, a = 1.0f };
-				Rect rect1 = .() { left = 0, top = 0, width = windowWidth, height = windowHeight / 3 };
-				commandBuffer.ClearAttachments(&clearDesc, 1, &rect1, 1);
+					ClearDesc clearDesc = .();
+					clearDesc.colorAttachmentIndex = 0;
+					clearDesc.value.rgba32f = COLOR_1;
+					Rect[2] rects = .();
+					rects[0] = .() { left =  0, top = 0, width = halfWidth, height = halfHeight };
+					rects[1] = .() { left = (int32)halfWidth, top = (int32)halfHeight, width = halfWidth, height = halfHeight };
+					commandBuffer.ClearAttachments(&clearDesc, 1, &rects, rects.Count);
 
-				clearDesc.value.rgba32f = .() { r = 0.0f, g = 1.0f, b = 0.0f, a = 1.0f };
-				Rect rect2 = .() { left = 0, top = (.)windowHeight / 3, width = windowWidth, height = windowHeight / 3 };
-				commandBuffer.ClearAttachments(&clearDesc, 1, &rect2, 1);
+					commandBuffer.EndAnnotation();
+				}
+				{
+					commandBuffer.BeginAnnotation("Triangle");
 
-				clearDesc.value.rgba32f = .() { r = 0.0f, g = 0.0f, b = 1.0f, a = 1.0f };
-				Rect rect3 = .() { left = 0, top = (.)(windowHeight * 2) / 3, width = windowWidth, height = windowHeight / 3 };
-				commandBuffer.ClearAttachments(&clearDesc, 1, &rect3, 1);
+					Viewport viewport = .()
+						{
+							offset = .(0.0f, 0.0f),
+							size = .((float)windowWidth, (float)windowHeight),
+							depthRangeMin = 0.0f,
+							depthRangeMax = 1.0f
+						};
+					commandBuffer.SetViewports(&viewport, 1);
 
-				commandBuffer.EndAnnotation();
+					commandBuffer.SetPipelineLayout(m_PipelineLayout);
+					commandBuffer.SetPipeline(m_Pipeline);
+					commandBuffer.SetConstants(0, &m_Transparency, 4);
+					commandBuffer.SetIndexBuffer(m_GeometryBuffer, 0, IndexType.UINT16);
+					commandBuffer.SetVertexBuffers(0, 1, &m_GeometryBuffer, &m_GeometryOffset);
+
+					DescriptorSet[2] sets = .(frame.constantBufferDescriptorSet, m_TextureDescriptorSet);
+					commandBuffer.SetDescriptorSets(0, sets.Count, &sets, null);
+
+					Rect scissor = .() { left = 0, top = 0, width = windowWidth / 2, height = windowHeight };
+					commandBuffer.SetScissors(&scissor, 1);
+					commandBuffer.DrawIndexed(3, 1, 0, 0, 0);
+
+					scissor = .() { left = (int32)windowWidth / 2, top = (int32)windowHeight / 2, width = windowWidth / 2, height = windowHeight / 2 };
+					commandBuffer.SetScissors(&scissor, 1);
+					commandBuffer.Draw(3, 1, 0, 0);
+
+					commandBuffer.EndAnnotation();
+				}
 			}
 			commandBuffer.EndRenderPass();
 
