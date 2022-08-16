@@ -350,7 +350,7 @@ class RHITestApplication : SDLApplication
 			descriptorRangeTexture[0] = .() { baseRegisterIndex = 0, descriptorNum = 1, descriptorType = DescriptorType.TEXTURE, visibility = ShaderStage.FRAGMENT };
 			descriptorRangeTexture[1] = .() { baseRegisterIndex = 0, descriptorNum = 1, descriptorType = DescriptorType.SAMPLER, visibility = ShaderStage.FRAGMENT };
 
-			DescriptorSetDesc[] descriptorSetDescs = scope .
+			DescriptorSetDesc[] descriptorSetDescs = scope:: .
 				(
 				.() { ranges = &descriptorRangeConstant, rangeNum = descriptorRangeConstant.Count },
 				.() { ranges = &descriptorRangeTexture, rangeNum = descriptorRangeTexture.Count }
@@ -358,7 +358,7 @@ class RHITestApplication : SDLApplication
 
 			PushConstantDesc pushConstant = .() { registerIndex = 1, size = sizeof(float), visibility = ShaderStage.FRAGMENT };
 
-			PipelineLayoutDesc pipelineLayoutDesc = .() { };
+			PipelineLayoutDesc pipelineLayoutDesc = .();
 			pipelineLayoutDesc.descriptorSetNum = (.)descriptorSetDescs.Count;
 			pipelineLayoutDesc.descriptorSets = descriptorSetDescs.Ptr;
 			pipelineLayoutDesc.pushConstantNum = 1;
@@ -379,7 +379,7 @@ class RHITestApplication : SDLApplication
 				vertexAttributeDesc[0].streamIndex = 0;
 				vertexAttributeDesc[0].offset = offsetof(Vertex, position);
 				vertexAttributeDesc[0].d3d = .() { semanticName = "POSITION", semanticIndex = 0 };
-				vertexAttributeDesc[0].vk.location = {0 };
+				vertexAttributeDesc[0].vk.location = 0;
 
 				vertexAttributeDesc[1].format = Format.RG32_SFLOAT;
 				vertexAttributeDesc[1].streamIndex = 0;
@@ -414,7 +414,7 @@ class RHITestApplication : SDLApplication
 
 
 
-			ShaderDesc[] shaderStages = scope .(
+			ShaderDesc[] shaderStages = scope:: .(
 				.()
 				{
 					stage = .VERTEX,

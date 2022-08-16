@@ -75,16 +75,16 @@ namespace Sedulous.RHI.Vulkan
 				};
 
 			for (uint32 i = 0; i < workSubmissionDesc.commandBufferNum; i++)
-				*(commandBuffers++) = (CommandBufferVK)workSubmissionDesc.commandBuffers[i];
+				commandBuffers[i] = (CommandBufferVK)workSubmissionDesc.commandBuffers[i];
 
 			for (uint32 i = 0; i < workSubmissionDesc.waitNum; i++)
 			{
-				*(waitSemaphores++) = (QueueSemaphoreVK)workSubmissionDesc.wait[i];
-				*(waitStages++) = .VK_PIPELINE_STAGE_ALL_COMMANDS_BIT; // TODO: more optimal stage
+				waitSemaphores[i] = (QueueSemaphoreVK)workSubmissionDesc.wait[i];
+				waitStages[i] = .VK_PIPELINE_STAGE_ALL_COMMANDS_BIT; // TODO: more optimal stage
 			}
 
 			for (uint32 i = 0; i < workSubmissionDesc.signalNum; i++)
-				*(signalSemaphores++) = (QueueSemaphoreVK)workSubmissionDesc.signal[i];
+				signalSemaphores[i] = (QueueSemaphoreVK)workSubmissionDesc.signal[i];
 
 			VkFence fence = .Null;
 			if (deviceSemaphore != null)
@@ -101,7 +101,7 @@ namespace Sedulous.RHI.Vulkan
 					waitSemaphoreDeviceIndices[i] = workSubmissionDesc.physicalDeviceIndex;
 
 				for (uint32 i = 0; i < workSubmissionDesc.commandBufferNum; i++)
-					commandBufferDeviceMasks[i] = 1u << workSubmissionDesc.physicalDeviceIndex;
+					commandBufferDeviceMasks[i] = 1 << workSubmissionDesc.physicalDeviceIndex;
 
 				for (uint32 i = 0; i < workSubmissionDesc.signalNum; i++)
 					signalSemaphoreDeviceIndices[i] = workSubmissionDesc.physicalDeviceIndex;
