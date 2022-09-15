@@ -459,7 +459,7 @@ class RHITestApplication : SDLApplication
 
 		// Load texture
 		TextureResource texture = .();
-		if (LoadTexture("images/ball.png", ref texture) case .Err)
+		if (LoadTexture("images/wood.png", ref texture) case .Err)
 			return .Err;
 
 		defer texture.Dispose();
@@ -584,7 +584,7 @@ class RHITestApplication : SDLApplication
 		{
 			List<uint8> geometryBufferData = scope .() { Count = (.)(indexDataAlignedSize + vertexDataSize) };
 			Internal.MemCpy(geometryBufferData.Ptr, &g_IndexData, (.)indexDataSize);
-			Internal.MemCpy(&geometryBufferData[(.)indexDataAlignedSize], &g_VertexData, (.)vertexDataSize);
+			Internal.MemCpy(&geometryBufferData[(.)indexDataAlignedSize], g_VertexData.Ptr, (.)vertexDataSize);
 
 			TextureSubresourceUploadDesc[16] subresources = .();
 			for (uint32 mip = 0; mip < texture.GetMipNum(); mip++)
