@@ -4,7 +4,7 @@ namespace Sedulous.Foundation.Utilities;
 
 public static
 {
-	public static mixin ReturnOnFailure<T>(ILogger logger, bool condition, T returnCode, in StringView format, params Object[] args)
+	public static mixin ReturnOnFailure<T>(ILogger logger, bool condition, T returnCode, StringView format, params Object[] args)
 	{
 		if (condition == false)
 		{

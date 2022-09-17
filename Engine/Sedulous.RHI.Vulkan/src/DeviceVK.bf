@@ -95,7 +95,7 @@ public static
 		//MaybeUnused(allocationScope);
 	}*/
 
-	public static bool IsExtensionInList(char8* @extension, in List<char8*> list)
+	public static bool IsExtensionInList(char8* @extension, List<char8*> list)
 	{
 		for (ref char8* extensionFromList in ref list)
 		{

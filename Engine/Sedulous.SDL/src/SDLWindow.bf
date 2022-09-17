@@ -39,7 +39,7 @@ class SDLWindow : Window
 		}
 	}
 
-	public this(in StringView title, uint32 width, uint32 height)
+	public this(StringView title, uint32 width, uint32 height)
 		: base(title, width, height)
 	{
 		SDL.WindowFlags flags = .Shown | SDL.WindowFlags.Resizable | SDL.WindowFlags.Vulkan;

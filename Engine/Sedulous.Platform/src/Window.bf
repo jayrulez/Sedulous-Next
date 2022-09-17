@@ -23,7 +23,7 @@ abstract class Window : Surface
 	/// <param name="title">Window title.</param>
 	/// <param name="width">Window width.</param>
 	/// <param name="height">Window height.</param>
-	public this(in StringView title, uint32 width, uint32 height)
+	public this(StringView title, uint32 width, uint32 height)
 		: base(width, height)
 	{
 	}

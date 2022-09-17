@@ -1258,7 +1258,7 @@ public static class VulkanUtils
 	}
 
 	public static void ConvertGeometryObjectSizesVK(uint32 physicalDeviceIndex, VkAccelerationStructureGeometryKHR* destObjects, uint32* primitiveNums,
-		in GeometryObject* sourceObjects, uint32 objectNum)
+		GeometryObject* sourceObjects, uint32 objectNum)
 	{
 		for (uint32 i = 0; i < objectNum; i++)
 		{
@@ -1289,7 +1289,7 @@ public static class VulkanUtils
 	}
 
 	public static void ConvertGeometryObjectsVK(uint32 physicalDeviceIndex, VkAccelerationStructureGeometryKHR* destObjects,
-		VkAccelerationStructureBuildRangeInfoKHR* ranges, in GeometryObject* sourceObjects, uint32 objectNum)
+		VkAccelerationStructureBuildRangeInfoKHR* ranges, GeometryObject* sourceObjects, uint32 objectNum)
 	{
 		for (uint32 i = 0; i < objectNum; i++)
 		{

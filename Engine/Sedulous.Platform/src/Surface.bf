@@ -51,7 +51,7 @@ public abstract class Surface
 	/// <summary>
 	/// Occurs when surface info is changed.
 	/// </summary>
-	public EventAccessor<delegate void(in SurfaceInfo surfaceInfo)> SurfaceInfoChanged = new .();
+	public EventAccessor<delegate void(SurfaceInfo surfaceInfo)> SurfaceInfoChanged = new .();
 
 	/// <summary>
 	/// Occurs when surface is closing

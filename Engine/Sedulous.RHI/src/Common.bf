@@ -1008,7 +1008,7 @@ struct ShaderDesc
 
 struct VertexAttributeD3D
 {
-	public char8* semanticName;
+	public char8* semanticName = null;
 	public uint32 semanticIndex;
 }
 
@@ -1019,8 +1019,8 @@ struct VertexAttributeVK
 
 struct VertexAttributeDesc
 {
-	public VertexAttributeD3D d3d;
-	public VertexAttributeVK vk;
+	public VertexAttributeD3D d3d = .();
+	public VertexAttributeVK vk = .();
 	public uint32 offset;
 	public Format format;
 	public uint16 streamIndex;
