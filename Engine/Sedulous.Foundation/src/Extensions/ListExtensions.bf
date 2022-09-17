@@ -1,6 +1,6 @@
 namespace System.Collections;
 
-extension List<T> where T : struct
+/*extension List<T> where T : struct
 {
 	public void Resize(int newSize, T fillValue)
 	{
@@ -14,4 +14,4 @@ extension List<T> where T : struct
 			}
 		}
 	}
-}
+}*/

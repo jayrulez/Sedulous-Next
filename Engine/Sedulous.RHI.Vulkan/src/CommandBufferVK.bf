@@ -1,5 +1,6 @@
 using Bulkan;
 using System;
+using System.Collections;
 using static Bulkan.VulkanNative;
 using static Sedulous.RHI.Vulkan.VulkanUtils;
 namespace Sedulous.RHI.Vulkan
@@ -27,7 +28,7 @@ namespace Sedulous.RHI.Vulkan
 
 		 //////////////////////////////Private Methods//////////////////////////////
 
-		private void FillAliasingBufferBarriers(in AliasingBarrierDesc aliasing, ref Barriers barriers)
+		private void FillAliasingBufferBarriers(AliasingBarrierDesc aliasing, ref Barriers barriers)
 		{
 			for (uint32 i = 0; i < aliasing.bufferNum; i++)
 			{
@@ -49,7 +50,7 @@ namespace Sedulous.RHI.Vulkan
 			}
 		}
 
-		private void FillAliasingImageBarriers(in AliasingBarrierDesc aliasing, ref Barriers barriers)
+		private void FillAliasingImageBarriers(AliasingBarrierDesc aliasing, ref Barriers barriers)
 		{
 			for (uint32 i = 0; i < aliasing.textureNum; i++)
 			{
@@ -79,7 +80,7 @@ namespace Sedulous.RHI.Vulkan
 			}
 		}
 
-		private void FillTransitionBufferBarriers(in TransitionBarrierDesc transitions, ref Barriers barriers)
+		private void FillTransitionBufferBarriers(TransitionBarrierDesc transitions, ref Barriers barriers)
 		{
 			for (uint32 i = 0; i < transitions.bufferNum; i++)
 			{
@@ -103,7 +104,7 @@ namespace Sedulous.RHI.Vulkan
 			}
 		}
 
-		private void FillTransitionImageBarriers(in TransitionBarrierDesc transitions, ref Barriers barriers)
+		private void FillTransitionImageBarriers(TransitionBarrierDesc transitions, ref Barriers barriers)
 		{
 			for (uint32 i = 0; i < transitions.textureNum; i++)
 			{
@@ -135,7 +136,7 @@ namespace Sedulous.RHI.Vulkan
 			}
 		}
 
-		private void CopyWholeTexture(in TextureVK dstTexture, uint32 dstPhysicalDeviceIndex, in TextureVK srcTexture, uint32 srcPhysicalDeviceIndex)
+		private void CopyWholeTexture(TextureVK dstTexture, uint32 dstPhysicalDeviceIndex, TextureVK srcTexture, uint32 srcPhysicalDeviceIndex)
 		{
 			VkImageCopy* regions = STACK_ALLOC!<VkImageCopy>(dstTexture.GetMipNum());
 
@@ -182,7 +183,7 @@ namespace Sedulous.RHI.Vulkan
 			m_Type = type;
 		}
 
-		public Result Create(in CommandBufferVulkanDesc commandBufferDesc)
+		public Result Create(CommandBufferVulkanDesc commandBufferDesc)
 		{
 			m_CommandPool = .Null;
 			m_Handle = (VkCommandBuffer)commandBufferDesc.vkCommandBuffer;
@@ -410,7 +411,12 @@ namespace Sedulous.RHI.Vulkan
 
 		public override void SetScissors(Rect* rects, uint32 rectNum)
 		{
-			vkCmdSetScissor(m_Handle, 0, rectNum, (VkRect2D*)rects);
+			List<VkRect2D> vkRects = scope .() { Count = rectNum};
+			for(int i = 0; i < rectNum; i++){
+				vkRects[i] = *(VkRect2D*)&rects[i];
+			}
+
+			vkCmdSetScissor(m_Handle, 0, rectNum, vkRects.Ptr);
 		}
 
 		public override void SetDepthBounds(float boundsMin, float boundsMax)

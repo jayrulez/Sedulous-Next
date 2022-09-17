@@ -26,7 +26,7 @@ namespace Sedulous.RHI.Vulkan
 
 		public VkQueryType GetQueryType() => m_Type;
 
-		public Result Create(in QueryPoolDesc queryPoolDesc)
+		public Result Create(QueryPoolDesc queryPoolDesc)
 		{
 			m_OwnsNativeObjects = true;
 			m_Type = VulkanUtils.GetVkQueryType(queryPoolDesc.queryType);

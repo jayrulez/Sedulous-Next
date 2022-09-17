@@ -17,7 +17,7 @@ namespace Sedulous.RHI.Vulkan
 
 		//////////////////////////////Private Methods//////////////////////////////
 
-		private Result CreateSurface(in SwapChainDesc swapChainDesc)
+		private Result CreateSurface(SwapChainDesc swapChainDesc)
 		{
 			VkResult result;
 

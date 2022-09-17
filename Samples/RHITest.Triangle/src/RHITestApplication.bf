@@ -195,7 +195,7 @@ class RHITestApplication : SDLApplication
 
 		DeviceCreationDesc deviceDesc = .()
 			{
-				enableAPIValidation = false,
+				enableAPIValidation = true,
 				enableNRIValidation = false,
 				spirvBindingOffsets = SPIRV_BINDING_OFFSETS
 			};

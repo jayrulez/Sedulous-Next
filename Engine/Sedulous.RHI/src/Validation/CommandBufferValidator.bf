@@ -31,16 +31,16 @@ namespace Sedulous.RHI.Validation
 		public static bool ValidateBufferTransitionBarrierDesc(DeviceValidator device, uint32 i, BufferTransitionBarrierDesc bufferTransitionBarrierDesc)
 		{
 			RETURN_ON_FAILURE!(device.GetLogger(), bufferTransitionBarrierDesc.buffer != null, false,
-				"Can't record pipeline barrier: 'transitionBarriers->buffers[%u].buffer' is invalid.", i);
+				"Can't record pipeline barrier: 'transitionBarriers->buffers[{}].buffer' is invalid.", i);
 
 			readonly BufferValidator bufferVal = (BufferValidator)bufferTransitionBarrierDesc.buffer;
 
 			RETURN_ON_FAILURE!(device.GetLogger(), IsAccessMaskSupported(bufferVal.GetUsageMask(), bufferTransitionBarrierDesc.prevAccess), false,
-				"Can't record pipeline barrier: 'transitionBarriers->buffers[%u].prevAccess' is not supported by the usage mask of the buffer ('{}').",
+				"Can't record pipeline barrier: 'transitionBarriers->buffers[{}].prevAccess' is not supported by the usage mask of the buffer ('{}').",
 				i, bufferVal.GetDebugName());
 
 			RETURN_ON_FAILURE!(device.GetLogger(), IsAccessMaskSupported(bufferVal.GetUsageMask(), bufferTransitionBarrierDesc.nextAccess), false,
-				"Can't record pipeline barrier: 'transitionBarriers->buffers[%u].nextAccess' is not supported by the usage mask of the buffer ('{}').",
+				"Can't record pipeline barrier: 'transitionBarriers->buffers[{}].nextAccess' is not supported by the usage mask of the buffer ('{}').",
 				i, bufferVal.GetDebugName());
 
 			return true;
@@ -49,24 +49,24 @@ namespace Sedulous.RHI.Validation
 		public static bool ValidateTextureTransitionBarrierDesc(DeviceValidator device, uint32 i, TextureTransitionBarrierDesc textureTransitionBarrierDesc)
 		{
 			RETURN_ON_FAILURE!(device.GetLogger(), textureTransitionBarrierDesc.texture != null, false,
-				"Can't record pipeline barrier: 'transitionBarriers->textures[%u].texture' is invalid.", i);
+				"Can't record pipeline barrier: 'transitionBarriers->textures[{}].texture' is invalid.", i);
 
 			TextureValidator textureVal = (TextureValidator)textureTransitionBarrierDesc.texture;
 
 			RETURN_ON_FAILURE!(device.GetLogger(), IsAccessMaskSupported(textureVal.GetDesc().usageMask, textureTransitionBarrierDesc.prevAccess), false,
-				"Can't record pipeline barrier: 'transitionBarriers->textures[%u].prevAccess' is not supported by the usage mask of the texture ('{}').",
+				"Can't record pipeline barrier: 'transitionBarriers->textures[{}].prevAccess' is not supported by the usage mask of the texture ('{}').",
 				i, textureVal.GetDebugName());
 
 			RETURN_ON_FAILURE!(device.GetLogger(), IsAccessMaskSupported(textureVal.GetDesc().usageMask, textureTransitionBarrierDesc.nextAccess), false,
-				"Can't record pipeline barrier: 'transitionBarriers->textures[%u].nextAccess' is not supported by the usage mask of the texture ('{}').",
+				"Can't record pipeline barrier: 'transitionBarriers->textures[{}].nextAccess' is not supported by the usage mask of the texture ('{}').",
 				i, textureVal.GetDebugName());
 
 			RETURN_ON_FAILURE!(device.GetLogger(), IsTextureLayoutSupported(textureVal.GetDesc().usageMask, textureTransitionBarrierDesc.prevLayout), false,
-				"Can't record pipeline barrier: 'transitionBarriers->textures[%u].prevLayout' is not supported by the usage mask of the texture ('{}').",
+				"Can't record pipeline barrier: 'transitionBarriers->textures[{}].prevLayout' is not supported by the usage mask of the texture ('{}').",
 				i, textureVal.GetDebugName());
 
 			RETURN_ON_FAILURE!(device.GetLogger(), IsTextureLayoutSupported(textureVal.GetDesc().usageMask, textureTransitionBarrierDesc.nextLayout), false,
-				"Can't record pipeline barrier: 'transitionBarriers->textures[%u].nextLayout' is not supported by the usage mask of the texture ('{}').",
+				"Can't record pipeline barrier: 'transitionBarriers->textures[{}].nextLayout' is not supported by the usage mask of the texture ('{}').",
 				i, textureVal.GetDebugName());
 
 			return true;

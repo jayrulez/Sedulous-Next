@@ -301,7 +301,7 @@ namespace Sedulous.RHI.Vulkan
 			state.pDynamicStates = &DYNAMIC_STATE;
 		}
 
-		private Result SetupShaderStage(ref VkPipelineShaderStageCreateInfo stage, in ShaderDesc shaderDesc, ref VkShaderModule* modules)
+		private Result SetupShaderStage(ref VkPipelineShaderStageCreateInfo stage, ShaderDesc shaderDesc, ref VkShaderModule* modules)
 		{
 			VkShaderModuleCreateInfo moduleInfo = .()
 				{
