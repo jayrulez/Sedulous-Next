@@ -21,17 +21,6 @@ extension Array
 	}
 }
 
-extension SizedArray<T, TSize> where TSize : const int
-{
-	public void Fill(T value) mut
-	{
-		for (int i = 0; i < this.Count; i++)
-		{
-			mVal[i] = value;
-		}
-	}
-}
-
 public extension Array1<T> where T : IHashable
 {
 	public int GetHashCode()
@@ -47,14 +36,6 @@ public extension Array1<T> where T : IHashable
 
 public extension Array1<T>
 {
-	public void Fill(T value)
-	{
-		for (int i = 0; i < this.Count; i++)
-		{
-			this[i] = value;
-		}
-	}
-
 	public bool SequenceEqual(T[] other)
 	{
 		if (this.Count != other.Count)
@@ -77,22 +58,6 @@ public extension Array1<T> where T : String
 		for (int i = 0; i < Count; i++)
 		{
 			if (item.Equals(this[i], ignoreCase))
-			{
-				return true;
-			}
-		}
-
-		return false;
-	}
-}
-
-public extension Array1<T> where T : struct
-{
-	public bool Contains(T item)
-	{
-		for (int i = 0; i < Count; i++)
-		{
-			if (this[i] == item)
 			{
 				return true;
 			}

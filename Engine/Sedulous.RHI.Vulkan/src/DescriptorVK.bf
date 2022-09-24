@@ -354,7 +354,7 @@ namespace Sedulous.RHI.Vulkan
 		{
 			m_Device = device;
 
-			m_BufferViews.Fill(.Null);
+			m_BufferViews.SetAll(.Null);
 			m_TextureDesc = .();
 		}
 
